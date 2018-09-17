@@ -1,0 +1,22 @@
+
+
+GANN:
+dims = dimentions. first the input, then the hidden layers(s), then the output layer. f.eks, [768, 16, 16, 10]
+lrate = learning rate
+cman = caseman
+mbs = minibatch size
+softmax = True or False according to if you want to softmax your results
+
+
+Caseman:
+cfunc = case generator. Case = [input-vector, target-vector]
+A ML "case" is a vector with two elements: the input vector and the output (target) vector.  These are the
+high-level functions that should get called from ML code.  They invoke the supporting functions above.
+
+vfrac = validation fraction
+tfrac = test fraction
+
+Misc:
+epoch: an epoch is one complete presentation of the data set to be learned to a learning machine.
+bestk=1: if classification and targets are one-hot vectors. Uses gen_match_counter error function. 
+bestk=None : the standard MSE error function is used for testing.
