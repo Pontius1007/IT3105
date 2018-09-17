@@ -1,0 +1,46 @@
+{
+  "dimensions": {
+    "input": 15,
+    "hidden_layer_one": 45,
+    "output": 16
+  },
+  "hidden_activation_function": {
+    "name": "relu"
+  },
+  "output_activation_function": {
+    "name": "softmax"
+  },
+  "cost_function": {
+    "name": "mse"
+  },
+  "learning_rate": {
+    "value": 0.1
+  },
+  "ini_weight_range": {
+    "lower_bound": 1,
+    "upper_bound": 10
+  },
+  "optimizer": {
+    "name": "RMSprop"
+  },
+  "data_source": {
+    "file_path": "test.txt",
+    "function_name": "gen_vector_count_cases",
+    "args": [
+      10,
+      10
+    ]
+  },
+  "case_fraction": {
+  "ratio": 1.0
+  },
+  "validation_fraction": {
+    "ratio": 0.1
+  },
+  "validation_interval": {
+    "ratio": 0.1
+  }
+
+
+
+}
