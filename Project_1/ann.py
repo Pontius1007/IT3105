@@ -3,6 +3,7 @@ import numpy as np
 import math
 import matplotlib.pyplot as PLT
 import tflowtools as TFT
+import json
 
 
 # ******* A General Artificial Neural Network ********
@@ -327,3 +328,46 @@ def countex(epochs=5000, nbits=15, ncases=500, lrate=0.5, showint=500, mbs=20, v
     ann.run(epochs, bestk=bestk)
     TFT.fireup_tensorboard('probeview')
     return ann
+
+
+def example_countex(dims, epochs=5000, ncases=500, lrate=0.5, showint=500, mbs=20, vfrac=0.1, tfrac=0.1, vint=200, sm=True,
+            bestk=1):
+    nbits_placeholder = 15
+
+    case_generator = (lambda: TFT.gen_vector_count_cases(ncases, nbits_placeholder))
+    cman = Caseman(cfunc=case_generator, vfrac=vfrac, tfrac=tfrac)
+    ann = Gann(dims, cman=cman, lrate=lrate, showint=showint, mbs=mbs, vint=vint,
+               softmax=sm)
+    ann.run(epochs, bestk=bestk)
+    TFT.fireup_tensorboard('probeview')
+    return ann
+
+
+# Main function for taking in the user variables
+def main():
+    # Check the Cheatsheet for a description of the different variables.
+    dims = []
+
+    # filename = str(input("Please enter the filename from where we will we loading settings. Example: test.json "))
+    filename = "variables.json"
+    with open(filename) as f:
+        data = json.load(f)
+    for key, value in data["dimensions"].items():
+        dims.append(value)
+
+    h_activation_function = data["hidden_activation_function"]["name"]
+    o_activation_function = data["output_activation_function"]["name"]
+    cost_function = data["cost_function"]["name"]
+    lrate = float(data["learning_rate"]["value"])
+    ini_lower_bound = int(data["ini_weight_range"]["lower_bound"])
+    ini_upper_bound = int(data["ini_weight_range"]["upper_bound"])
+    optimizer = data["optimizer"]["name"]
+    # TODO Create logic for running the desired function with arguments. Need to look into best practice
+    cfraction = float(data["case_fraction"]["ratio"])
+
+    print(dims, h_activation_function, o_activation_function, cost_function, ini_lower_bound, ini_upper_bound, lrate,
+          optimizer, cfraction)
+
+
+if __name__ == "__main__":
+    main()
