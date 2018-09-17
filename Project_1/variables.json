@@ -39,8 +39,26 @@
   },
   "validation_interval": {
     "ratio": 0.1
-  }
-
-
-
+  },
+  "test_fraction": {
+    "ratio": 0.1
+  },
+  "minibatch_size": {
+    "number_of_training_cases": 100
+  },
+  "map_batch_size": {
+    "map_test": 0
+  },
+  "map_layers": [
+    "Somerandomlayer"
+  ],
+  "map_dendrogram": [
+    "nameofarandomlayer"
+  ],
+  "display_weights": [
+    "listofweightarray"
+  ],
+  "display_biases": [
+    "listofbiasvectors"
+  ]
 }
