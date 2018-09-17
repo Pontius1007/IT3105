@@ -1,3 +1,23 @@
+Parameters:
+1) Network Dimension - Gann.dims, format example = [768, 16, 16, 10]
+2) Hidden Activation Function - tf.nn.activation_function, example: relu, sigmoid, tanh, etc
+3) Output Activation Function - Gann.softmax = either True or False, or tf.nn.softmax 
+4) Cost Function - self.error = tf.reduce_mean or tf.nn.softmax_cross_entropy_with_logits_v2 !! unsure about this
+5) Learning Rate - Gann.lrate usually set to like 0.01 or 0.1 or some shit LOL LMAO
+6) Initial Weight Range - tf.Variable() inside either make random numbers from lower to upper bound, or "scaled" saying weights are calculated dynamically based on stuff
+7) Optimizer - tf.train.RMSProp/GradientDescent/Adagrad/etc
+8) Data Source - stuff
+9) Case Fraction - I think we have to implement this ourselves
+10) Validation Fraction - Caseman.vfrac
+11) Validation Interval - Gann.vint, number of training mbs between each validation test
+12) Test Fraction - Caseman.tfrac
+13) Minibtach Size - Gann.mbs
+14) Map Batch Size - unsure if we have to implement this!!! number of training cases to be used for map test, where 0 is no test performed
+15) Steps - dunno if we have to implement!!! total # of minibatches to be run through during training
+16) Map Layers - dunno about this either fml!!! but it's the layers to be visualized during map test
+17) Map Dendograms - list of the layers whose activation pattenrs will be used to produce dendograms, one per specified layer
+18) Display Weights - list of weight arrays to ve visualized at end of run
+19) DIsplay Biases - list of the bias vectors to be visualized at the end of the run
 
 
 GANN:
