@@ -72,5 +72,8 @@
   },
   "softmax_output": {
     "bool": "true"
+  },
+  "bestk": {
+    "bool": "true"
   }
 }

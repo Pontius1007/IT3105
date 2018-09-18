@@ -348,6 +348,7 @@ def main():
     # Check the Cheatsheet for a description of the different variables.
     dims = []
     sm = False
+    bestk = None
 
     # filename = str(input("Please enter the filename from where we will we loading settings. Example: test.json "))
     filename = "variables.json"
@@ -375,10 +376,12 @@ def main():
 
     if str(data["softmax_output"]["bool"].lower()) == "true":
         sm = True
+    if str(data["bestk"]["bool"].lower()) == "true":
+        bestk = 1
 
     #example_countex(dims, epochs, ncases, lrate, showint, mbs, vfrac, tfrac, vint, sm)
 
-    print(dims, epochs, ncases, lrate, showint, mbs, vfrac, tfrac, vint, sm)
+    print(dims, epochs, ncases, lrate, showint, mbs, vfrac, tfrac, vint, sm, bestk)
 
 
 if __name__ == "__main__":
