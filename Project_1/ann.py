@@ -11,8 +11,7 @@ import json
 
 
 class Gann:
-
-    def __init__(self, dims, h_activation_function, optimizer, cman, lrate=.1, showint=None, mbs=10, vint=None, softmax=False):
+    def __init__(self, dims, h_activation_function, optimizer, lower, upper, cman, lrate=.1, showint=None, mbs=10, vint=None, softmax=False, cost_function="MSE"):
         self.learning_rate = lrate
         self.layer_sizes = dims  # Sizes of each layer of neurons
         self.show_interval = showint  # Frequency of showing grabbed variables
@@ -21,12 +20,15 @@ class Gann:
         self.grabvar_figures = []  # One matplotlib figure for each grabvar
         self.optimizer = optimizer
         self.hidden_activation_function = h_activation_function
+        self.lower = lower
+        self.upper = upper
         self.minibatch_size = mbs
         self.validation_interval = vint
         self.validation_history = []
         self.caseman = cman
         self.softmax_outputs = softmax
         self.modules = []
+        self.cost_function = cost_function
         self.build()
 
     # Probed variables are to be displayed in the Tensorboard.
@@ -53,20 +55,23 @@ class Gann:
         insize = num_inputs
         # Build all of the modules
         for i, outsize in enumerate(self.layer_sizes[1:]):
-            gmod = Gannmodule(self, self.hidden_activation_function, i, invar, insize, outsize)
+            gmod = Gannmodule(self, self.hidden_activation_function, i, invar, insize, outsize, self.upper, self.lower)
             invar = gmod.output
             insize = gmod.outsize
         self.output = gmod.output  # Output of last module is output of whole network
         if self.softmax_outputs: self.output = tf.nn.softmax(self.output)
         self.target = tf.placeholder(tf.float64, shape=(None, gmod.outsize), name='Target')
-        self.configure_learning()
+        self.configure_learning(self.cost_function)
 
     # The optimizer knows to gather up all "trainable" variables in the function graph and compute
     # derivatives of the error function with respect to each component of each variable, i.e. each weight
     # of the weight array.
 
-    def configure_learning(self):
-        self.error = tf.reduce_mean(tf.square(self.target - self.output), name='MSE')
+    def configure_learning(self, cost_function):
+        if cost_function == "CE".lower():
+            self.error = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(logits=self.output, labels=self.target), name='Cross-Entroypy')
+        else:
+            self.error = tf.reduce_mean(tf.square(self.target - self.output), name='MSE')
         self.predictor = self.output  # Simple prediction runs will request the value of output neurons
         # Defining the training operator
         # Basic gradient descent is the default
@@ -239,21 +244,21 @@ class Gann:
 # A general ann module = a layer of neurons (the output) plus its incoming weights and biases.
 class Gannmodule:
 
-    def __init__(self, ann, h_activation_function, index, invariable, insize, outsize):
+    def __init__(self, ann, h_activation_function, index, invariable, insize, outsize, lower, upper):
         self.ann = ann
         self.insize = insize  # Number of neurons feeding into this module
         self.outsize = outsize  # Number of neurons in this module
         self.input = invariable  # Either the gann's input variable or the upstream module's output
         self.index = index
         self.name = "Module-" + str(self.index)
-        self.build(h_activation_function)
+        self.build(h_activation_function, lower, upper)
 
-    def build(self, h_activation_function):
+    def build(self, h_activation_function, lower, upper):
         mona = self.name
         n = self.outsize
-        self.weights = tf.Variable(np.random.uniform(-.1, .1, size=(self.insize, n)),
+        self.weights = tf.Variable(np.random.uniform(lower, upper, size=(self.insize, n)),
                                    name=mona + '-wgt', trainable=True)  # True = default for trainable anyway
-        self.biases = tf.Variable(np.random.uniform(-.1, .1, size=n),
+        self.biases = tf.Variable(np.random.uniform(lower, upper, size=n),
                                   name=mona + '-bias', trainable=True)  # First bias vector
         if h_activation_function == "relu6":
             self.output = tf.nn.relu6(tf.matmul(self.input, self.weights) + self.biases, name=mona + '-out')
@@ -336,41 +341,44 @@ class Caseman():
 
 # After running this, open a Tensorboard (Go to localhost:6006 in your Chrome Browser) and check the
 # 'scalar', 'distribution' and 'histogram' menu options to view the probed variables.
-def autoex(epochs=300, nbits=4, lrate=0.03, showint=100, mbs=None, vfrac=0.1, tfrac=0.1, vint=100, sm=False,
-           bestk=None):
-    size = 2 ** nbits
-    mbs = mbs if mbs else size
-    case_generator = (lambda: TFT.gen_all_one_hot_cases(2 ** nbits))
-    cman = Caseman(cfunc=case_generator, vfrac=vfrac, tfrac=tfrac)
-    ann = Gann(dims=[size, nbits, size], cman=cman, lrate=lrate, showint=showint, mbs=mbs, vint=vint, softmax=sm)
-    ann.gen_probe(0, 'wgt', ('hist', 'avg'))  # Plot a histogram and avg of the incoming weights to module 0.
-    ann.gen_probe(1, 'out', ('avg', 'max'))  # Plot average and max value of module 1's output vector
-    ann.add_grabvar(0, 'wgt')  # Add a grabvar (to be displayed in its own matplotlib window).
-    ann.run(epochs, bestk=bestk)
-    ann.runmore(epochs * 2, bestk=bestk)
-    TFT.fireup_tensorboard('probeview')
-    return ann
+
+# def autoex(epochs=300, nbits=4, lrate=0.03, showint=100, mbs=None, vfrac=0.1, tfrac=0.1, vint=100, sm=False,
+#            bestk=None):
+#     size = 2 ** nbits
+#     mbs = mbs if mbs else size
+#     case_generator = (lambda: TFT.gen_all_one_hot_cases(2 ** nbits))
+#     cman = Caseman(cfunc=case_generator, vfrac=vfrac, tfrac=tfrac)
+#     ann = Gann(dims=[size, nbits, size], cman=cman, lrate=lrate, showint=showint, mbs=mbs, vint=vint, softmax=sm)
+#     ann.gen_probe(0, 'wgt', ('hist', 'avg'))  # Plot a histogram and avg of the incoming weights to module 0.
+#     ann.gen_probe(1, 'out', ('avg', 'max'))  # Plot average and max value of module 1's output vector
+#     ann.add_grabvar(0, 'wgt')  # Add a grabvar (to be displayed in its own matplotlib window).
+#     ann.run(epochs, bestk=bestk)
+#     ann.runmore(epochs * 2, bestk=bestk)
+#     TFT.fireup_tensorboard('probeview')
+#     return ann
 
 
-def countex(epochs=5000, nbits=15, ncases=500, lrate=0.5, showint=500, mbs=20, vfrac=0.1, tfrac=0.1, vint=200, sm=True,
-            bestk=1):
-    case_generator = (lambda: TFT.gen_vector_count_cases(ncases, nbits))
-    cman = Caseman(cfunc=case_generator, vfrac=vfrac, tfrac=tfrac)
-    ann = Gann(dims=[nbits, nbits * 3, nbits + 1], cman=cman, lrate=lrate, showint=showint, mbs=mbs, vint=vint,
-               softmax=sm)
-    ann.run(epochs, bestk=bestk)
-    TFT.fireup_tensorboard('probeview')
-    return ann
+# def countex(epochs=5000, nbits=15, ncases=500, lrate=0.5, showint=500, mbs=20, vfrac=0.1, tfrac=0.1, vint=200, sm=True,
+#             bestk=1):
+#     case_generator = (lambda: TFT.gen_vector_count_cases(ncases, nbits))
+#     cman = Caseman(cfunc=case_generator, vfrac=vfrac, tfrac=tfrac)
+#     ann = Gann(dims=[nbits, nbits * 3, nbits + 1], cman=cman, lrate=lrate, showint=showint, mbs=mbs, vint=vint,
+#                softmax=sm)
+#     ann.run(epochs, bestk=bestk)
+#     TFT.fireup_tensorboard('probeview')
+#     return ann
 
 
-def example_countex(dims, h_activation_function, optimizer, epochs, ncases, lrate, showint, mbs, vfrac, tfrac, vint, sm,
-                    bestk):
+def example_countex(dims, h_activation_function, optimizer, lower, upper, epochs, ncases, lrate, showint, mbs, vfrac, tfrac, vint, sm,
+                    bestk, cost_function):
     nbits_placeholder = 15
 
     case_generator = (lambda: TFT.gen_vector_count_cases(ncases, nbits_placeholder))
     cman = Caseman(cfunc=case_generator, vfrac=vfrac, tfrac=tfrac)
-    ann = Gann(dims, h_activation_function, optimizer, cman=cman, lrate=lrate, showint=showint, mbs=mbs, vint=vint,
-               softmax=sm)
+
+
+    ann = Gann(dims, h_activation_function, optimizer, lower, upper, cman=cman, lrate=lrate, showint=showint, mbs=mbs, vint=vint,
+               softmax=sm, cost_function=cost_function)
     ann.run(epochs, bestk=bestk)
     TFT.fireup_tensorboard('probeview')
     return ann
@@ -381,7 +389,8 @@ def main():
     # Check the Cheatsheet for a description of the different variables.
     dims = []
     sm = False
-    bestk = None
+    bestk = 0
+    
 
     # filename = str(input("Please enter the filename from where we will we loading settings. Example: test.json "))
     # TODO Support a real working file path. Can not be called from a different folder atm
@@ -392,12 +401,12 @@ def main():
         dims.append(value)
 
     h_activation_function = data["hidden_activation_function"]["name"]
-    o_activation_function = data["output_activation_function"]["name"]
+    o_activation_function = data["output_activation_function"]["softmax"]
     cost_function = data["cost_function"]["name"]
     lrate = float(data["learning_rate"]["value"])
-    ini_lower_bound = int(data["ini_weight_range"]["lower_bound"])
-    ini_upper_bound = int(data["ini_weight_range"]["upper_bound"])
-    optimizer = data["optimizer"]["name"].lower()
+    lower = float(data["ini_weight_range"]["lower_bound"])
+    upper = float(data["ini_weight_range"]["upper_bound"])
+    optimizer = data["optimizer"]["name"]
     # TODO Create logic for running the desired function with arguments. Need to look into best practice
     cfraction = float(data["case_fraction"]["ratio"])
     epochs = int(data["epochs"]["number"])
@@ -408,16 +417,16 @@ def main():
     tfrac = float(data["test_fraction"]["ratio"])
     vint = int(data["validation_interval"]["number"])
 
-    if str(data["softmax_output"]["bool"].lower()) == "true":
+    if str(o_activation_function.lower()) == "true":
         sm = True
     if str(data["bestk"]["bool"].lower()) == "true":
         bestk = 1
 
-    example_countex(dims, h_activation_function, optimizer, epochs, ncases, lrate, showint, mbs, vfrac, tfrac, vint, sm, bestk)
+
+    example_countex(dims, h_activation_function, optimizer, lower, upper, epochs, ncases, lrate, showint, mbs, vfrac, tfrac, vint, sm, bestk, cost_function)
     #countex()
 
     #print(dims, epochs, ncases, lrate, showint, mbs, vfrac, tfrac, vint, sm, bestk)
-
 
 if __name__ == "__main__":
     main()
