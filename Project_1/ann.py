@@ -331,7 +331,7 @@ def countex(epochs=5000, nbits=15, ncases=500, lrate=0.5, showint=500, mbs=20, v
 
 
 def example_countex(dims, epochs, ncases, lrate, showint, mbs, vfrac, tfrac, vint, sm,
-                    bestk=1):
+                    bestk):
     nbits_placeholder = 15
 
     case_generator = (lambda: TFT.gen_vector_count_cases(ncases, nbits_placeholder))
