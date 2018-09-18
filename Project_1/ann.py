@@ -12,13 +12,14 @@ import json
 
 class Gann:
 
-    def __init__(self, dims, h_activation_function, cman, lrate=.1, showint=None, mbs=10, vint=None, softmax=False):
+    def __init__(self, dims, h_activation_function, optimizer, cman, lrate=.1, showint=None, mbs=10, vint=None, softmax=False):
         self.learning_rate = lrate
         self.layer_sizes = dims  # Sizes of each layer of neurons
         self.show_interval = showint  # Frequency of showing grabbed variables
         self.global_training_step = 0  # Enables coherent data-storage during extra training runs (see runmore).
         self.grabvars = []  # Variables to be monitored (by gann code) during a run.
         self.grabvar_figures = []  # One matplotlib figure for each grabvar
+        self.optimizer = optimizer
         self.hidden_activation_function = h_activation_function
         self.minibatch_size = mbs
         self.validation_interval = vint
@@ -68,7 +69,17 @@ class Gann:
         self.error = tf.reduce_mean(tf.square(self.target - self.output), name='MSE')
         self.predictor = self.output  # Simple prediction runs will request the value of output neurons
         # Defining the training operator
-        optimizer = tf.train.GradientDescentOptimizer(self.learning_rate)
+        # Basic gradient descent is the default
+        if self.optimizer == "rmsprop":
+            optimizer = tf.train.RMSPropOptimizer(self.learning_rate)
+        elif self.optimizer == "adagrad":
+            print(self.optimizer)
+            optimizer = tf.train.AdagradOptimizer(self.learning_rate)
+        elif self.optimizer == "adam":
+            optimizer = tf.train.AdamOptimizer(self.learning_rate)
+        else:
+            print("You have chosen BGD as optimizer")
+            optimizer = tf.train.GradientDescentOptimizer(self.learning_rate)
         self.trainer = optimizer.minimize(self.error, name='Backprop')
 
     def do_training(self, sess, cases, epochs=100, continued=False):
@@ -352,13 +363,13 @@ def countex(epochs=5000, nbits=15, ncases=500, lrate=0.5, showint=500, mbs=20, v
     return ann
 
 
-def example_countex(dims, h_activation_function, epochs, ncases, lrate, showint, mbs, vfrac, tfrac, vint, sm,
+def example_countex(dims, h_activation_function, optimizer, epochs, ncases, lrate, showint, mbs, vfrac, tfrac, vint, sm,
                     bestk):
     nbits_placeholder = 15
 
     case_generator = (lambda: TFT.gen_vector_count_cases(ncases, nbits_placeholder))
     cman = Caseman(cfunc=case_generator, vfrac=vfrac, tfrac=tfrac)
-    ann = Gann(dims, h_activation_function, cman=cman, lrate=lrate, showint=showint, mbs=mbs, vint=vint,
+    ann = Gann(dims, h_activation_function, optimizer, cman=cman, lrate=lrate, showint=showint, mbs=mbs, vint=vint,
                softmax=sm)
     ann.run(epochs, bestk=bestk)
     TFT.fireup_tensorboard('probeview')
@@ -386,7 +397,7 @@ def main():
     lrate = float(data["learning_rate"]["value"])
     ini_lower_bound = int(data["ini_weight_range"]["lower_bound"])
     ini_upper_bound = int(data["ini_weight_range"]["upper_bound"])
-    optimizer = data["optimizer"]["name"]
+    optimizer = data["optimizer"]["name"].lower()
     # TODO Create logic for running the desired function with arguments. Need to look into best practice
     cfraction = float(data["case_fraction"]["ratio"])
     epochs = int(data["epochs"]["number"])
@@ -402,7 +413,7 @@ def main():
     if str(data["bestk"]["bool"].lower()) == "true":
         bestk = 1
 
-    example_countex(dims, h_activation_function, epochs, ncases, lrate, showint, mbs, vfrac, tfrac, vint, sm, bestk)
+    example_countex(dims, h_activation_function, optimizer, epochs, ncases, lrate, showint, mbs, vfrac, tfrac, vint, sm, bestk)
     #countex()
 
     #print(dims, epochs, ncases, lrate, showint, mbs, vfrac, tfrac, vint, sm, bestk)
