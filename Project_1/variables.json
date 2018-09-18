@@ -1,0 +1,79 @@
+{
+  "dimensions": {
+    "input": 15,
+    "hidden_layer_one": 45,
+    "output": 16
+  },
+  "hidden_activation_function": {
+    "name": "relu"
+  },
+  "output_activation_function": {
+    "name": "softmax"
+  },
+  "cost_function": {
+    "name": "mse"
+  },
+  "learning_rate": {
+    "value": 0.1
+  },
+  "ini_weight_range": {
+    "lower_bound": 1,
+    "upper_bound": 10
+  },
+  "optimizer": {
+    "name": "RMSprop"
+  },
+  "data_source": {
+    "file_path": "test.txt",
+    "function_name": "gen_vector_count_cases",
+    "args": [
+      10,
+      10
+    ]
+  },
+  "case_fraction": {
+  "ratio": 1.0
+  },
+  "validation_fraction": {
+    "ratio": 0.1
+  },
+  "validation_interval": {
+    "number": 200
+  },
+  "test_fraction": {
+    "ratio": 0.1
+  },
+  "minibatch_size": {
+    "number_of_training_cases": 100
+  },
+  "map_batch_size": {
+    "map_test": 0
+  },
+  "map_layers": [
+    "Somerandomlayer"
+  ],
+  "map_dendrogram": [
+    "nameofarandomlayer"
+  ],
+  "display_weights": [
+    "listofweightarray"
+  ],
+  "display_biases": [
+    "listofbiasvectors"
+  ],
+  "epochs": {
+    "number": 1000
+  },
+  "grabbed_variables": {
+    "show_freq": 500
+  },
+  "num_gen_training_case": {
+    "amount": 500
+  },
+  "softmax_output": {
+    "bool": "true"
+  },
+  "bestk": {
+    "bool": "true"
+  }
+}

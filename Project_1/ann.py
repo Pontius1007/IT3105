@@ -3,6 +3,7 @@ import numpy as np
 import math
 import matplotlib.pyplot as PLT
 import tflowtools as TFT
+import json
 
 
 # ******* A General Artificial Neural Network ********
@@ -72,7 +73,7 @@ class Gann:
     def do_training(self, sess, cases, epochs=100, continued=False):
         if not (continued): self.error_history = []
         for i in range(epochs):
-            error = 0;
+            error = 0
             step = self.global_training_step + i
             gvars = [self.error] + self.grabvars
             mbs = self.minibatch_size
@@ -327,3 +328,61 @@ def countex(epochs=5000, nbits=15, ncases=500, lrate=0.5, showint=500, mbs=20, v
     ann.run(epochs, bestk=bestk)
     TFT.fireup_tensorboard('probeview')
     return ann
+
+
+def example_countex(dims, epochs, ncases, lrate, showint, mbs, vfrac, tfrac, vint, sm,
+                    bestk):
+    nbits_placeholder = 15
+
+    case_generator = (lambda: TFT.gen_vector_count_cases(ncases, nbits_placeholder))
+    cman = Caseman(cfunc=case_generator, vfrac=vfrac, tfrac=tfrac)
+    ann = Gann(dims, cman=cman, lrate=lrate, showint=showint, mbs=mbs, vint=vint,
+               softmax=sm)
+    ann.run(epochs, bestk=bestk)
+    TFT.fireup_tensorboard('probeview')
+    return ann
+
+
+# Main function for taking in the user variables
+def main():
+    # Check the Cheatsheet for a description of the different variables.
+    dims = []
+    sm = False
+    bestk = None
+
+    # filename = str(input("Please enter the filename from where we will we loading settings. Example: test.json "))
+    filename = "variables.json"
+    with open(filename) as f:
+        data = json.load(f)
+    for key, value in data["dimensions"].items():
+        dims.append(value)
+
+    h_activation_function = data["hidden_activation_function"]["name"]
+    o_activation_function = data["output_activation_function"]["name"]
+    cost_function = data["cost_function"]["name"]
+    lrate = float(data["learning_rate"]["value"])
+    ini_lower_bound = int(data["ini_weight_range"]["lower_bound"])
+    ini_upper_bound = int(data["ini_weight_range"]["upper_bound"])
+    optimizer = data["optimizer"]["name"]
+    # TODO Create logic for running the desired function with arguments. Need to look into best practice
+    cfraction = float(data["case_fraction"]["ratio"])
+    epochs = int(data["epochs"]["number"])
+    mbs = int(data["minibatch_size"]["number_of_training_cases"])
+    showint = int(data["grabbed_variables"]["show_freq"])
+    ncases = int(data["num_gen_training_case"]["amount"])
+    vfrac = float(data["validation_fraction"]["ratio"])
+    tfrac = float(data["test_fraction"]["ratio"])
+    vint = int(data["validation_interval"]["number"])
+
+    if str(data["softmax_output"]["bool"].lower()) == "true":
+        sm = True
+    if str(data["bestk"]["bool"].lower()) == "true":
+        bestk = 1
+
+    #example_countex(dims, epochs, ncases, lrate, showint, mbs, vfrac, tfrac, vint, sm)
+
+    print(dims, epochs, ncases, lrate, showint, mbs, vfrac, tfrac, vint, sm, bestk)
+
+
+if __name__ == "__main__":
+    main()
