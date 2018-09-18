@@ -394,8 +394,8 @@ def main():
     o_activation_function = data["output_activation_function"]["softmax"]
     cost_function = data["cost_function"]["name"]
     lrate = float(data["learning_rate"]["value"])
-    lower = int(data["ini_weight_range"]["lower_bound"])
-    upper = int(data["ini_weight_range"]["upper_bound"])
+    lower = float(data["ini_weight_range"]["lower_bound"])
+    upper = float(data["ini_weight_range"]["upper_bound"])
     optimizer = data["optimizer"]["name"]
     # TODO Create logic for running the desired function with arguments. Need to look into best practice
     cfraction = float(data["case_fraction"]["ratio"])
