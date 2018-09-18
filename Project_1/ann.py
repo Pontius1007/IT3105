@@ -330,8 +330,8 @@ def countex(epochs=5000, nbits=15, ncases=500, lrate=0.5, showint=500, mbs=20, v
     return ann
 
 
-def example_countex(dims, epochs=5000, ncases=500, lrate=0.5, showint=500, mbs=20, vfrac=0.1, tfrac=0.1, vint=200, sm=True,
-            bestk=1):
+def example_countex(dims, epochs, ncases, lrate, showint, mbs, vfrac, tfrac, vint, sm,
+                    bestk=1):
     nbits_placeholder = 15
 
     case_generator = (lambda: TFT.gen_vector_count_cases(ncases, nbits_placeholder))
@@ -347,6 +347,7 @@ def example_countex(dims, epochs=5000, ncases=500, lrate=0.5, showint=500, mbs=2
 def main():
     # Check the Cheatsheet for a description of the different variables.
     dims = []
+    sm = False
 
     # filename = str(input("Please enter the filename from where we will we loading settings. Example: test.json "))
     filename = "variables.json"
@@ -364,9 +365,20 @@ def main():
     optimizer = data["optimizer"]["name"]
     # TODO Create logic for running the desired function with arguments. Need to look into best practice
     cfraction = float(data["case_fraction"]["ratio"])
+    epochs = int(data["epochs"]["number"])
+    mbs = int(data["minibatch_size"]["number_of_training_cases"])
+    showint = int(data["grabbed_variables"]["show_freq"])
+    ncases = int(data["num_gen_training_case"]["amount"])
+    vfrac = float(data["validation_fraction"]["ratio"])
+    tfrac = float(data["test_fraction"]["ratio"])
+    vint = int(data["validation_interval"]["number"])
 
-    print(dims, h_activation_function, o_activation_function, cost_function, ini_lower_bound, ini_upper_bound, lrate,
-          optimizer, cfraction)
+    if str(data["softmax_output"]["bool"].lower()) == "true":
+        sm = True
+
+    #example_countex(dims, epochs, ncases, lrate, showint, mbs, vfrac, tfrac, vint, sm)
+
+    print(dims, epochs, ncases, lrate, showint, mbs, vfrac, tfrac, vint, sm)
 
 
 if __name__ == "__main__":
