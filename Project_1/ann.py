@@ -12,7 +12,7 @@ import json
 
 class Gann:
 
-    def __init__(self, dims, cman, lrate=.1, showint=None, mbs=10, vint=None, softmax=False):
+    def __init__(self, dims, cman, lrate=.1, showint=None, mbs=10, vint=None, softmax=False, cost_function="MSE"):
         self.learning_rate = lrate
         self.layer_sizes = dims  # Sizes of each layer of neurons
         self.show_interval = showint  # Frequency of showing grabbed variables
@@ -25,6 +25,7 @@ class Gann:
         self.caseman = cman
         self.softmax_outputs = softmax
         self.modules = []
+        self.cost_function = cost_function
         self.build()
 
     # Probed variables are to be displayed in the Tensorboard.
@@ -57,14 +58,17 @@ class Gann:
         self.output = gmod.output  # Output of last module is output of whole network
         if self.softmax_outputs: self.output = tf.nn.softmax(self.output)
         self.target = tf.placeholder(tf.float64, shape=(None, gmod.outsize), name='Target')
-        self.configure_learning()
+        self.configure_learning(self.cost_function)
 
     # The optimizer knows to gather up all "trainable" variables in the function graph and compute
     # derivatives of the error function with respect to each component of each variable, i.e. each weight
     # of the weight array.
 
-    def configure_learning(self):
-        self.error = tf.reduce_mean(tf.square(self.target - self.output), name='MSE')
+    def configure_learning(self, cost_function):
+        if cost_function == "CE":
+            self.error = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(logits=self.output, labels=self.target), name='Cross-Entroypy')
+        else:
+            self.error = tf.reduce_mean(tf.square(self.target - self.output), name='MSE')
         self.predictor = self.output  # Simple prediction runs will request the value of output neurons
         # Defining the training operator
         optimizer = tf.train.GradientDescentOptimizer(self.learning_rate)
@@ -331,13 +335,13 @@ def countex(epochs=5000, nbits=15, ncases=500, lrate=0.5, showint=500, mbs=20, v
 
 
 def example_countex(dims, epochs, ncases, lrate, showint, mbs, vfrac, tfrac, vint, sm,
-                    bestk):
+                    bestk, cost_function):
     nbits_placeholder = 15
 
     case_generator = (lambda: TFT.gen_vector_count_cases(ncases, nbits_placeholder))
     cman = Caseman(cfunc=case_generator, vfrac=vfrac, tfrac=tfrac)
     ann = Gann(dims, cman=cman, lrate=lrate, showint=showint, mbs=mbs, vint=vint,
-               softmax=sm)
+               softmax=sm, cost_function=cost_function)
     ann.run(epochs, bestk=bestk)
     TFT.fireup_tensorboard('probeview')
     return ann
@@ -348,7 +352,8 @@ def main():
     # Check the Cheatsheet for a description of the different variables.
     dims = []
     sm = False
-    bestk = None
+    bestk = 0
+    
 
     # filename = str(input("Please enter the filename from where we will we loading settings. Example: test.json "))
     filename = "variables.json"
@@ -358,7 +363,7 @@ def main():
         dims.append(value)
 
     h_activation_function = data["hidden_activation_function"]["name"]
-    o_activation_function = data["output_activation_function"]["name"]
+    o_activation_function = data["output_activation_function"]["softmax"]
     cost_function = data["cost_function"]["name"]
     lrate = float(data["learning_rate"]["value"])
     ini_lower_bound = int(data["ini_weight_range"]["lower_bound"])
@@ -374,14 +379,15 @@ def main():
     tfrac = float(data["test_fraction"]["ratio"])
     vint = int(data["validation_interval"]["number"])
 
-    if str(data["softmax_output"]["bool"].lower()) == "true":
+    if str(o_activation_function.lower()) == "true":
         sm = True
     if str(data["bestk"]["bool"].lower()) == "true":
         bestk = 1
 
-    #example_countex(dims, epochs, ncases, lrate, showint, mbs, vfrac, tfrac, vint, sm)
+    example_countex(dims, epochs, ncases, lrate, showint, mbs, vfrac, tfrac, vint, sm, bestk, cost_function)
 
-    print(dims, epochs, ncases, lrate, showint, mbs, vfrac, tfrac, vint, sm, bestk)
+    print("here comes some stuff")
+    print(dims, epochs, ncases, lrate, showint, mbs, vfrac, tfrac, vint, sm, bestk, cost_function)
 
 
 if __name__ == "__main__":
