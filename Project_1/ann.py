@@ -11,15 +11,14 @@ import json
 
 
 class Gann:
-
-
-    def __init__(self, dims, h_activation_function, lower, upper, cman, lrate=.1, showint=None, mbs=10, vint=None, softmax=False, cost_function="MSE"):
+    def __init__(self, dims, h_activation_function, optimizer, lower, upper, cman, lrate=.1, showint=None, mbs=10, vint=None, softmax=False, cost_function="MSE"):
         self.learning_rate = lrate
         self.layer_sizes = dims  # Sizes of each layer of neurons
         self.show_interval = showint  # Frequency of showing grabbed variables
         self.global_training_step = 0  # Enables coherent data-storage during extra training runs (see runmore).
         self.grabvars = []  # Variables to be monitored (by gann code) during a run.
         self.grabvar_figures = []  # One matplotlib figure for each grabvar
+        self.optimizer = optimizer
         self.hidden_activation_function = h_activation_function
         self.lower = lower
         self.upper = upper
@@ -75,7 +74,17 @@ class Gann:
             self.error = tf.reduce_mean(tf.square(self.target - self.output), name='MSE')
         self.predictor = self.output  # Simple prediction runs will request the value of output neurons
         # Defining the training operator
-        optimizer = tf.train.GradientDescentOptimizer(self.learning_rate)
+        # Basic gradient descent is the default
+        if self.optimizer == "rmsprop":
+            optimizer = tf.train.RMSPropOptimizer(self.learning_rate)
+        elif self.optimizer == "adagrad":
+            print(self.optimizer)
+            optimizer = tf.train.AdagradOptimizer(self.learning_rate)
+        elif self.optimizer == "adam":
+            optimizer = tf.train.AdamOptimizer(self.learning_rate)
+        else:
+            print("You have chosen BGD as optimizer")
+            optimizer = tf.train.GradientDescentOptimizer(self.learning_rate)
         self.trainer = optimizer.minimize(self.error, name='Backprop')
 
     def do_training(self, sess, cases, epochs=100, continued=False):
@@ -332,13 +341,14 @@ class Caseman():
 
 # After running this, open a Tensorboard (Go to localhost:6006 in your Chrome Browser) and check the
 # 'scalar', 'distribution' and 'histogram' menu options to view the probed variables.
+
 # def autoex(epochs=300, nbits=4, lrate=0.03, showint=100, mbs=None, vfrac=0.1, tfrac=0.1, vint=100, sm=False,
-#            bestk=None, lower=-0.1, upper=0.1):
+#            bestk=None):
 #     size = 2 ** nbits
 #     mbs = mbs if mbs else size
 #     case_generator = (lambda: TFT.gen_all_one_hot_cases(2 ** nbits))
 #     cman = Caseman(cfunc=case_generator, vfrac=vfrac, tfrac=tfrac)
-#     ann = Gann(dims=[size, nbits, size], cman=cman, lrate=lrate, showint=showint, mbs=mbs, vint=vint, softmax=sm, lower, upper)
+#     ann = Gann(dims=[size, nbits, size], cman=cman, lrate=lrate, showint=showint, mbs=mbs, vint=vint, softmax=sm)
 #     ann.gen_probe(0, 'wgt', ('hist', 'avg'))  # Plot a histogram and avg of the incoming weights to module 0.
 #     ann.gen_probe(1, 'out', ('avg', 'max'))  # Plot average and max value of module 1's output vector
 #     ann.add_grabvar(0, 'wgt')  # Add a grabvar (to be displayed in its own matplotlib window).
@@ -359,15 +369,15 @@ class Caseman():
 #     return ann
 
 
-
-def example_countex(dims, h_activation_function, lower, upper, epochs, ncases, lrate, showint, mbs, vfrac, tfrac, vint, sm,
+def example_countex(dims, h_activation_function, optimizer, lower, upper, epochs, ncases, lrate, showint, mbs, vfrac, tfrac, vint, sm,
                     bestk, cost_function):
     nbits_placeholder = 15
 
     case_generator = (lambda: TFT.gen_vector_count_cases(ncases, nbits_placeholder))
     cman = Caseman(cfunc=case_generator, vfrac=vfrac, tfrac=tfrac)
 
-    ann = Gann(dims, h_activation_function, lower, upper, cman=cman, lrate=lrate, showint=showint, mbs=mbs, vint=vint,
+
+    ann = Gann(dims, h_activation_function, optimizer, lower, upper, cman=cman, lrate=lrate, showint=showint, mbs=mbs, vint=vint,
                softmax=sm, cost_function=cost_function)
     ann.run(epochs, bestk=bestk)
     TFT.fireup_tensorboard('probeview')
@@ -413,7 +423,7 @@ def main():
         bestk = 1
 
 
-    example_countex(dims, h_activation_function, lower, upper, epochs, ncases, lrate, showint, mbs, vfrac, tfrac, vint, sm, bestk, cost_function)
+    example_countex(dims, h_activation_function, optimizer, lower, upper, epochs, ncases, lrate, showint, mbs, vfrac, tfrac, vint, sm, bestk, cost_function)
     #countex()
 
     #print(dims, epochs, ncases, lrate, showint, mbs, vfrac, tfrac, vint, sm, bestk)
