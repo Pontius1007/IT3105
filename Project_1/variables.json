@@ -38,7 +38,7 @@
     "ratio": 0.1
   },
   "validation_interval": {
-    "ratio": 0.1
+    "number": 200
   },
   "test_fraction": {
     "ratio": 0.1
@@ -60,5 +60,17 @@
   ],
   "display_biases": [
     "listofbiasvectors"
-  ]
+  ],
+  "epochs": {
+    "number": 1000
+  },
+  "grabbed_variables": {
+    "show_freq": 500
+  },
+  "num_gen_training_case": {
+    "amount": 500
+  },
+  "softmax_output": {
+    "bool": "true"
+  }
 }
