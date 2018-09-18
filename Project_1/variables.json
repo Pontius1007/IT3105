@@ -8,7 +8,7 @@
     "name": "relu"
   },
   "output_activation_function": {
-    "name": "softmax"
+    "softmax": "True"
   },
   "cost_function": {
     "name": "mse"
@@ -69,9 +69,6 @@
   },
   "num_gen_training_case": {
     "amount": 500
-  },
-  "softmax_output": {
-    "bool": "true"
   },
   "bestk": {
     "bool": "true"
