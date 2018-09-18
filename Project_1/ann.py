@@ -12,13 +12,14 @@ import json
 
 class Gann:
 
-    def __init__(self, dims, cman, lrate=.1, showint=None, mbs=10, vint=None, softmax=False):
+    def __init__(self, dims, h_activation_function, cman, lrate=.1, showint=None, mbs=10, vint=None, softmax=False):
         self.learning_rate = lrate
         self.layer_sizes = dims  # Sizes of each layer of neurons
         self.show_interval = showint  # Frequency of showing grabbed variables
         self.global_training_step = 0  # Enables coherent data-storage during extra training runs (see runmore).
         self.grabvars = []  # Variables to be monitored (by gann code) during a run.
         self.grabvar_figures = []  # One matplotlib figure for each grabvar
+        self.hidden_activation_function = h_activation_function
         self.minibatch_size = mbs
         self.validation_interval = vint
         self.validation_history = []
@@ -51,7 +52,7 @@ class Gann:
         insize = num_inputs
         # Build all of the modules
         for i, outsize in enumerate(self.layer_sizes[1:]):
-            gmod = Gannmodule(self, i, invar, insize, outsize)
+            gmod = Gannmodule(self, self.hidden_activation_function, i, invar, insize, outsize)
             invar = gmod.output
             insize = gmod.outsize
         self.output = gmod.output  # Output of last module is output of whole network
@@ -227,23 +228,44 @@ class Gann:
 # A general ann module = a layer of neurons (the output) plus its incoming weights and biases.
 class Gannmodule:
 
-    def __init__(self, ann, index, invariable, insize, outsize):
+    def __init__(self, ann, h_activation_function, index, invariable, insize, outsize):
         self.ann = ann
         self.insize = insize  # Number of neurons feeding into this module
         self.outsize = outsize  # Number of neurons in this module
         self.input = invariable  # Either the gann's input variable or the upstream module's output
         self.index = index
         self.name = "Module-" + str(self.index)
-        self.build()
+        self.build(h_activation_function)
 
-    def build(self):
+    def build(self, h_activation_function):
         mona = self.name
         n = self.outsize
         self.weights = tf.Variable(np.random.uniform(-.1, .1, size=(self.insize, n)),
                                    name=mona + '-wgt', trainable=True)  # True = default for trainable anyway
         self.biases = tf.Variable(np.random.uniform(-.1, .1, size=n),
                                   name=mona + '-bias', trainable=True)  # First bias vector
-        self.output = tf.nn.relu(tf.matmul(self.input, self.weights) + self.biases, name=mona + '-out')
+        if h_activation_function == "relu6":
+            self.output = tf.nn.relu6(tf.matmul(self.input, self.weights) + self.biases, name=mona + '-out')
+        elif h_activation_function == "crelu":
+            self.output = tf.nn.crelu(tf.matmul(self.input, self.weights) + self.biases, name=mona + '-out')
+        elif h_activation_function == "elu":
+            self.output = tf.nn.elu(tf.matmul(self.input, self.weights) + self.biases, name=mona + '-out')
+        elif h_activation_function == "selu":
+            self.output = tf.nn.selu(tf.matmul(self.input, self.weights) + self.biases, name=mona + '-out')
+        elif h_activation_function == "softplus":
+            self.output = tf.nn.softplus(tf.matmul(self.input, self.weights) + self.biases, name=mona + '-out')
+        elif h_activation_function == "softsign":
+            self.output = tf.nn.softsign(tf.matmul(self.input, self.weights) + self.biases, name=mona + '-out')
+        elif h_activation_function == "dropout":
+            self.output = tf.nn.dropout(tf.matmul(self.input, self.weights) + self.biases, name=mona + '-out')
+        elif h_activation_function == "bias_add":
+            self.output = tf.nn.bias_add(tf.matmul(self.input, self.weights) + self.biases, name=mona + '-out')
+        elif h_activation_function == "sigmoid":
+            self.output = tf.nn.sigmoid(tf.matmul(self.input, self.weights) + self.biases, name=mona + '-out')
+        elif h_activation_function == "tanh":
+            self.output = tf.nn.tanh(tf.matmul(self.input, self.weights) + self.biases, name=mona + '-out')
+        else:
+            self.output = tf.nn.relu(tf.matmul(self.input, self.weights) + self.biases, name=mona + '-out')
         self.ann.add_module(self)
 
     def getvar(self, type):  # type = (in,out,wgt,bias)
@@ -330,13 +352,13 @@ def countex(epochs=5000, nbits=15, ncases=500, lrate=0.5, showint=500, mbs=20, v
     return ann
 
 
-def example_countex(dims, epochs, ncases, lrate, showint, mbs, vfrac, tfrac, vint, sm,
+def example_countex(dims, h_activation_function, epochs, ncases, lrate, showint, mbs, vfrac, tfrac, vint, sm,
                     bestk):
     nbits_placeholder = 15
 
     case_generator = (lambda: TFT.gen_vector_count_cases(ncases, nbits_placeholder))
     cman = Caseman(cfunc=case_generator, vfrac=vfrac, tfrac=tfrac)
-    ann = Gann(dims, cman=cman, lrate=lrate, showint=showint, mbs=mbs, vint=vint,
+    ann = Gann(dims, h_activation_function, cman=cman, lrate=lrate, showint=showint, mbs=mbs, vint=vint,
                softmax=sm)
     ann.run(epochs, bestk=bestk)
     TFT.fireup_tensorboard('probeview')
@@ -351,6 +373,7 @@ def main():
     bestk = None
 
     # filename = str(input("Please enter the filename from where we will we loading settings. Example: test.json "))
+    # TODO Support a real working file path. Can not be called from a different folder atm
     filename = "variables.json"
     with open(filename) as f:
         data = json.load(f)
@@ -379,9 +402,10 @@ def main():
     if str(data["bestk"]["bool"].lower()) == "true":
         bestk = 1
 
-    #example_countex(dims, epochs, ncases, lrate, showint, mbs, vfrac, tfrac, vint, sm)
+    example_countex(dims, h_activation_function, epochs, ncases, lrate, showint, mbs, vfrac, tfrac, vint, sm, bestk)
+    #countex()
 
-    print(dims, epochs, ncases, lrate, showint, mbs, vfrac, tfrac, vint, sm, bestk)
+    #print(dims, epochs, ncases, lrate, showint, mbs, vfrac, tfrac, vint, sm, bestk)
 
 
 if __name__ == "__main__":
