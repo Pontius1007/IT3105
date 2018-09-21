@@ -1,8 +1,8 @@
 {
   "dimensions": {
-    "input": 15,
+    "input": 784,
     "hidden_layer_one": 45,
-    "output": 16
+    "output": 1
   },
   "hidden_activation_function": {
     "name": "relu"

@@ -364,8 +364,9 @@ def example_countex(dims, h_activation_function, lower, upper, epochs, ncases, l
                     bestk, cost_function):
     nbits_placeholder = 15
 
-    case_generator = load_flat_text_cases('all_flat_mnist_training_cases_text.txt')
-    print("HERE COMES CASE GENERATOR")
+    # case_generator = load_flat_text_cases('all_flat_mnist_training_cases_text.txt', 0.01)
+    # print(load_flat_text_cases('all_flat_mnist_training_cases_text.txt', 0.001))
+    case_generator = (lambda: load_flat_text_cases('all_flat_mnist_training_cases_text.txt', 0.0001))
     print(case_generator)
     cman = Caseman(cfunc=case_generator, vfrac=vfrac, tfrac=tfrac)
 
@@ -377,16 +378,28 @@ def example_countex(dims, h_activation_function, lower, upper, epochs, ncases, l
 
 __mnist_path__ = "/Users/sebastian/Downloads/mnist-zip/"
 
-def load_flat_text_cases(filename, dir=__mnist_path__, ):
+def load_flat_text_cases(filename, cfraction, dir=__mnist_path__,):
     f = open(dir + filename, "r")
     lines = [line.split(" ") for line in f.read().split("\n")]
     f.close()
-    x_l = [TFT.int_to_one_hot(int(fv), 10) for fv in lines[0]]
-    x_t = np.array([lines[i] for i in range(1, len(lines))]).astype(int)
-    x_t = x_t/255
-    #x_t = normalize_inputs(x_t.astype(int))
+    len_lines = float(len(lines))
+    fraction = int(np.ceil(cfraction*len_lines))
+    new_lines = lines[:fraction]
+    x_l = list(map(int, new_lines[0]))[:(fraction-1)] # target
+    x_t = [list(map(int, line)) for line in new_lines[1:]] # input
+    x_l = [[i] for i in x_l]
+    print([list(i) for i in zip(x_t, x_l)])
+    return [list(i) for i in zip(x_t, x_l)]
 
-    return [[l, t] for l, t in zip(x_t, x_l)]
+    # x_l = [TFT.int_to_one_hot(int(fv), 10) for fv in new_lines[0]]
+    # x_l = x_l[:(fraction-1)]
+    # x_t = np.array([new_lines[i] for i in range(1, len(new_lines))]).astype(int)
+    # x_t = x_t/255
+    # #x_t = normalize_inputs(x_t.astype(int))
+
+    # return [[l, t] for l, t in zip(x_t, x_l)]
+
+    # [[[input], [target]], [[input], [target]]]
 
 
 # def final_function(dims, h_activation_function, lower, upper, epochs, ncases, lrate, showint, mbs, vfrac, tfrac, vint, sm,
