@@ -88,6 +88,7 @@ class Gann:
         self.trainer = optimizer.minimize(self.error, name='Backprop')
 
     def do_training(self, sess, cases, epochs=100, continued=False):
+        print(cases)
         if not (continued): self.error_history = []
         for i in range(epochs):
             error = 0
@@ -99,6 +100,7 @@ class Gann:
             for cstart in range(0, ncases, mbs):  # Loop through cases, one minibatch at a time.
                 cend = min(ncases, cstart + mbs)
                 minibatch = cases[cstart:cend]
+                np.random.shuffle(cases)
                 inputs = [c[0] for c in minibatch]
                 targets = [c[1] for c in minibatch]
                 feeder = {self.input: inputs, self.target: targets}
@@ -376,7 +378,6 @@ def example_countex(dims, h_activation_function, optimizer, lower, upper, epochs
     case_generator = (lambda: TFT.gen_vector_count_cases(ncases, nbits_placeholder))
     cman = Caseman(cfunc=case_generator, vfrac=vfrac, tfrac=tfrac)
 
-
     ann = Gann(dims, h_activation_function, optimizer, lower, upper, cman=cman, lrate=lrate, showint=showint, mbs=mbs, vint=vint,
                softmax=sm, cost_function=cost_function)
     ann.run(epochs, bestk=bestk)
@@ -390,7 +391,6 @@ def main():
     dims = []
     sm = False
     bestk = 0
-    
 
     # filename = str(input("Please enter the filename from where we will we loading settings. Example: test.json "))
     # TODO Support a real working file path. Can not be called from a different folder atm
@@ -422,11 +422,12 @@ def main():
     if str(data["bestk"]["bool"].lower()) == "true":
         bestk = 1
 
+    example_countex(dims, h_activation_function, optimizer, lower, upper, epochs, ncases, lrate, showint, mbs, vfrac,
+                    tfrac, vint, sm, bestk, cost_function)
+    # countex()
 
-    example_countex(dims, h_activation_function, optimizer, lower, upper, epochs, ncases, lrate, showint, mbs, vfrac, tfrac, vint, sm, bestk, cost_function)
-    #countex()
+    # print(dims, epochs, ncases, lrate, showint, mbs, vfrac, tfrac, vint, sm, bestk)
 
-    #print(dims, epochs, ncases, lrate, showint, mbs, vfrac, tfrac, vint, sm, bestk)
 
 if __name__ == "__main__":
     main()
