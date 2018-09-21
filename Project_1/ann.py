@@ -97,7 +97,6 @@ class Gann:
         for cstart in range(0, steps):  # Loops through steps and sends one minibatch through per iteration
             step = self.global_training_step + cstart
             cend = min(ncases, cstart + mbs)
-            print(cstart, cend)
             minibatch = cases[cstart:cend]
             np.random.shuffle(cases)
             inputs = [c[0] for c in minibatch]
