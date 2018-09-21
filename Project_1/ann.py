@@ -87,28 +87,28 @@ class Gann:
             optimizer = tf.train.GradientDescentOptimizer(self.learning_rate)
         self.trainer = optimizer.minimize(self.error, name='Backprop')
 
-    def do_training(self, sess, cases, epochs=100, continued=False):
-        if not (continued): self.error_history = []
-        for i in range(epochs):
-            error = 0
-            step = self.global_training_step + i
-            gvars = [self.error] + self.grabvars
-            mbs = self.minibatch_size
-            ncases = len(cases)
-            nmb = math.ceil(ncases / mbs)
-            for cstart in range(0, ncases, mbs):  # Loop through cases, one minibatch at a time.
-                cend = min(ncases, cstart + mbs)
-                minibatch = cases[cstart:cend]
-                inputs = [c[0] for c in minibatch]
-                targets = [c[1] for c in minibatch]
-                feeder = {self.input: inputs, self.target: targets}
-                _, grabvals, _ = self.run_one_step([self.trainer], gvars, self.probes, session=sess,
-                                                   feed_dict=feeder, step=step, show_interval=self.show_interval)
-                error += grabvals[0]
+    def do_training(self, sess, cases, steps, continued=False):
+        if not continued: self.error_history = []
+        error = 0
+        gvars = [self.error] + self.grabvars
+        mbs = self.minibatch_size
+        ncases = len(cases)
+        nmb = math.ceil(ncases / mbs)
+        for cstart in range(0, steps):  # Loops through steps and sends one minibatch through per iteration
+            step = self.global_training_step + cstart
+            cend = min(ncases, cstart + mbs)
+            minibatch = cases[cstart:cend]
+            np.random.shuffle(cases)
+            inputs = [c[0] for c in minibatch]
+            targets = [c[1] for c in minibatch]
+            feeder = {self.input: inputs, self.target: targets}
+            _, grabvals, _ = self.run_one_step([self.trainer], gvars, self.probes, session=sess,
+                                               feed_dict=feeder, step=step, show_interval=self.show_interval)
+            error += grabvals[0]
             self.error_history.append((step, error / nmb))
             self.consider_validation_testing(step, sess)
-        self.global_training_step += epochs
-        TFT.plot_training_history(self.error_history, self.validation_history, xtitle="Epoch", ytitle="Error",
+        self.global_training_step += steps
+        TFT.plot_training_history(self.error_history, self.validation_history, xtitle="Steps", ytitle="Error",
                                   title="", fig=not (continued))
 
     # bestk = 1 when you're doing a classification task and the targets are one-hot vectors.  This will invoke the
@@ -144,11 +144,11 @@ class Gann:
         correct = tf.nn.in_top_k(tf.cast(logits, tf.float32), labels, k)  # Return number of correct outputs
         return tf.reduce_sum(tf.cast(correct, tf.int32))
 
-    def training_session(self, epochs, sess=None, dir="probeview", continued=False):
+    def training_session(self, steps, sess=None, dir="probeview", continued=False):
         session = sess if sess else TFT.gen_initialized_session(dir=dir)
         self.current_session = session
         self.roundup_probes()  # this call must come AFTER the session is created, else graph is not in tensorboard.
-        self.do_training(session, self.caseman.get_training_cases(), epochs, continued=continued)
+        self.do_training(session, self.caseman.get_training_cases(), steps, continued=continued)
 
     def testing_session(self, sess, bestk=None):
         cases = self.caseman.get_testing_cases()
@@ -193,9 +193,9 @@ class Gann:
             else:
                 print(v, end="\n\n")
 
-    def run(self, epochs=100, sess=None, continued=False, bestk=None):
+    def run(self, steps=100, sess=None, continued=False, bestk=None):
         PLT.ion()
-        self.training_session(epochs, sess=sess, continued=continued)
+        self.training_session(steps, sess=sess, continued=continued)
         self.test_on_trains(sess=self.current_session, bestk=bestk)
         self.testing_session(sess=self.current_session, bestk=bestk)
         self.close_current_session(view=False)
@@ -369,17 +369,16 @@ class Caseman():
 #     return ann
 
 
-def example_countex(dims, h_activation_function, optimizer, lower, upper, epochs, ncases, lrate, showint, mbs, vfrac, tfrac, vint, sm,
+def example_countex(dims, h_activation_function, optimizer, lower, upper, steps, ncases, lrate, showint, mbs, vfrac, tfrac, vint, sm,
                     bestk, cost_function):
     nbits_placeholder = 15
 
     case_generator = (lambda: TFT.gen_vector_count_cases(ncases, nbits_placeholder))
     cman = Caseman(cfunc=case_generator, vfrac=vfrac, tfrac=tfrac)
 
-
     ann = Gann(dims, h_activation_function, optimizer, lower, upper, cman=cman, lrate=lrate, showint=showint, mbs=mbs, vint=vint,
                softmax=sm, cost_function=cost_function)
-    ann.run(epochs, bestk=bestk)
+    ann.run(steps, bestk=bestk)
     TFT.fireup_tensorboard('probeview')
     return ann
 
@@ -390,7 +389,6 @@ def main():
     dims = []
     sm = False
     bestk = 0
-    
 
     # filename = str(input("Please enter the filename from where we will we loading settings. Example: test.json "))
     # TODO Support a real working file path. Can not be called from a different folder atm
@@ -409,7 +407,7 @@ def main():
     optimizer = data["optimizer"]["name"]
     # TODO Create logic for running the desired function with arguments. Need to look into best practice
     cfraction = float(data["case_fraction"]["ratio"])
-    epochs = int(data["epochs"]["number"])
+    steps = int(data["steps"]["number"])
     mbs = int(data["minibatch_size"]["number_of_training_cases"])
     showint = int(data["grabbed_variables"]["show_freq"])
     ncases = int(data["num_gen_training_case"]["amount"])
@@ -422,11 +420,12 @@ def main():
     if str(data["bestk"]["bool"].lower()) == "true":
         bestk = 1
 
+    example_countex(dims, h_activation_function, optimizer, lower, upper, steps, ncases, lrate, showint, mbs, vfrac,
+                    tfrac, vint, sm, bestk, cost_function)
+    # countex()
 
-    example_countex(dims, h_activation_function, optimizer, lower, upper, epochs, ncases, lrate, showint, mbs, vfrac, tfrac, vint, sm, bestk, cost_function)
-    #countex()
+    # print(dims, epochs, ncases, lrate, showint, mbs, vfrac, tfrac, vint, sm, bestk)
 
-    #print(dims, epochs, ncases, lrate, showint, mbs, vfrac, tfrac, vint, sm, bestk)
 
 if __name__ == "__main__":
     main()
