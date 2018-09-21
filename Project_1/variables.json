@@ -21,9 +21,10 @@
     "upper_bound": 10
   },
   "optimizer": {
-    "name": "RMSprop"
+    "name": "asdf"
   },
   "data_source": {
+    "data_type": "file", 
     "file_path": "test.txt",
     "function_name": "gen_vector_count_cases",
     "args": [

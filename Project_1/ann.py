@@ -364,7 +364,9 @@ def example_countex(dims, h_activation_function, lower, upper, epochs, ncases, l
                     bestk, cost_function):
     nbits_placeholder = 15
 
-    case_generator = (lambda: TFT.gen_vector_count_cases(ncases, nbits_placeholder))
+    case_generator = load_flat_text_cases('all_flat_mnist_training_cases_text.txt')
+    print("HERE COMES CASE GENERATOR")
+    print(case_generator)
     cman = Caseman(cfunc=case_generator, vfrac=vfrac, tfrac=tfrac)
 
     ann = Gann(dims, h_activation_function, lower, upper, cman=cman, lrate=lrate, showint=showint, mbs=mbs, vint=vint,
@@ -372,6 +374,24 @@ def example_countex(dims, h_activation_function, lower, upper, epochs, ncases, l
     ann.run(epochs, bestk=bestk)
     TFT.fireup_tensorboard('probeview')
     return ann
+
+__mnist_path__ = "/Users/sebastian/Downloads/mnist-zip/"
+
+def load_flat_text_cases(filename, dir=__mnist_path__, ):
+    f = open(dir + filename, "r")
+    lines = [line.split(" ") for line in f.read().split("\n")]
+    f.close()
+    x_l = [TFT.int_to_one_hot(int(fv), 10) for fv in lines[0]]
+    x_t = np.array([lines[i] for i in range(1, len(lines))]).astype(int)
+    x_t = x_t/255
+    #x_t = normalize_inputs(x_t.astype(int))
+
+    return [[l, t] for l, t in zip(x_t, x_l)]
+
+
+# def final_function(dims, h_activation_function, lower, upper, epochs, ncases, lrate, showint, mbs, vfrac, tfrac, vint, sm,
+#                     bestk, cost_function):
+#     case_generator = (lambda: )
 
 
 # Main function for taking in the user variables
@@ -412,7 +432,7 @@ def main():
     if str(data["bestk"]["bool"].lower()) == "true":
         bestk = 1
 
-
+    print("running example countex")
     example_countex(dims, h_activation_function, lower, upper, epochs, ncases, lrate, showint, mbs, vfrac, tfrac, vint, sm, bestk, cost_function)
     #countex()
 
