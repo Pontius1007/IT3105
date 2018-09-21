@@ -5,7 +5,7 @@
     "output": 16
   },
   "hidden_activation_function": {
-    "name": "relu"
+    "name": "rule6"
   },
   "output_activation_function": {
     "softmax": "True"
@@ -68,7 +68,7 @@
     "show_freq": 500
   },
   "num_gen_training_case": {
-    "amount": 500
+    "amount": 5000
   },
   "bestk": {
     "bool": "true"
