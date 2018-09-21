@@ -61,7 +61,7 @@
   "display_biases": [
     "listofbiasvectors"
   ],
-  "epochs": {
+  "steps": {
     "number": 1000
   },
   "grabbed_variables": {
