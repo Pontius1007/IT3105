@@ -1,8 +1,8 @@
 {
   "dimensions": {
-    "input": 9,
+    "input": 16,
     "hidden_layer_one": 45,
-    "output": 1
+    "output": 16
   },
   "hidden_activation_function": {
     "name": "relu"
@@ -72,6 +72,6 @@
     "amount": 500
   },
   "bestk": {
-    "bool": "None"
+    "bool": "true"
   }
 }

@@ -5,6 +5,7 @@ import matplotlib.pyplot as PLT
 import tflowtools as TFT
 import json
 from random import shuffle
+from datasets import *
 
 
 # ******* A General Artificial Neural Network ********
@@ -113,7 +114,12 @@ class Gann:
         feeder = {self.input: inputs, self.target: targets}
         self.test_func = self.error
         if bestk is not None:
-            self.test_func = self.gen_match_counter(self.predictor, [TFT.one_hot_to_int(list(v)) for v in targets],
+            print("this should be the right list")
+            testhing = [int(v[0]) for v in targets]
+            print(testhing)
+            print(len(testhing))
+            # self.test_func = self.gen_match_counter(self.predictor, testhing,
+            self.test_func = self.gen_match_counter(self.predictor,[TFT.one_hot_to_int(list(v)) for v in targets],
                                                     k=bestk)
         testres, grabvals, _ = self.run_one_step(self.test_func, self.grabvars, self.probes, session=sess,
                                                  feed_dict=feeder, show_interval=None)
@@ -133,6 +139,8 @@ class Gann:
     # target.  Unfortunately, top_k requires a different set of arguments...and is harder to use.
 
     def gen_match_counter(self, logits, labels, k=1):
+        print("here come the labels")
+        print(labels)
         correct = tf.nn.in_top_k(tf.cast(logits, tf.float32), labels, k)  # Return number of correct outputs
         return tf.reduce_sum(tf.cast(correct, tf.int32))
 
@@ -361,56 +369,6 @@ class Caseman():
 
 
 
-# should be taken from variables.json
-__mnist_path__ = "/Users/sebastian/Downloads/mnist-zip/"
-
-
-
-# loads mnist
-def load_flat_text_cases(filename, cfraction, dir=__mnist_path__,):
-    f = open(dir + filename, "r")
-    lines = [line.split(" ") for line in f.read().split("\n")]
-    f.close()
-    len_lines = float(len(lines))
-    fraction = int(np.ceil(cfraction*len_lines))
-    new_lines = lines[:fraction]
-    x_l = list(map(int, new_lines[0]))[:(fraction-1)] # target
-    x_t = [list(map(int, line)) for line in new_lines[1:]] # input
-    x_l = [[i] for i in x_l]
-    print([list(i) for i in zip(x_t, x_l)])
-    return [list(i) for i in zip(x_t, x_l)]
-
-    # x_l = [TFT.int_to_one_hot(int(fv), 10) for fv in new_lines[0]]
-    # x_l = x_l[:(fraction-1)]
-    # x_t = np.array([new_lines[i] for i in range(1, len(new_lines))]).astype(int)
-    # x_t = x_t/255
-    # #x_t = normalize_inputs(x_t.astype(int))
-
-    # return [[l, t] for l, t in zip(x_t, x_l)]
-
-    # [[[input], [target]], [[input], [target]]]
-
-
-# loads yeast, wine, etc.
-def load_generic_file(filename, cfraction, dir=__mnist_path__,):
-    with open(dir+filename, 'r') as infile:
-        output_list = []
-        lines = infile.readlines()
-        fraction = int(np.ceil(cfraction*len(lines)))
-        for line in lines:
-            line_output = []
-            split_line = line.replace('; ', ', ')
-            split_line = line.strip().split(',')
-            input_vector = [i for i in split_line[:-1]]
-            target_vector = split_line[-1]
-            line_output.append(input_vector)
-            line_output.append([target_vector])
-            output_list.append(line_output)
-        # have to shuffle to get whole range
-        shuffle(output_list)
-        return output_list[:fraction]
-
-
 
 def example_countex(dims, h_activation_function, lower, upper, cfraction, epochs, ncases, lrate, showint, mbs, vfrac, tfrac, vint, sm,
                     bestk, cost_function):
@@ -418,8 +376,9 @@ def example_countex(dims, h_activation_function, lower, upper, cfraction, epochs
 
     # case_generator = load_flat_text_cases('all_flat_mnist_training_cases_text.txt', 0.01)
     # print(load_flat_text_cases('all_flat_mnist_training_cases_text.txt', 0.001))
-    # case_generator = (lambda: load_flat_text_cases('all_flat_mnist_training_cases_text.txt', 0.0001))
-    case_generator = (lambda: load_generic_file('data/glass.txt', cfraction))
+    # case_generator = (lambda: load_flat_text_cases('all_flat_mnist_training_cases_text.txt'))
+    case_generator = (lambda: TFT.gen_all_one_hot_cases(2**4))
+    # case_generator = (lambda: load_generic_file('data/glass.txt', cfraction))
     print(case_generator)
     cman = Caseman(cfunc=case_generator, vfrac=vfrac, tfrac=tfrac)
 
