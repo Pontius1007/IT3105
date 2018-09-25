@@ -4,6 +4,7 @@ import math
 import matplotlib.pyplot as PLT
 import tflowtools as TFT
 import json
+from random import shuffle
 
 
 # ******* A General Artificial Neural Network ********
@@ -360,24 +361,12 @@ class Caseman():
 
 
 
-def example_countex(dims, h_activation_function, lower, upper, epochs, ncases, lrate, showint, mbs, vfrac, tfrac, vint, sm,
-                    bestk, cost_function):
-    nbits_placeholder = 15
-
-    # case_generator = load_flat_text_cases('all_flat_mnist_training_cases_text.txt', 0.01)
-    # print(load_flat_text_cases('all_flat_mnist_training_cases_text.txt', 0.001))
-    case_generator = (lambda: load_flat_text_cases('all_flat_mnist_training_cases_text.txt', 0.0001))
-    print(case_generator)
-    cman = Caseman(cfunc=case_generator, vfrac=vfrac, tfrac=tfrac)
-
-    ann = Gann(dims, h_activation_function, lower, upper, cman=cman, lrate=lrate, showint=showint, mbs=mbs, vint=vint,
-               softmax=sm, cost_function=cost_function)
-    ann.run(epochs, bestk=bestk)
-    TFT.fireup_tensorboard('probeview')
-    return ann
-
+# should be taken from variables.json
 __mnist_path__ = "/Users/sebastian/Downloads/mnist-zip/"
 
+
+
+# loads mnist
 def load_flat_text_cases(filename, cfraction, dir=__mnist_path__,):
     f = open(dir + filename, "r")
     lines = [line.split(" ") for line in f.read().split("\n")]
@@ -400,6 +389,48 @@ def load_flat_text_cases(filename, cfraction, dir=__mnist_path__,):
     # return [[l, t] for l, t in zip(x_t, x_l)]
 
     # [[[input], [target]], [[input], [target]]]
+
+
+# loads yeast, wine, etc.
+def load_generic_file(filename, cfraction, dir=__mnist_path__,):
+    with open(dir+filename, 'r') as infile:
+        output_list = []
+        lines = infile.readlines()
+        fraction = int(np.ceil(cfraction*len(lines)))
+        for line in lines:
+            line_output = []
+            split_line = line.replace('; ', ', ')
+            split_line = line.strip().split(',')
+            input_vector = [i for i in split_line[:-1]]
+            target_vector = split_line[-1]
+            line_output.append(input_vector)
+            line_output.append([target_vector])
+            output_list.append(line_output)
+        # have to shuffle to get whole range
+        shuffle(output_list)
+        return output_list[:fraction]
+
+
+
+def example_countex(dims, h_activation_function, lower, upper, cfraction, epochs, ncases, lrate, showint, mbs, vfrac, tfrac, vint, sm,
+                    bestk, cost_function):
+    nbits_placeholder = 15
+
+    # case_generator = load_flat_text_cases('all_flat_mnist_training_cases_text.txt', 0.01)
+    # print(load_flat_text_cases('all_flat_mnist_training_cases_text.txt', 0.001))
+    # case_generator = (lambda: load_flat_text_cases('all_flat_mnist_training_cases_text.txt', 0.0001))
+    case_generator = (lambda: load_generic_file('data/glass.txt', cfraction))
+    print(case_generator)
+    cman = Caseman(cfunc=case_generator, vfrac=vfrac, tfrac=tfrac)
+
+    ann = Gann(dims, h_activation_function, lower, upper, cman=cman, lrate=lrate, showint=showint, mbs=mbs, vint=vint,
+               softmax=sm, cost_function=cost_function)
+    ann.run(epochs, bestk=bestk)
+    TFT.fireup_tensorboard('probeview')
+    return ann
+
+
+
 
 
 # def final_function(dims, h_activation_function, lower, upper, epochs, ncases, lrate, showint, mbs, vfrac, tfrac, vint, sm,
@@ -446,7 +477,7 @@ def main():
         bestk = 1
 
     print("running example countex")
-    example_countex(dims, h_activation_function, lower, upper, epochs, ncases, lrate, showint, mbs, vfrac, tfrac, vint, sm, bestk, cost_function)
+    example_countex(dims, h_activation_function, lower, upper, cfraction, epochs, ncases, lrate, showint, mbs, vfrac, tfrac, vint, sm, bestk, cost_function)
     #countex()
 
     #print(dims, epochs, ncases, lrate, showint, mbs, vfrac, tfrac, vint, sm, bestk)

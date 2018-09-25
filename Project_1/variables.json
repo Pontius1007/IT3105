@@ -1,6 +1,6 @@
 {
   "dimensions": {
-    "input": 784,
+    "input": 9,
     "hidden_layer_one": 45,
     "output": 1
   },
@@ -33,7 +33,7 @@
     ]
   },
   "case_fraction": {
-  "ratio": 1.0
+  "ratio": 0.4
   },
   "validation_fraction": {
     "ratio": 0.1
