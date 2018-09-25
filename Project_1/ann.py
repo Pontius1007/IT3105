@@ -69,7 +69,7 @@ class Gann:
     # of the weight array.
 
     def configure_learning(self, cost_function):
-        if cost_function == "CE".lower():
+        if cost_function.upper() == "CE":
             self.error = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(logits=self.output, labels=self.target), name='Cross-Entroypy')
         else:
             self.error = tf.reduce_mean(tf.square(self.target - self.output), name='MSE')
@@ -412,7 +412,7 @@ def main():
     # Check the Cheatsheet for a description of the different variables.
     dims = []
     sm = False
-    bestk = 0
+    bestk = None
     
 
     # filename = str(input("Please enter the filename from where we will we loading settings. Example: test.json "))
