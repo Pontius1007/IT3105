@@ -11,15 +11,16 @@ import json
 
 
 class Gann:
-    def __init__(self, dims, h_activation_function, optimizer, lower, upper, cman, lrate=.1, showint=None, mbs=10, vint=None, softmax=False, cost_function="MSE"):
+    def __init__(self, dims, hidden_activation_function, optimizer, lower, upper, cman, lrate=.1, showfreq=None, mbs=10,
+                 vint=None, softmax=False, cost_function="MSE"):
         self.learning_rate = lrate
         self.layer_sizes = dims  # Sizes of each layer of neurons
-        self.show_interval = showint  # Frequency of showing grabbed variables
+        self.show_interval = showfreq  # Frequency of showing grabbed variables
         self.global_training_step = 0  # Enables coherent data-storage during extra training runs (see runmore).
         self.grabvars = []  # Variables to be monitored (by gann code) during a run.
         self.grabvar_figures = []  # One matplotlib figure for each grabvar
         self.optimizer = optimizer
-        self.hidden_activation_function = h_activation_function
+        self.hidden_activation_function = hidden_activation_function
         self.lower = lower
         self.upper = upper
         self.minibatch_size = mbs
@@ -69,7 +70,9 @@ class Gann:
 
     def configure_learning(self, cost_function):
         if cost_function == "CE".lower():
-            self.error = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(logits=self.output, labels=self.target), name='Cross-Entroypy')
+            self.error = tf.reduce_mean(
+                tf.nn.softmax_cross_entropy_with_logits_v2(logits=self.output, labels=self.target),
+                name='Cross-Entroypy')
         else:
             self.error = tf.reduce_mean(tf.square(self.target - self.output), name='MSE')
         self.predictor = self.output  # Simple prediction runs will request the value of output neurons
@@ -369,63 +372,17 @@ class Caseman():
 #     return ann
 
 
-def example_countex(dims, h_activation_function, optimizer, lower, upper, steps, ncases, lrate, showint, mbs, vfrac, tfrac, vint, sm,
+def example_countex(dims, h_activation_function, optimizer, lower, upper, steps, ncases, lrate, showint, mbs, vfrac,
+                    tfrac, vint, sm,
                     bestk, cost_function):
     nbits_placeholder = 15
 
     case_generator = (lambda: TFT.gen_vector_count_cases(ncases, nbits_placeholder))
     cman = Caseman(cfunc=case_generator, vfrac=vfrac, tfrac=tfrac)
 
-    ann = Gann(dims, h_activation_function, optimizer, lower, upper, cman=cman, lrate=lrate, showint=showint, mbs=mbs, vint=vint,
+    ann = Gann(dims, h_activation_function, optimizer, lower, upper, cman=cman, lrate=lrate, showint=showint, mbs=mbs,
+               vint=vint,
                softmax=sm, cost_function=cost_function)
     ann.run(steps, bestk=bestk)
     TFT.fireup_tensorboard('probeview')
     return ann
-
-
-# Main function for taking in the user variables
-def main():
-    # Check the Cheatsheet for a description of the different variables.
-    dims = []
-    sm = False
-    bestk = 0
-
-    # filename = str(input("Please enter the filename from where we will we loading settings. Example: test.json "))
-    # TODO Support a real working file path. Can not be called from a different folder atm
-    filename = "variables.json"
-    with open(filename) as f:
-        data = json.load(f)
-    for key, value in data["dimensions"].items():
-        dims.append(value)
-
-    h_activation_function = data["hidden_activation_function"]["name"]
-    o_activation_function = data["output_activation_function"]["softmax"]
-    cost_function = data["cost_function"]["name"]
-    lrate = float(data["learning_rate"]["value"])
-    lower = float(data["ini_weight_range"]["lower_bound"])
-    upper = float(data["ini_weight_range"]["upper_bound"])
-    optimizer = data["optimizer"]["name"]
-    # TODO Create logic for running the desired function with arguments. Need to look into best practice
-    cfraction = float(data["case_fraction"]["ratio"])
-    steps = int(data["steps"]["number"])
-    mbs = int(data["minibatch_size"]["number_of_training_cases"])
-    showint = int(data["grabbed_variables"]["show_freq"])
-    ncases = int(data["num_gen_training_case"]["amount"])
-    vfrac = float(data["validation_fraction"]["ratio"])
-    tfrac = float(data["test_fraction"]["ratio"])
-    vint = int(data["validation_interval"]["number"])
-
-    if str(o_activation_function.lower()) == "true":
-        sm = True
-    if str(data["bestk"]["bool"].lower()) == "true":
-        bestk = 1
-
-    example_countex(dims, h_activation_function, optimizer, lower, upper, steps, ncases, lrate, showint, mbs, vfrac,
-                    tfrac, vint, sm, bestk, cost_function)
-    # countex()
-
-    # print(dims, epochs, ncases, lrate, showint, mbs, vfrac, tfrac, vint, sm, bestk)
-
-
-if __name__ == "__main__":
-    main()
