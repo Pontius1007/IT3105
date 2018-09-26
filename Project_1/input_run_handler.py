@@ -1,4 +1,5 @@
 from ann import *
+import tflowtools as TFT
 
 
 class Parameters:
@@ -10,11 +11,13 @@ class Parameters:
         self.weight_range_upper = 0.1
         self.learning_rate = 0.1
         self.show_freq = 500
-        self.mbs = 5000
+        self.mbs = 500
         self.vfrac = 0.1
         self.tfrac = 0.1
         self.vint = 200
         self.sm = False
+        self.cost_function = "MSE"
+        self.ncases = 5000
 
         # For training
         self.bestk = 1
@@ -25,8 +28,6 @@ class Parameters:
         self.grabbed_biases = []
 
     def __str__(self):
-        # TODO Create a decent toString method so we can print the different parameters.
-
         return ' ,  '.join(['{key} = {value}'.format(key=key, value=self.__dict__.get(key)) for key in self.__dict__])
 
 
@@ -48,6 +49,10 @@ class InputRunHandler:
             print(self.params)
             print("\n")
 
+        if u_input == "run" or u_input == "r":
+            if input("Please enter the dataset you want to run: ").lower() == "countex":
+                self.countex()
+
     def load_json(self, filename):
         with open(filename) as f:
             data = json.load(f)
@@ -64,7 +69,7 @@ class InputRunHandler:
         self.params.vfrac = float(data["validation_fraction"]["ratio"])
         self.params.tfrac = float(data["test_fraction"]["ratio"])
         self.params.vint = int(data["validation_interval"]["number"])
-        self.params.cost_function = data["cost_function"]["name"]
+        self.params.cost_function = str(data["cost_function"]["name"])
         self.params.ncases = int(data["num_gen_training_case"]["amount"])
         self.params.steps = int(data["steps"]["number"])
         self.params.cfraction = float(data["case_fraction"]["ratio"])
@@ -72,5 +77,15 @@ class InputRunHandler:
         self.params.bestk = 1 if (str(data["bestk"]["bool"].lower()) == "true") else 0
 
     def countex(self):
-        print("")
-
+        nbits = int(input("Enter the length of the vector in bits. Enter 0 to set it to the input layer size: "))
+        nbits = nbits if (nbits != 0) else self.params.dims[0]
+        case_generator = (lambda: TFT.gen_vector_count_cases(self.params.ncases, nbits))
+        self.ann.set_cman(Caseman(cfunc=case_generator, vfrac=self.params.vfrac, tfrac=self.params.tfrac))
+        model = Gann(dims=self.params.dims, hidden_activation_function=self.params.hidden_activation_function,
+                     optimizer=self.params.optimizer, lower=self.params.weight_range_lower,
+                     upper=self.params.weight_range_upper, cman=self.ann.get_cman(), lrate=self.params.learning_rate,
+                     showfreq=self.params.show_freq, mbs=self.params.mbs, vint=self.params.vint, softmax=self.params.sm,
+                     cost_function=self.params.cost_function)
+        self.ann.set_model(model)
+        model.run(steps=self.params.steps, bestk=self.params.bestk)
+        # TFT.fireup_tensorboard('probeview')
