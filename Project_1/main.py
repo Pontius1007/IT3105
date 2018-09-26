@@ -27,7 +27,8 @@ def main():
             break
         elif u_input == "h":
             print("We support the following commands: ")
-            print("Nothing at the moment")
+            print("1. 'r' or 'run'. This will start running/training. ")
+            print("2. 'load json' or 'lj'. This will load new parameters from a JSON file. ")
         else:
             irh.evaluate_input(u_input)
 
