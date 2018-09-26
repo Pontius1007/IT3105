@@ -11,16 +11,16 @@ import json
 
 
 class Gann:
-    def __init__(self, dims, h_activation_function, optimizer, lower, upper, cman, lrate=.1, showint=None, mbs=10,
+    def __init__(self, dims, hidden_activation_function, optimizer, lower, upper, cman, lrate=.1, showfreq=None, mbs=10,
                  vint=None, softmax=False, cost_function="MSE"):
         self.learning_rate = lrate
         self.layer_sizes = dims  # Sizes of each layer of neurons
-        self.show_interval = showint  # Frequency of showing grabbed variables
+        self.show_interval = showfreq  # Frequency of showing grabbed variables
         self.global_training_step = 0  # Enables coherent data-storage during extra training runs (see runmore).
         self.grabvars = []  # Variables to be monitored (by gann code) during a run.
         self.grabvar_figures = []  # One matplotlib figure for each grabvar
         self.optimizer = optimizer
-        self.hidden_activation_function = h_activation_function
+        self.hidden_activation_function = hidden_activation_function
         self.lower = lower
         self.upper = upper
         self.minibatch_size = mbs
@@ -386,23 +386,3 @@ def example_countex(dims, h_activation_function, optimizer, lower, upper, steps,
     ann.run(steps, bestk=bestk)
     TFT.fireup_tensorboard('probeview')
     return ann
-
-
-# Main function for taking in the user variables
-def main():
-    # Check the Cheatsheet for a description of the different variables.
-    sm = False
-    bestk = 0
-
-    # filename = str(input("Please enter the filename from where we will we loading settings. Example: test.json "))
-    # TODO Support a real working file path. Can not be called from a different folder atm
-    filename = "variables.json"
-    with open(filename) as f:
-        data = json.load(f)
-
-    # TODO Create logic for running the desired function with arguments. Need to look into best practice
-
-    example_countex(dims, h_activation_function, optimizer, lower, upper, steps, ncases, lrate, showint, mbs, vfrac,
-                    tfrac, vint, sm, bestk, cost_function)
-    # countex()
-
