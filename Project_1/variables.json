@@ -11,7 +11,7 @@
     "softmax": "True"
   },
   "cost_function": {
-    "name": "mse"
+    "name": "MSE"
   },
   "learning_rate": {
     "value": 0.1
