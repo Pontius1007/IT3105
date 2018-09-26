@@ -11,7 +11,8 @@ import json
 
 
 class Gann:
-    def __init__(self, dims, h_activation_function, optimizer, lower, upper, cman, lrate=.1, showint=None, mbs=10, vint=None, softmax=False, cost_function="MSE"):
+    def __init__(self, dims, h_activation_function, optimizer, lower, upper, cman, lrate=.1, showint=None, mbs=10,
+                 vint=None, softmax=False, cost_function="MSE"):
         self.learning_rate = lrate
         self.layer_sizes = dims  # Sizes of each layer of neurons
         self.show_interval = showint  # Frequency of showing grabbed variables
@@ -69,7 +70,9 @@ class Gann:
 
     def configure_learning(self, cost_function):
         if cost_function == "CE".lower():
-            self.error = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(logits=self.output, labels=self.target), name='Cross-Entroypy')
+            self.error = tf.reduce_mean(
+                tf.nn.softmax_cross_entropy_with_logits_v2(logits=self.output, labels=self.target),
+                name='Cross-Entroypy')
         else:
             self.error = tf.reduce_mean(tf.square(self.target - self.output), name='MSE')
         self.predictor = self.output  # Simple prediction runs will request the value of output neurons
@@ -369,14 +372,16 @@ class Caseman():
 #     return ann
 
 
-def example_countex(dims, h_activation_function, optimizer, lower, upper, steps, ncases, lrate, showint, mbs, vfrac, tfrac, vint, sm,
+def example_countex(dims, h_activation_function, optimizer, lower, upper, steps, ncases, lrate, showint, mbs, vfrac,
+                    tfrac, vint, sm,
                     bestk, cost_function):
     nbits_placeholder = 15
 
     case_generator = (lambda: TFT.gen_vector_count_cases(ncases, nbits_placeholder))
     cman = Caseman(cfunc=case_generator, vfrac=vfrac, tfrac=tfrac)
 
-    ann = Gann(dims, h_activation_function, optimizer, lower, upper, cman=cman, lrate=lrate, showint=showint, mbs=mbs, vint=vint,
+    ann = Gann(dims, h_activation_function, optimizer, lower, upper, cman=cman, lrate=lrate, showint=showint, mbs=mbs,
+               vint=vint,
                softmax=sm, cost_function=cost_function)
     ann.run(steps, bestk=bestk)
     TFT.fireup_tensorboard('probeview')
