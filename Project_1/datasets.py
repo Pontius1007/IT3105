@@ -1,4 +1,5 @@
 import numpy as np
+import tflowtools as TFT
 from random import shuffle
 
 # should be taken from variables.json
@@ -39,12 +40,14 @@ def load_generic_file(filename, cfraction, dir=__mnist_path__,):
         fraction = int(np.ceil(cfraction*len(lines)))
         for line in lines:
             line_output = []
-            split_line = line.replace('; ', ', ')
-            split_line = line.strip().split(',')
-            input_vector = [i for i in split_line[:-1]]
-            target_vector = split_line[-1]
+            split_line = line.replace(';', ',')
+            split_line = split_line.strip().split(',')
+            input_vector = [float(i) for i in split_line[:-1]]
+            print(split_line[-1])
+            target_vector = int(split_line[-1])
+            hot_target = TFT.int_to_one_hot(target_vector, 11)
             line_output.append(input_vector)
-            line_output.append([target_vector])
+            line_output.append(hot_target)
             output_list.append(line_output)
         # have to shuffle to get whole range
         shuffle(output_list)

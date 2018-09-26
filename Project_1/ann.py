@@ -114,10 +114,14 @@ class Gann:
         feeder = {self.input: inputs, self.target: targets}
         self.test_func = self.error
         if bestk is not None:
-            print("this should be the right list")
-            testhing = [int(v[0]) for v in targets]
-            print(testhing)
-            print(len(testhing))
+            print("DOES IT EVEN FUCKING REACH HERE?!")
+            # testhing = [v[0] for v in targets]
+            # print(testhing)
+            # print(len(testhing))
+            # print(targets)
+            # print(TFT.int_to_one_hot(2,8))
+            # print([TFT.one_hot_to_int(list(v)) for v in targets])
+            print([TFT.one_hot_to_int(list(v)) for v in targets])
             # self.test_func = self.gen_match_counter(self.predictor, testhing,
             self.test_func = self.gen_match_counter(self.predictor,[TFT.one_hot_to_int(list(v)) for v in targets],
                                                     k=bestk)
@@ -139,8 +143,6 @@ class Gann:
     # target.  Unfortunately, top_k requires a different set of arguments...and is harder to use.
 
     def gen_match_counter(self, logits, labels, k=1):
-        print("here come the labels")
-        print(labels)
         correct = tf.nn.in_top_k(tf.cast(logits, tf.float32), labels, k)  # Return number of correct outputs
         return tf.reduce_sum(tf.cast(correct, tf.int32))
 
@@ -377,9 +379,8 @@ def example_countex(dims, h_activation_function, lower, upper, cfraction, epochs
     # case_generator = load_flat_text_cases('all_flat_mnist_training_cases_text.txt', 0.01)
     # print(load_flat_text_cases('all_flat_mnist_training_cases_text.txt', 0.001))
     # case_generator = (lambda: load_flat_text_cases('all_flat_mnist_training_cases_text.txt'))
-    case_generator = (lambda: TFT.gen_all_one_hot_cases(2**4))
-    # case_generator = (lambda: load_generic_file('data/glass.txt', cfraction))
-    print(case_generator)
+    # case_generator = (lambda: TFT.gen_all_one_hot_cases(2**4))
+    case_generator = (lambda: load_generic_file('data/yeast.txt', cfraction))
     cman = Caseman(cfunc=case_generator, vfrac=vfrac, tfrac=tfrac)
 
     ann = Gann(dims, h_activation_function, lower, upper, cman=cman, lrate=lrate, showint=showint, mbs=mbs, vint=vint,

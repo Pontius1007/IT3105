@@ -1,8 +1,8 @@
 {
   "dimensions": {
-    "input": 16,
+    "input": 8,
     "hidden_layer_one": 45,
-    "output": 16
+    "output": 11
   },
   "hidden_activation_function": {
     "name": "relu"
@@ -33,7 +33,7 @@
     ]
   },
   "case_fraction": {
-  "ratio": 0.4
+  "ratio": 1.0
   },
   "validation_fraction": {
     "ratio": 0.1
