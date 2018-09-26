@@ -391,7 +391,6 @@ def example_countex(dims, h_activation_function, optimizer, lower, upper, steps,
 # Main function for taking in the user variables
 def main():
     # Check the Cheatsheet for a description of the different variables.
-    dims = []
     sm = False
     bestk = 0
 
@@ -400,37 +399,10 @@ def main():
     filename = "variables.json"
     with open(filename) as f:
         data = json.load(f)
-    for key, value in data["dimensions"].items():
-        dims.append(value)
 
-    h_activation_function = data["hidden_activation_function"]["name"]
-    o_activation_function = data["output_activation_function"]["softmax"]
-    cost_function = data["cost_function"]["name"]
-    lrate = float(data["learning_rate"]["value"])
-    lower = float(data["ini_weight_range"]["lower_bound"])
-    upper = float(data["ini_weight_range"]["upper_bound"])
-    optimizer = data["optimizer"]["name"]
     # TODO Create logic for running the desired function with arguments. Need to look into best practice
-    cfraction = float(data["case_fraction"]["ratio"])
-    steps = int(data["steps"]["number"])
-    mbs = int(data["minibatch_size"]["number_of_training_cases"])
-    showint = int(data["grabbed_variables"]["show_freq"])
-    ncases = int(data["num_gen_training_case"]["amount"])
-    vfrac = float(data["validation_fraction"]["ratio"])
-    tfrac = float(data["test_fraction"]["ratio"])
-    vint = int(data["validation_interval"]["number"])
-
-    if str(o_activation_function.lower()) == "true":
-        sm = True
-    if str(data["bestk"]["bool"].lower()) == "true":
-        bestk = 1
 
     example_countex(dims, h_activation_function, optimizer, lower, upper, steps, ncases, lrate, showint, mbs, vfrac,
                     tfrac, vint, sm, bestk, cost_function)
     # countex()
 
-    # print(dims, epochs, ncases, lrate, showint, mbs, vfrac, tfrac, vint, sm, bestk)
-
-
-if __name__ == "__main__":
-    main()
