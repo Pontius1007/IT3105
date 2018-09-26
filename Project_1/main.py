@@ -17,7 +17,8 @@ class Ann():
 
 
 def main():
-    irh = InputRunHandler()
+    ann = Ann()
+    irh = InputRunHandler(ann)
 
     while True:
         u_input = input("Enter command: ")
@@ -29,9 +30,6 @@ def main():
             print("Nothing at the moment")
         else:
             irh.evaluate_input(u_input)
-
-
-
 
 
 if __name__ == "__main__":
