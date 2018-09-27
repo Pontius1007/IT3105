@@ -5,20 +5,20 @@
     "output": 11
   },
   "hidden_activation_function": {
-    "name": "relu"
+    "name": "rule6"
   },
   "output_activation_function": {
     "softmax": "True"
   },
   "cost_function": {
-    "name": "mse"
+    "name": "MSE"
   },
   "learning_rate": {
     "value": 0.1
   },
   "ini_weight_range": {
-    "lower_bound": 1,
-    "upper_bound": 10
+    "lower_bound": -0.1,
+    "upper_bound": 0.1
   },
   "optimizer": {
     "name": "asdf"
@@ -62,14 +62,14 @@
   "display_biases": [
     "listofbiasvectors"
   ],
-  "epochs": {
+  "steps": {
     "number": 1000
   },
   "grabbed_variables": {
     "show_freq": 500
   },
   "num_gen_training_case": {
-    "amount": 500
+    "amount": 5000
   },
   "bestk": {
     "bool": "true"

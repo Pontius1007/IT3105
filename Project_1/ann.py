@@ -13,16 +13,16 @@ from datasets import *
 
 
 class Gann:
-
-
-    def __init__(self, dims, h_activation_function, lower, upper, cman, lrate=.1, showint=None, mbs=10, vint=None, softmax=False, cost_function="MSE"):
+    def __init__(self, dims, hidden_activation_function, optimizer, lower, upper, cman, lrate=.1, showfreq=None, mbs=10,
+                 vint=None, softmax=False, cost_function="MSE"):
         self.learning_rate = lrate
         self.layer_sizes = dims  # Sizes of each layer of neurons
-        self.show_interval = showint  # Frequency of showing grabbed variables
+        self.show_interval = showfreq  # Frequency of showing grabbed variables
         self.global_training_step = 0  # Enables coherent data-storage during extra training runs (see runmore).
         self.grabvars = []  # Variables to be monitored (by gann code) during a run.
         self.grabvar_figures = []  # One matplotlib figure for each grabvar
-        self.hidden_activation_function = h_activation_function
+        self.optimizer = optimizer
+        self.hidden_activation_function = hidden_activation_function
         self.lower = lower
         self.upper = upper
         self.minibatch_size = mbs
@@ -72,36 +72,48 @@ class Gann:
 
     def configure_learning(self, cost_function):
         if cost_function.upper() == "CE":
-            self.error = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(logits=self.output, labels=self.target), name='Cross-Entroypy')
+            self.error = tf.reduce_mean(
+                tf.nn.softmax_cross_entropy_with_logits_v2(logits=self.output, labels=self.target),
+                name='Cross-Entroypy')
         else:
             self.error = tf.reduce_mean(tf.square(self.target - self.output), name='MSE')
         self.predictor = self.output  # Simple prediction runs will request the value of output neurons
         # Defining the training operator
-        optimizer = tf.train.GradientDescentOptimizer(self.learning_rate)
+        # Basic gradient descent is the default
+        if self.optimizer == "rmsprop":
+            optimizer = tf.train.RMSPropOptimizer(self.learning_rate)
+        elif self.optimizer == "adagrad":
+            print(self.optimizer)
+            optimizer = tf.train.AdagradOptimizer(self.learning_rate)
+        elif self.optimizer == "adam":
+            optimizer = tf.train.AdamOptimizer(self.learning_rate)
+        else:
+            print("You have chosen BGD as optimizer")
+            optimizer = tf.train.GradientDescentOptimizer(self.learning_rate)
         self.trainer = optimizer.minimize(self.error, name='Backprop')
 
-    def do_training(self, sess, cases, epochs=100, continued=False):
-        if not (continued): self.error_history = []
-        for i in range(epochs):
-            error = 0
-            step = self.global_training_step + i
-            gvars = [self.error] + self.grabvars
-            mbs = self.minibatch_size
-            ncases = len(cases)
-            nmb = math.ceil(ncases / mbs)
-            for cstart in range(0, ncases, mbs):  # Loop through cases, one minibatch at a time.
-                cend = min(ncases, cstart + mbs)
-                minibatch = cases[cstart:cend]
-                inputs = [c[0] for c in minibatch]
-                targets = [c[1] for c in minibatch]
-                feeder = {self.input: inputs, self.target: targets}
-                _, grabvals, _ = self.run_one_step([self.trainer], gvars, self.probes, session=sess,
-                                                   feed_dict=feeder, step=step, show_interval=self.show_interval)
-                error += grabvals[0]
+    def do_training(self, sess, cases, steps, continued=False):
+        if not continued: self.error_history = []
+        error = 0
+        gvars = [self.error] + self.grabvars
+        mbs = self.minibatch_size
+        ncases = len(cases)
+        nmb = math.ceil(ncases / mbs)
+        for cstart in range(0, steps):  # Loops through steps and sends one minibatch through per iteration
+            step = self.global_training_step + cstart
+            cend = min(ncases, cstart + mbs)
+            minibatch = cases[cstart:cend]
+            np.random.shuffle(cases)
+            inputs = [c[0] for c in minibatch]
+            targets = [c[1] for c in minibatch]
+            feeder = {self.input: inputs, self.target: targets}
+            _, grabvals, _ = self.run_one_step([self.trainer], gvars, self.probes, session=sess,
+                                               feed_dict=feeder, step=step, show_interval=self.show_interval)
+            error += grabvals[0]
             self.error_history.append((step, error / nmb))
             self.consider_validation_testing(step, sess)
-        self.global_training_step += epochs
-        TFT.plot_training_history(self.error_history, self.validation_history, xtitle="Epoch", ytitle="Error",
+        self.global_training_step += steps
+        TFT.plot_training_history(self.error_history, self.validation_history, xtitle="Steps", ytitle="Error",
                                   title="", fig=not (continued))
 
     # bestk = 1 when you're doing a classification task and the targets are one-hot vectors.  This will invoke the
@@ -146,11 +158,11 @@ class Gann:
         correct = tf.nn.in_top_k(tf.cast(logits, tf.float32), labels, k)  # Return number of correct outputs
         return tf.reduce_sum(tf.cast(correct, tf.int32))
 
-    def training_session(self, epochs, sess=None, dir="probeview", continued=False):
+    def training_session(self, steps, sess=None, dir="probeview", continued=False):
         session = sess if sess else TFT.gen_initialized_session(dir=dir)
         self.current_session = session
         self.roundup_probes()  # this call must come AFTER the session is created, else graph is not in tensorboard.
-        self.do_training(session, self.caseman.get_training_cases(), epochs, continued=continued)
+        self.do_training(session, self.caseman.get_training_cases(), steps, continued=continued)
 
     def testing_session(self, sess, bestk=None):
         cases = self.caseman.get_testing_cases()
@@ -195,9 +207,9 @@ class Gann:
             else:
                 print(v, end="\n\n")
 
-    def run(self, epochs=100, sess=None, continued=False, bestk=None):
+    def run(self, steps=100, sess=None, continued=False, bestk=None):
         PLT.ion()
-        self.training_session(epochs, sess=sess, continued=continued)
+        self.training_session(steps, sess=sess, continued=continued)
         self.test_on_trains(sess=self.current_session, bestk=bestk)
         self.testing_session(sess=self.current_session, bestk=bestk)
         self.close_current_session(view=False)
@@ -343,13 +355,14 @@ class Caseman():
 
 # After running this, open a Tensorboard (Go to localhost:6006 in your Chrome Browser) and check the
 # 'scalar', 'distribution' and 'histogram' menu options to view the probed variables.
+
 # def autoex(epochs=300, nbits=4, lrate=0.03, showint=100, mbs=None, vfrac=0.1, tfrac=0.1, vint=100, sm=False,
-#            bestk=None, lower=-0.1, upper=0.1):
+#            bestk=None):
 #     size = 2 ** nbits
 #     mbs = mbs if mbs else size
 #     case_generator = (lambda: TFT.gen_all_one_hot_cases(2 ** nbits))
 #     cman = Caseman(cfunc=case_generator, vfrac=vfrac, tfrac=tfrac)
-#     ann = Gann(dims=[size, nbits, size], cman=cman, lrate=lrate, showint=showint, mbs=mbs, vint=vint, softmax=sm, lower, upper)
+#     ann = Gann(dims=[size, nbits, size], cman=cman, lrate=lrate, showint=showint, mbs=mbs, vint=vint, softmax=sm)
 #     ann.gen_probe(0, 'wgt', ('hist', 'avg'))  # Plot a histogram and avg of the incoming weights to module 0.
 #     ann.gen_probe(1, 'out', ('avg', 'max'))  # Plot average and max value of module 1's output vector
 #     ann.add_grabvar(0, 'wgt')  # Add a grabvar (to be displayed in its own matplotlib window).
@@ -358,21 +371,8 @@ class Caseman():
 #     TFT.fireup_tensorboard('probeview')
 #     return ann
 
-
-# def countex(epochs=5000, nbits=15, ncases=500, lrate=0.5, showint=500, mbs=20, vfrac=0.1, tfrac=0.1, vint=200, sm=True,
-#             bestk=1):
-#     case_generator = (lambda: TFT.gen_vector_count_cases(ncases, nbits))
-#     cman = Caseman(cfunc=case_generator, vfrac=vfrac, tfrac=tfrac)
-#     ann = Gann(dims=[nbits, nbits * 3, nbits + 1], cman=cman, lrate=lrate, showint=showint, mbs=mbs, vint=vint,
-#                softmax=sm)
-#     ann.run(epochs, bestk=bestk)
-#     TFT.fireup_tensorboard('probeview')
-#     return ann
-
-
-
-
-def example_countex(dims, h_activation_function, lower, upper, cfraction, epochs, ncases, lrate, showint, mbs, vfrac, tfrac, vint, sm,
+def example_countex(dims, h_activation_function, optimizer, lower, upper, cfraction, steps, ncases, lrate, showint, mbs, vfrac,
+                    tfrac, vint, sm,
                     bestk, cost_function):
     nbits_placeholder = 15
 
@@ -383,64 +383,9 @@ def example_countex(dims, h_activation_function, lower, upper, cfraction, epochs
     case_generator = (lambda: load_generic_file('data/yeast.txt', cfraction))
     cman = Caseman(cfunc=case_generator, vfrac=vfrac, tfrac=tfrac)
 
-    ann = Gann(dims, h_activation_function, lower, upper, cman=cman, lrate=lrate, showint=showint, mbs=mbs, vint=vint,
+    ann = Gann(dims, h_activation_function, optimizer, lower, upper, cman=cman, lrate=lrate, showint=showint, mbs=mbs,
+               vint=vint,
                softmax=sm, cost_function=cost_function)
-    ann.run(epochs, bestk=bestk)
+    ann.run(steps, bestk=bestk)
     TFT.fireup_tensorboard('probeview')
     return ann
-
-
-
-
-
-# def final_function(dims, h_activation_function, lower, upper, epochs, ncases, lrate, showint, mbs, vfrac, tfrac, vint, sm,
-#                     bestk, cost_function):
-#     case_generator = (lambda: )
-
-
-# Main function for taking in the user variables
-def main():
-    # Check the Cheatsheet for a description of the different variables.
-    dims = []
-    sm = False
-    bestk = None
-    
-
-    # filename = str(input("Please enter the filename from where we will we loading settings. Example: test.json "))
-    # TODO Support a real working file path. Can not be called from a different folder atm
-    filename = "variables.json"
-    with open(filename) as f:
-        data = json.load(f)
-    for key, value in data["dimensions"].items():
-        dims.append(value)
-
-    h_activation_function = data["hidden_activation_function"]["name"]
-    o_activation_function = data["output_activation_function"]["softmax"]
-    cost_function = data["cost_function"]["name"]
-    lrate = float(data["learning_rate"]["value"])
-    lower = float(data["ini_weight_range"]["lower_bound"])
-    upper = float(data["ini_weight_range"]["upper_bound"])
-    optimizer = data["optimizer"]["name"]
-    # TODO Create logic for running the desired function with arguments. Need to look into best practice
-    cfraction = float(data["case_fraction"]["ratio"])
-    epochs = int(data["epochs"]["number"])
-    mbs = int(data["minibatch_size"]["number_of_training_cases"])
-    showint = int(data["grabbed_variables"]["show_freq"])
-    ncases = int(data["num_gen_training_case"]["amount"])
-    vfrac = float(data["validation_fraction"]["ratio"])
-    tfrac = float(data["test_fraction"]["ratio"])
-    vint = int(data["validation_interval"]["number"])
-
-    if str(o_activation_function.lower()) == "true":
-        sm = True
-    if str(data["bestk"]["bool"].lower()) == "true":
-        bestk = 1
-
-    print("running example countex")
-    example_countex(dims, h_activation_function, lower, upper, cfraction, epochs, ncases, lrate, showint, mbs, vfrac, tfrac, vint, sm, bestk, cost_function)
-    #countex()
-
-    #print(dims, epochs, ncases, lrate, showint, mbs, vfrac, tfrac, vint, sm, bestk)
-
-if __name__ == "__main__":
-    main()
