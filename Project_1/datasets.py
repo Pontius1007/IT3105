@@ -9,27 +9,22 @@ __mnist_path__ = "/Users/sebastian/Downloads/mnist-zip/"
 
 # loads mnist
 def load_flat_text_cases(filename, cfraction, dir=__mnist_path__,):
+    print(cfraction)
     f = open(dir + filename, "r")
     lines = [line.split(" ") for line in f.read().split("\n")]
     f.close()
     len_lines = float(len(lines))
     fraction = int(np.ceil(cfraction*len_lines))
+    shuffle(lines)
     new_lines = lines[:fraction]
     x_l = list(map(int, new_lines[0]))[:(fraction-1)] # target
     x_t = [list(map(int, line)) for line in new_lines[1:]] # input
     x_l = [[i] for i in x_l]
-    print([list(i) for i in zip(x_t, x_l)])
+    print(len(x_t[0]))
+    print(len(x_l[0]))
+
     return [list(i) for i in zip(x_t, x_l)]
 
-    # x_l = [TFT.int_to_one_hot(int(fv), 10) for fv in new_lines[0]]
-    # x_l = x_l[:(fraction-1)]
-    # x_t = np.array([new_lines[i] for i in range(1, len(new_lines))]).astype(int)
-    # x_t = x_t/255
-    # #x_t = normalize_inputs(x_t.astype(int))
-
-    # return [[l, t] for l, t in zip(x_t, x_l)]
-
-    # [[[input], [target]], [[input], [target]]]
 
 
 # loads yeast, wine, etc.
@@ -43,9 +38,8 @@ def load_generic_file(filename, cfraction, dir=__mnist_path__,):
             split_line = line.replace(';', ',')
             split_line = split_line.strip().split(',')
             input_vector = [float(i) for i in split_line[:-1]]
-            print(split_line[-1])
             target_vector = int(split_line[-1])
-            hot_target = TFT.int_to_one_hot(target_vector, 11)
+            hot_target = TFT.int_to_one_hot(target_vector, 12)
             line_output.append(input_vector)
             line_output.append(hot_target)
             output_list.append(line_output)
