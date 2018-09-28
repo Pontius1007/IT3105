@@ -4,6 +4,8 @@ import math
 import matplotlib.pyplot as PLT
 import tflowtools as TFT
 import json
+from random import shuffle
+from datasets import *
 
 
 # ******* A General Artificial Neural Network ********
@@ -69,7 +71,7 @@ class Gann:
     # of the weight array.
 
     def configure_learning(self, cost_function):
-        if cost_function == "CE".lower():
+        if cost_function.upper() == "CE":
             self.error = tf.reduce_mean(
                 tf.nn.softmax_cross_entropy_with_logits_v2(logits=self.output, labels=self.target),
                 name='Cross-Entroypy')
@@ -124,7 +126,7 @@ class Gann:
         feeder = {self.input: inputs, self.target: targets}
         self.test_func = self.error
         if bestk is not None:
-            self.test_func = self.gen_match_counter(self.predictor, [TFT.one_hot_to_int(list(v)) for v in targets],
+            self.test_func = self.gen_match_counter(self.predictor,[TFT.one_hot_to_int(list(v)) for v in targets],
                                                     k=bestk)
         testres, grabvals, _ = self.run_one_step(self.test_func, self.grabvars, self.probes, session=sess,
                                                  feed_dict=feeder, show_interval=None)

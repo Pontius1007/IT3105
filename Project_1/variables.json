@@ -5,7 +5,7 @@
     "output": 16
   },
   "hidden_activation_function": {
-    "name": "rule6"
+    "name": "relu"
   },
   "output_activation_function": {
     "softmax": "False"
@@ -21,9 +21,10 @@
     "upper_bound": 0.1
   },
   "optimizer": {
-    "name": "RMSprop"
+    "name": "asdf"
   },
   "data_source": {
+    "data_type": "file", 
     "file_path": "test.txt",
     "function_name": "gen_vector_count_cases",
     "args": [
@@ -32,7 +33,7 @@
     ]
   },
   "case_fraction": {
-  "ratio": 1.0
+  "ratio": 0.01
   },
   "validation_fraction": {
     "ratio": 0.1
@@ -71,7 +72,7 @@
     "amount": 5000
   },
   "bestk": {
-    "bool": "false"
+    "bool": "true"
   },
   "run_more": {
     "steps": 500
