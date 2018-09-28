@@ -1,5 +1,6 @@
 from ann import *
 import tflowtools as TFT
+from datasets import *
 
 
 class Parameters:
@@ -35,7 +36,6 @@ class Parameters:
 
 
 class InputRunHandler:
-
     def __init__(self, ann):
         self.ann = ann
         self.params = Parameters()
@@ -53,14 +53,19 @@ class InputRunHandler:
             print("\n")
 
         if u_input == "run" or u_input == "r":
-            print("Datasets supported: \n")
-            print("Countex, Autoex")
-            dataset = input("Please enter the dataset you want to run: ").lower()
-            print()
-            if dataset == "countex":
+            data_input = input("Please enter the dataset you want to run: ").lower()
+            if data_input == "countex":
                 self.countex()
-            elif dataset == "autoex":
+            elif data_input == "autoex":
                 self.autoex()
+            elif data_input == "yeast":
+                self.yeast()
+            elif data_input == "glass":
+                self.glass()
+            elif data_input == "wine":
+                self.wine()
+            elif data_input == "mnist":
+                self.mnist()
 
         if u_input == "mapping" or u_input == "dm":
             number_of_cases = int(input("Enter the number of cases you want to map: "))
@@ -92,23 +97,25 @@ class InputRunHandler:
         self.params.grab_module_index = [i for i in data["grab_module_index"]]
         self.params.grab_type = [i for i in data["grab_type"]]
 
-    # TODO build the Gann outside of each run function so we dont have so much fucking duplicated code.
-    # TODO Jesus christ I dun goofed
-    # Below is different run configurations for datasets
-    def countex(self):
-        nbits = int(input("Enter the length of the vector in bits. Enter 0 to set it to the input layer size: "))
-        nbits = nbits if (nbits != 0) else self.params.dims[0]
-        case_generator = (lambda: TFT.gen_vector_count_cases(self.params.ncases, nbits))
-        self.ann.set_cman(Caseman(cfunc=case_generator, vfrac=self.params.vfrac, tfrac=self.params.tfrac))
+    # Test
+    def build_ann(self):
         model = Gann(dims=self.params.dims, hidden_activation_function=self.params.hidden_activation_function,
                      optimizer=self.params.optimizer, lower=self.params.weight_range_lower,
                      upper=self.params.weight_range_upper, cman=self.ann.get_cman(), lrate=self.params.learning_rate,
                      showfreq=self.params.show_freq, mbs=self.params.mbs, vint=self.params.vint, softmax=self.params.sm,
                      cost_function=self.params.cost_function, grab_module_index=self.params.grab_module_index,
                      grab_type=self.params.grab_type)
+        return model
+
+    def countex(self):
+        nbits = int(input("Enter the length of the vector in bits. Enter 0 to set it to the input layer size: "))
+        nbits = nbits if (nbits != 0) else self.params.dims[0]
+        case_generator = (lambda: TFT.gen_vector_count_cases(self.params.ncases, nbits))
+        self.ann.set_cman(Caseman(cfunc=case_generator, vfrac=self.params.vfrac, tfrac=self.params.tfrac))
+        model = self.build_ann()
         self.ann.set_model(model)
         model.run(steps=self.params.steps, bestk=self.params.bestk)
-        # TFT.fireup_tensorboard('probeview')
+        #TFT.fireup_tensorboard('probeview')
 
     def autoex(self):
         nbits = int(input("Enter the length of the vector in bits. "
@@ -122,11 +129,69 @@ class InputRunHandler:
                      optimizer=self.params.optimizer, lower=self.params.weight_range_lower,
                      upper=self.params.weight_range_upper, cman=self.ann.get_cman(), lrate=self.params.learning_rate,
                      showfreq=self.params.show_freq, mbs=mbs, vint=self.params.vint, softmax=self.params.sm,
-                     cost_function=self.params.cost_function, grab_module_index=[self.params.grab_module_index],
+                     cost_function=self.params.cost_function, grab_module_index=self.params.grab_module_index,
                      grab_type=self.params.grab_type)
         self.ann.set_model(model)
-        #model.gen_probe(0, 'wgt', ('hist', 'avg'))  # Plot a histogram and avg of the incoming weights to module 0.
-        #model.gen_probe(1, 'out', ('avg', 'max'))  # Plot average and max value of module 1's output vector
-        #model.add_grabvar(0, 'wgt')  # Add a grabvar (to be displayed in its own matplotlib window).
+        # model.gen_probe(0, 'wgt', ('hist', 'avg'))  # Plot a histogram and avg of the incoming weights to module 0.
+        # model.gen_probe(1, 'out', ('avg', 'max'))  # Plot average and max value of module 1's output vector
+        # model.add_grabvar(0, 'wgt')  # Add a grabvar (to be displayed in its own matplotlib window).
         model.run(steps=self.params.steps, bestk=self.params.bestk)
-        #model.runmore(self.params.run_more_steps, bestk=self.params.bestk)
+        # model.runmore(self.params.run_more_steps, bestk=self.params.bestk)
+
+    def yeast(self):
+        case_generator = (lambda: load_generic_file('data/yeast.txt', self.params.cfraction))
+        self.ann.set_cman(Caseman(cfunc=case_generator, vfrac=self.params.vfrac, tfrac=self.params.tfrac))
+        self.params.dims[0] = 8
+        self.params.dims[2] = 11
+        model = Gann(dims=self.params.dims, hidden_activation_function=self.params.hidden_activation_function,
+                     optimizer=self.params.optimizer, lower=self.params.weight_range_lower,
+                     upper=self.params.weight_range_upper, cman=self.ann.get_cman(), lrate=self.params.learning_rate,
+                     showfreq=self.params.show_freq, mbs=self.params.mbs, vint=self.params.vint, softmax=self.params.sm,
+                     cost_function=self.params.cost_function)
+        self.ann.set_model(model)
+        model.run(steps=self.params.steps, bestk=self.params.bestk)
+        # TFT.fireup_tensorboard('probeview')
+
+    def wine(self):
+        case_generator = (lambda: load_generic_file('data/winequality_red.txt', self.params.cfraction))
+        self.ann.set_cman(Caseman(cfunc=case_generator, vfrac=self.params.vfrac, tfrac=self.params.tfrac))
+        self.params.dims[0] = 11
+        self.params.dims[2] = 11
+        model = Gann(dims=self.params.dims, hidden_activation_function=self.params.hidden_activation_function,
+                     optimizer=self.params.optimizer, lower=self.params.weight_range_lower,
+                     upper=self.params.weight_range_upper, cman=self.ann.get_cman(), lrate=self.params.learning_rate,
+                     showfreq=self.params.show_freq, mbs=self.params.mbs, vint=self.params.vint, softmax=self.params.sm,
+                     cost_function=self.params.cost_function)
+        self.ann.set_model(model)
+        model.run(steps=self.params.steps, bestk=self.params.bestk)
+        # TFT.fireup_tensorboard('probeview')
+
+    def glass(self):
+        case_generator = (lambda: load_generic_file('data/glass.txt', self.params.cfraction))
+        self.ann.set_cman(Caseman(cfunc=case_generator, vfrac=self.params.vfrac, tfrac=self.params.tfrac))
+        self.params.dims[0] = 9
+        self.params.dims[2] = 11
+        model = Gann(dims=self.params.dims, hidden_activation_function=self.params.hidden_activation_function,
+                     optimizer=self.params.optimizer, lower=self.params.weight_range_lower,
+                     upper=self.params.weight_range_upper, cman=self.ann.get_cman(), lrate=self.params.learning_rate,
+                     showfreq=self.params.show_freq, mbs=self.params.mbs, vint=self.params.vint, softmax=self.params.sm,
+                     cost_function=self.params.cost_function)
+        self.ann.set_model(model)
+        model.run(steps=self.params.steps, bestk=self.params.bestk)
+        # TFT.fireup_tensorboard('probeview')
+
+    def mnist(self):
+        case_generator = (
+            lambda: load_flat_text_cases('data/all_flat_mnist_training_cases_text.txt', self.params.cfraction))
+        self.ann.set_cman(Caseman(cfunc=case_generator, vfrac=self.params.vfrac, tfrac=self.params.tfrac))
+        self.params.dims[0] = 784
+        self.params.dims[2] = 10
+        model = Gann(dims=self.params.dims, hidden_activation_function=self.params.hidden_activation_function,
+                     optimizer=self.params.optimizer, lower=self.params.weight_range_lower,
+                     upper=self.params.weight_range_upper, cman=self.ann.get_cman(), lrate=self.params.learning_rate,
+                     showfreq=self.params.show_freq, mbs=self.params.mbs, vint=self.params.vint, softmax=self.params.sm,
+                     cost_function=self.params.cost_function)
+        self.ann.set_model(model)
+        model.run(steps=self.params.steps, bestk=self.params.bestk)
+
+    # TFT.fireup_tensorboard('probeview')

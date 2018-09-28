@@ -1,0 +1,2 @@
+data/all_flat_mnist_testing_cases_text.txt filter=lfs diff=lfs merge=lfs -text
+data/all_flat_mnist_training_cases_text.txt filter=lfs diff=lfs merge=lfs -text
