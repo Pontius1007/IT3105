@@ -22,6 +22,7 @@ class Parameters:
         # For training
         self.bestk = 1
         self.steps = 1000
+        self.run_more_steps = 500
 
         # For grabbed variables
         self.grabbed_weights = []
@@ -50,8 +51,14 @@ class InputRunHandler:
             print("\n")
 
         if u_input == "run" or u_input == "r":
-            if input("Please enter the dataset you want to run: ").lower() == "countex":
+            print("Datasets supported: \n")
+            print("Countex, Autoex")
+            dataset = input("Please enter the dataset you want to run: ").lower()
+            print()
+            if dataset == "countex":
                 self.countex()
+            elif dataset == "autoex":
+                self.autoex()
 
     def load_json(self, filename):
         with open(filename) as f:
@@ -74,8 +81,15 @@ class InputRunHandler:
         self.params.steps = int(data["steps"]["number"])
         self.params.cfraction = float(data["case_fraction"]["ratio"])
         self.params.sm = True if (str(self.params.output_activation_function.lower()) == "true") else False
-        self.params.bestk = 1 if (str(data["bestk"]["bool"].lower()) == "true") else 0
+        self.params.bestk = 1 if (str(data["bestk"]["bool"].lower()) == "true") else None
+        self.params.run_more_steps = int(data["run_more"]["steps"])
 
+    # Run options
+    def runmore(self, steps=100, bestk=None):
+        self.ann.reopen_current_session()
+        self.ann.run(steps, sess=self.ann.current_session, continued=True, bestk=bestk)
+
+    # Below is different run configurations for datasets
     def countex(self):
         nbits = int(input("Enter the length of the vector in bits. Enter 0 to set it to the input layer size: "))
         nbits = nbits if (nbits != 0) else self.params.dims[0]
@@ -89,3 +103,23 @@ class InputRunHandler:
         self.ann.set_model(model)
         model.run(steps=self.params.steps, bestk=self.params.bestk)
         # TFT.fireup_tensorboard('probeview')
+
+    def autoex(self):
+        nbits = int(input("Enter the length of the vector in bits. "
+                          "Please be careful and not crash my shit with a number like 32: "))
+        size = 2 ** nbits
+        mbs = self.params.mbs if self.params.mbs else size
+        case_generator = (lambda: TFT.gen_all_one_hot_cases(2 ** nbits))
+
+        self.ann.set_cman(Caseman(cfunc=case_generator, vfrac=self.params.vfrac, tfrac=self.params.tfrac))
+        model = Gann(dims=self.params.dims, hidden_activation_function=self.params.hidden_activation_function,
+                     optimizer=self.params.optimizer, lower=self.params.weight_range_lower,
+                     upper=self.params.weight_range_upper, cman=self.ann.get_cman(), lrate=self.params.learning_rate,
+                     showfreq=self.params.show_freq, mbs=mbs, vint=self.params.vint, softmax=self.params.sm,
+                     cost_function=self.params.cost_function)
+        self.ann.set_model(model)
+        #model.gen_probe(0, 'wgt', ('hist', 'avg'))  # Plot a histogram and avg of the incoming weights to module 0.
+        #model.gen_probe(1, 'out', ('avg', 'max'))  # Plot average and max value of module 1's output vector
+        #model.add_grabvar(0, 'wgt')  # Add a grabvar (to be displayed in its own matplotlib window).
+        model.run(steps=self.params.steps, bestk=self.params.bestk)
+        #model.runmore(self.params.run_more_steps, bestk=self.params.bestk)
