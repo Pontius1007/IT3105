@@ -181,6 +181,7 @@ class Gann:
             sess.probe_stream.add_summary(results[2], global_step=step)
         else:
             results = sess.run([operators, grabbed_vars], feed_dict=feed_dict)
+            print(results[1])
         if show_interval and (step % show_interval == 0):
             self.display_grabvars(results[1], grabbed_vars, step=step)
         return results[0], results[1], sess
@@ -190,6 +191,7 @@ class Gann:
         msg = "Grabbed Variables at Step " + str(step)
         print("\n" + msg, end="\n")
         fig_index = 0
+        print(grabbed_vals)
         for i, v in enumerate(grabbed_vals):
             if names: print("   " + names[i] + " = ", end="\n")
             if type(v) == np.ndarray and len(v.shape) > 1:  # If v is a matrix, use hinton plotting
