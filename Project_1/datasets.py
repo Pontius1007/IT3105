@@ -43,7 +43,6 @@ def load_generic_file(filename, cfraction, dir=__mnist_path__,):
             split_line = line.replace(';', ',')
             split_line = split_line.strip().split(',')
             input_vector = [float(i) for i in split_line[:-1]]
-            print(split_line[-1])
             target_vector = int(split_line[-1])
             hot_target = TFT.int_to_one_hot(target_vector, 11)
             line_output.append(input_vector)
@@ -51,4 +50,5 @@ def load_generic_file(filename, cfraction, dir=__mnist_path__,):
             output_list.append(line_output)
         # have to shuffle to get whole range
         shuffle(output_list)
+        print(output_list)
         return output_list[:fraction]

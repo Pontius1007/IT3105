@@ -1,11 +1,11 @@
 {
   "dimensions": {
-    "input": 8,
+    "input": 11,
     "hidden_layer_one": 45,
     "output": 11
   },
   "hidden_activation_function": {
-    "name": "rule6"
+    "name": "relu"
   },
   "output_activation_function": {
     "softmax": "True"

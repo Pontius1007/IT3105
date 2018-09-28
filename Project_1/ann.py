@@ -140,6 +140,7 @@ class Gann:
         testres, grabvals, _ = self.run_one_step(self.test_func, self.grabvars, self.probes, session=sess,
                                                  feed_dict=feeder, show_interval=None)
         if bestk is None:
+            print("IT'S NOT SUPPOSED TO BE HERE")
             print('%s Set Error = %f ' % (msg, testres))
         else:
             print('%s Set Correct Classifications = %f %%' % (msg, 100 * (testres / len(cases))))
