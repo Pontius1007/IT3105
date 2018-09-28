@@ -173,8 +173,7 @@ class InputRunHandler:
 		case_generator = (lambda: load_flat_text_cases('data/all_flat_mnist_training_cases_text.txt', self.params.cfraction))
 		self.ann.set_cman(Caseman(cfunc=case_generator, vfrac=self.params.vfrac, tfrac=self.params.tfrac))
 		self.params.dims[0] = 784
-		self.params.dims[2] = 1
-		print(self.params.dims)
+		self.params.dims[2] = 10
 		model = Gann(dims=self.params.dims, hidden_activation_function=self.params.hidden_activation_function,
 					 optimizer=self.params.optimizer, lower=self.params.weight_range_lower,
 					 upper=self.params.weight_range_upper, cman=self.ann.get_cman(), lrate=self.params.learning_rate,

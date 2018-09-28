@@ -33,7 +33,7 @@
     ]
   },
   "case_fraction": {
-  "ratio": 0.0001
+  "ratio": 0.01
   },
   "validation_fraction": {
     "ratio": 0.1
@@ -72,7 +72,7 @@
     "amount": 5000
   },
   "bestk": {
-    "bool": "false"
+    "bool": "true"
   },
   "run_more": {
     "steps": 500
