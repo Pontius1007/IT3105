@@ -11,8 +11,8 @@ import json
 
 
 class Gann:
-    def __init__(self, dims, hidden_activation_function, optimizer, lower, upper, cman, lrate=.1, showfreq=None, mbs=10,
-                 vint=None, softmax=False, cost_function="MSE"):
+    def __init__(self, dims, hidden_activation_function, optimizer, lower, upper, cman, grab_module_index, grab_type,
+                 lrate=.1, showfreq=None, mbs=10, vint=None, softmax=False, cost_function="MSE"):
         self.learning_rate = lrate
         self.layer_sizes = dims  # Sizes of each layer of neurons
         self.show_interval = showfreq  # Frequency of showing grabbed variables
@@ -30,7 +30,7 @@ class Gann:
         self.softmax_outputs = softmax
         self.modules = []
         self.cost_function = cost_function
-        self.build()
+        self.build(grab_module_index, grab_type)
 
     # Probed variables are to be displayed in the Tensorboard.
     def gen_probe(self, module_index, type, spec):
@@ -39,6 +39,7 @@ class Gann:
     # Grabvars are displayed by my own code, so I have more control over the display format.  Each
     # grabvar gets its own matplotlib figure in which to display its value.
     def add_grabvar(self, module_index, type='wgt'):
+        print(module_index)
         self.grabvars.append(self.modules[module_index].getvar(type))
         self.grabvar_figures.append(PLT.figure())
 
@@ -48,7 +49,7 @@ class Gann:
     def add_module(self, module):
         self.modules.append(module)
 
-    def build(self):
+    def build(self, grab_module_index, grab_type):
         tf.reset_default_graph()  # This is essential for doing multiple runs!!
         num_inputs = self.layer_sizes[0]
         self.input = tf.placeholder(tf.float64, shape=(None, num_inputs), name='Input')
@@ -63,6 +64,8 @@ class Gann:
         if self.softmax_outputs: self.output = tf.nn.softmax(self.output)
         self.target = tf.placeholder(tf.float64, shape=(None, gmod.outsize), name='Target')
         self.configure_learning(self.cost_function)
+        for i in range(len(grab_module_index)):
+            self.add_grabvar(grab_module_index[i], grab_type[i])
 
     # The optimizer knows to gather up all "trainable" variables in the function graph and compute
     # derivatives of the error function with respect to each component of each variable, i.e. each weight
@@ -112,11 +115,21 @@ class Gann:
             self.consider_validation_testing(step, sess)
         self.global_training_step += steps
         TFT.plot_training_history(self.error_history, self.validation_history, xtitle="Steps", ytitle="Error",
-                                  title="", fig=not (continued))
+                                  title="", fig=not continued)
 
     # bestk = 1 when you're doing a classification task and the targets are one-hot vectors.  This will invoke the
     # gen_match_counter error function. Otherwise, when
     # bestk=None, the standard MSE error function is used for testing.
+
+    def do_mapping(self, number_of_cases):
+        self.reopen_current_session()
+        test_cases = self.caseman.get_testing_cases()
+        cases = test_cases[:number_of_cases]
+        inputs = [c[0] for c in cases]
+        targets = [c[1] for c in cases]
+        feeder = {self.input: inputs, self.target: targets}
+        results = self.current_session.run([self.output, self.grabvars], feed_dict=feeder)
+        self.display_grabvars(results[1], self.grabvars)
 
     def do_testing(self, sess, cases, msg='Testing', bestk=None):
         inputs = [c[0] for c in cases]
