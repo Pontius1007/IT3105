@@ -3,33 +3,33 @@ import tflowtools as TFT
 
 
 class Parameters:
-	def __init__(self):
-		self.dims = []
-		self.hidden_activation_function = "relu"
-		self.optimizer = "RMSprop"
-		self.weight_range_lower = -0.1
-		self.weight_range_upper = 0.1
-		self.learning_rate = 0.1
-		self.show_freq = 500
-		self.mbs = 500
-		self.vfrac = 0.1
-		self.tfrac = 0.1
-		self.vint = 200
-		self.sm = False
-		self.cost_function = "MSE"
-		self.ncases = 5000
+    def __init__(self):
+        self.dims = []
+        self.hidden_activation_function = "relu"
+        self.optimizer = "RMSprop"
+        self.weight_range_lower = -0.1
+        self.weight_range_upper = 0.1
+        self.learning_rate = 0.1
+        self.show_freq = 500
+        self.mbs = 500
+        self.vfrac = 0.1
+        self.tfrac = 0.1
+        self.vint = 200
+        self.sm = False
+        self.cost_function = "MSE"
+        self.ncases = 5000
 
-		# For training
-		self.bestk = 1
-		self.steps = 1000
-		self.run_more_steps = 500
+        # For training
+        self.bestk = 1
+        self.steps = 1000
+        self.run_more_steps = 500
 
-		# For grabbed variables
-		self.grabbed_weights = []
-		self.grabbed_biases = []
+        # For grabbed variables
+        self.grabbed_weights = []
+        self.grabbed_biases = []
 
-	def __str__(self):
-		return ' ,  '.join(['{key} = {value}'.format(key=key, value=self.__dict__.get(key)) for key in self.__dict__])
+    def __str__(self):
+        return ' ,  '.join(['{key} = {value}'.format(key=key, value=self.__dict__.get(key)) for key in self.__dict__])
 
 
 class InputRunHandler:
