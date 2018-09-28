@@ -15,6 +15,8 @@ def load_flat_text_cases(filename, cfraction,):
     new_lines = lines[:fraction]
     x_l = list(map(int, new_lines[0]))[:(fraction-1)] # target
     x_t = [list(map(int, line)) for line in new_lines[1:]] # input
+    np.array(x_t)
+    x_t = np.divide(x_t, 255)
     x_l = [TFT.int_to_one_hot(i, 10) for i in x_l]
     return [list(i) for i in zip(x_t, x_l)]
 
