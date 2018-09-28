@@ -77,7 +77,7 @@ class Gann:
         if cost_function.upper() == "CE":
             self.error = tf.reduce_mean(
                 tf.nn.softmax_cross_entropy_with_logits_v2(logits=self.output, labels=self.target),
-                name='Cross-Entroypy')
+                name='Cross-Entropy')
         else:
             self.error = tf.reduce_mean(tf.square(self.target - self.output), name='MSE')
         self.predictor = self.output  # Simple prediction runs will request the value of output neurons
@@ -141,6 +141,35 @@ class Gann:
             else:
                 print(v, end="\n\n")
 
+    def create_dendrogram(self, number_of_cases):
+        names = [x.name for x in self.grabvars]
+        self.reopen_current_session()
+        training_cases = self.caseman.get_training_cases()
+        cases = test_cases[:number_of_cases]
+        inputs = [c[0] for c in cases]
+        targets = [c[1] for c in cases]
+        print(inputs)
+        print(targets)
+        feeder = {self.input: inputs, self.target: targets}
+        results = self.current_session.run([self.output, self.grabvars], feed_dict=feeder)
+        print(results[1][0][0])
+
+        features = []
+        labels = []
+
+        
+
+        TFT.dendrogram(features, labels)
+
+        # fig_index = 0
+        # for i, v in enumerate(results[1]):
+        #     if names: print("   " + names[i] + " = ", end="\n")
+        #     if type(v) == np.ndarray and len(v.shape) > 1:  # If v is a matrix, use hinton plotting
+        #         TFT.hinton_plot(v, fig=self.grabvar_figures[fig_index], title=names[i] + "mapping")
+        #         fig_index += 1
+        #     else:
+        #         print(v, end="\n\n")
+
     def do_testing(self, sess, cases, msg='Testing', bestk=None):
         inputs = [c[0] for c in cases]
         targets = [c[1] for c in cases]
@@ -202,7 +231,7 @@ class Gann:
             sess.probe_stream.add_summary(results[2], global_step=step)
         else:
             results = sess.run([operators, grabbed_vars], feed_dict=feed_dict)
-            print(results[1])
+            # print(results[1])
         if show_interval and (step % show_interval == 0):
             self.display_grabvars(results[1], grabbed_vars, step=step)
         return results[0], results[1], sess
@@ -212,7 +241,6 @@ class Gann:
         msg = "Grabbed Variables at Step " + str(step)
         print("\n" + msg, end="\n")
         fig_index = 0
-        print(grabbed_vals)
         for i, v in enumerate(grabbed_vals):
             if names: print("   " + names[i] + " = ", end="\n")
             if type(v) == np.ndarray and len(v.shape) > 1:  # If v is a matrix, use hinton plotting

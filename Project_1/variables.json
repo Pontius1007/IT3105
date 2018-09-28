@@ -33,7 +33,7 @@
     ]
   },
   "case_fraction": {
-  "ratio": 0.01
+  "ratio": 0.2
   },
   "validation_fraction": {
     "ratio": 0.1
