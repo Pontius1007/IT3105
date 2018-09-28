@@ -27,6 +27,8 @@ class Parameters:
         # For grabbed variables
         self.grabbed_weights = []
         self.grabbed_biases = []
+        self.grab_module_index = []
+        self.grab_type = []
 
     def __str__(self):
         return ' ,  '.join(['{key} = {value}'.format(key=key, value=self.__dict__.get(key)) for key in self.__dict__])
@@ -60,6 +62,10 @@ class InputRunHandler:
             elif dataset == "autoex":
                 self.autoex()
 
+        if u_input == "mapping" or u_input == "dm":
+            number_of_cases = int(input("Enter the number of cases you want to map: "))
+            self.ann.model.do_mapping(number_of_cases)
+
     def load_json(self, filename):
         with open(filename) as f:
             data = json.load(f)
@@ -83,12 +89,11 @@ class InputRunHandler:
         self.params.sm = True if (str(self.params.output_activation_function.lower()) == "true") else False
         self.params.bestk = 1 if (str(data["bestk"]["bool"].lower()) == "true") else None
         self.params.run_more_steps = int(data["run_more"]["steps"])
+        self.params.grab_module_index = [i for i in data["grab_module_index"]]
+        self.params.grab_type = [i for i in data["grab_type"]]
 
-    # Run options
-    def runmore(self, steps=100, bestk=None):
-        self.ann.reopen_current_session()
-        self.ann.run(steps, sess=self.ann.current_session, continued=True, bestk=bestk)
-
+    # TODO build the Gann outside of each run function so we dont have so much fucking duplicated code.
+    # TODO Jesus christ I dun goofed
     # Below is different run configurations for datasets
     def countex(self):
         nbits = int(input("Enter the length of the vector in bits. Enter 0 to set it to the input layer size: "))
@@ -99,7 +104,8 @@ class InputRunHandler:
                      optimizer=self.params.optimizer, lower=self.params.weight_range_lower,
                      upper=self.params.weight_range_upper, cman=self.ann.get_cman(), lrate=self.params.learning_rate,
                      showfreq=self.params.show_freq, mbs=self.params.mbs, vint=self.params.vint, softmax=self.params.sm,
-                     cost_function=self.params.cost_function)
+                     cost_function=self.params.cost_function, grab_module_index=self.params.grab_module_index,
+                     grab_type=self.params.grab_type)
         self.ann.set_model(model)
         model.run(steps=self.params.steps, bestk=self.params.bestk)
         # TFT.fireup_tensorboard('probeview')
@@ -116,7 +122,8 @@ class InputRunHandler:
                      optimizer=self.params.optimizer, lower=self.params.weight_range_lower,
                      upper=self.params.weight_range_upper, cman=self.ann.get_cman(), lrate=self.params.learning_rate,
                      showfreq=self.params.show_freq, mbs=mbs, vint=self.params.vint, softmax=self.params.sm,
-                     cost_function=self.params.cost_function)
+                     cost_function=self.params.cost_function, grab_module_index=[self.params.grab_module_index],
+                     grab_type=self.params.grab_type)
         self.ann.set_model(model)
         #model.gen_probe(0, 'wgt', ('hist', 'avg'))  # Plot a histogram and avg of the incoming weights to module 0.
         #model.gen_probe(1, 'out', ('avg', 'max'))  # Plot average and max value of module 1's output vector
