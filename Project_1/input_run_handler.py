@@ -97,7 +97,6 @@ class InputRunHandler:
         self.params.grab_module_index = [i for i in data["grab_module_index"]]
         self.params.grab_type = [i for i in data["grab_type"]]
 
-    # Test
     def build_ann(self):
         model = Gann(dims=self.params.dims, hidden_activation_function=self.params.hidden_activation_function,
                      optimizer=self.params.optimizer, lower=self.params.weight_range_lower,
@@ -115,7 +114,7 @@ class InputRunHandler:
         model = self.build_ann()
         self.ann.set_model(model)
         model.run(steps=self.params.steps, bestk=self.params.bestk)
-        #TFT.fireup_tensorboard('probeview')
+        # TFT.fireup_tensorboard('probeview')
 
     def autoex(self):
         nbits = int(input("Enter the length of the vector in bits. "
@@ -172,5 +171,4 @@ class InputRunHandler:
         model = self.build_ann()
         self.ann.set_model(model)
         model.run(steps=self.params.steps, bestk=self.params.bestk)
-
-    # TFT.fireup_tensorboard('probeview')
+        # TFT.fireup_tensorboard('probeview')
