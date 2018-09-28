@@ -2,7 +2,7 @@
   "dimensions": {
     "input": 16,
     "hidden_layer_one": 6,
-    "output": 16
+    "output": 17
   },
   "hidden_activation_function": {
     "name": "rule6"
@@ -75,5 +75,13 @@
   },
   "run_more": {
     "steps": 500
-  }
+  },
+  "grab_module_index": [
+    0,
+    1
+  ],
+  "grab_type": [
+    "wgt",
+    "wgt"
+  ]
 }
