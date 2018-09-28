@@ -101,8 +101,8 @@ class Gann:
         nmb = math.ceil(ncases / mbs)
         for cstart in range(0, steps):  # Loops through steps and sends one minibatch through per iteration
             step = self.global_training_step + cstart
-            cend = min(ncases, cstart + mbs)
-            minibatch = cases[cstart:cend]
+            # cend = min(ncases, cstart + mbs)
+            minibatch = cases[0:self.minibatch_size]
             np.random.shuffle(cases)
             inputs = [c[0] for c in minibatch]
             targets = [c[1] for c in minibatch]
@@ -126,21 +126,11 @@ class Gann:
         feeder = {self.input: inputs, self.target: targets}
         self.test_func = self.error
         if bestk is not None:
-            print("DOES IT EVEN FUCKING REACH HERE?!")
-            # testhing = [v[0] for v in targets]
-            # print(testhing)
-            # print(len(testhing))
-            # print(targets)
-            # print(TFT.int_to_one_hot(2,8))
-            # print([TFT.one_hot_to_int(list(v)) for v in targets])
-            print([TFT.one_hot_to_int(list(v)) for v in targets])
-            # self.test_func = self.gen_match_counter(self.predictor, testhing,
             self.test_func = self.gen_match_counter(self.predictor,[TFT.one_hot_to_int(list(v)) for v in targets],
                                                     k=bestk)
         testres, grabvals, _ = self.run_one_step(self.test_func, self.grabvars, self.probes, session=sess,
                                                  feed_dict=feeder, show_interval=None)
         if bestk is None:
-            print("IT'S NOT SUPPOSED TO BE HERE")
             print('%s Set Error = %f ' % (msg, testres))
         else:
             print('%s Set Correct Classifications = %f %%' % (msg, 100 * (testres / len(cases))))
@@ -350,43 +340,3 @@ class Caseman():
     def get_validation_cases(self): return self.validation_cases
 
     def get_testing_cases(self): return self.testing_cases
-
-
-#   ****  MAIN functions ****
-
-# After running this, open a Tensorboard (Go to localhost:6006 in your Chrome Browser) and check the
-# 'scalar', 'distribution' and 'histogram' menu options to view the probed variables.
-
-# def autoex(epochs=300, nbits=4, lrate=0.03, showint=100, mbs=None, vfrac=0.1, tfrac=0.1, vint=100, sm=False,
-#            bestk=None):
-#     size = 2 ** nbits
-#     mbs = mbs if mbs else size
-#     case_generator = (lambda: TFT.gen_all_one_hot_cases(2 ** nbits))
-#     cman = Caseman(cfunc=case_generator, vfrac=vfrac, tfrac=tfrac)
-#     ann = Gann(dims=[size, nbits, size], cman=cman, lrate=lrate, showint=showint, mbs=mbs, vint=vint, softmax=sm)
-#     ann.gen_probe(0, 'wgt', ('hist', 'avg'))  # Plot a histogram and avg of the incoming weights to module 0.
-#     ann.gen_probe(1, 'out', ('avg', 'max'))  # Plot average and max value of module 1's output vector
-#     ann.add_grabvar(0, 'wgt')  # Add a grabvar (to be displayed in its own matplotlib window).
-#     ann.run(epochs, bestk=bestk)
-#     ann.runmore(epochs * 2, bestk=bestk)
-#     TFT.fireup_tensorboard('probeview')
-#     return ann
-
-def example_countex(dims, h_activation_function, optimizer, lower, upper, cfraction, steps, ncases, lrate, showint, mbs, vfrac,
-                    tfrac, vint, sm,
-                    bestk, cost_function):
-    nbits_placeholder = 15
-
-    # case_generator = load_flat_text_cases('all_flat_mnist_training_cases_text.txt', 0.01)
-    # print(load_flat_text_cases('all_flat_mnist_training_cases_text.txt', 0.001))
-    # case_generator = (lambda: load_flat_text_cases('all_flat_mnist_training_cases_text.txt'))
-    # case_generator = (lambda: TFT.gen_all_one_hot_cases(2**4))
-    case_generator = (lambda: load_generic_file('data/yeast.txt', cfraction))
-    cman = Caseman(cfunc=case_generator, vfrac=vfrac, tfrac=tfrac)
-
-    ann = Gann(dims, h_activation_function, optimizer, lower, upper, cman=cman, lrate=lrate, showint=showint, mbs=mbs,
-               vint=vint,
-               softmax=sm, cost_function=cost_function)
-    ann.run(steps, bestk=bestk)
-    TFT.fireup_tensorboard('probeview')
-    return ann

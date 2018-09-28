@@ -1,14 +1,14 @@
 {
   "dimensions": {
-    "input": 11,
-    "hidden_layer_one": 45,
-    "output": 11
+    "input": 16,
+    "hidden_layer_one": 6,
+    "output": 16
   },
   "hidden_activation_function": {
     "name": "relu"
   },
   "output_activation_function": {
-    "softmax": "True"
+    "softmax": "False"
   },
   "cost_function": {
     "name": "MSE"
@@ -33,7 +33,7 @@
     ]
   },
   "case_fraction": {
-  "ratio": 1.0
+  "ratio": 0.0001
   },
   "validation_fraction": {
     "ratio": 0.1
@@ -72,6 +72,9 @@
     "amount": 5000
   },
   "bestk": {
-    "bool": "true"
+    "bool": "false"
+  },
+  "run_more": {
+    "steps": 500
   }
 }
