@@ -55,12 +55,8 @@ class InputRunHandler:
 				self.countex()
 			elif data_input == "yeast":
 				self.yeast()
-			elif data_input == "wine":
-				self.wine()
-			elif data_input == "glass":
-				self.glass()
-			elif data_input == "mnist":
-				self.mnist()
+			elif data_input == "hey":
+				print("heyy")
 
 	def load_json(self, filename):
 		with open(filename) as f:
@@ -99,12 +95,14 @@ class InputRunHandler:
 		model.run(steps=self.params.steps, bestk=self.params.bestk)
 		# TFT.fireup_tensorboard('probeview')
 
-
 	def yeast(self):
+	# case_generator = load_flat_text_cases('all_flat_mnist_training_cases_text.txt', 0.01)
+	# print(load_flat_text_cases('all_flat_mnist_training_cases_text.txt', 0.001))
+	# case_generator = (lambda: load_flat_text_cases('all_flat_mnist_training_cases_text.txt'))
+	# case_generator = (lambda: TFT.gen_all_one_hot_cases(2**4))
 		case_generator = (lambda: load_generic_file('data/yeast.txt', self.params.cfraction))
 		self.ann.set_cman(Caseman(cfunc=case_generator, vfrac=self.params.vfrac, tfrac=self.params.tfrac))
-		self.params.dims[0] = 8
-		self.params.dims[2] = 11
+
 		model = Gann(dims=self.params.dims, hidden_activation_function=self.params.hidden_activation_function,
 					 optimizer=self.params.optimizer, lower=self.params.weight_range_lower,
 					 upper=self.params.weight_range_upper, cman=self.ann.get_cman(), lrate=self.params.learning_rate,
@@ -112,50 +110,4 @@ class InputRunHandler:
 					 cost_function=self.params.cost_function)
 		self.ann.set_model(model)
 		model.run(steps=self.params.steps, bestk=self.params.bestk)
-		# TFT.fireup_tensorboard('probeview')
-
-
-	def wine(self):
-		case_generator = (lambda: load_generic_file('data/winequality_red.txt', self.params.cfraction))
-		self.ann.set_cman(Caseman(cfunc=case_generator, vfrac=self.params.vfrac, tfrac=self.params.tfrac))
-		self.params.dims[0] = 11
-		self.params.dims[2] = 11
-		model = Gann(dims=self.params.dims, hidden_activation_function=self.params.hidden_activation_function,
-					 optimizer=self.params.optimizer, lower=self.params.weight_range_lower,
-					 upper=self.params.weight_range_upper, cman=self.ann.get_cman(), lrate=self.params.learning_rate,
-					 showfreq=self.params.show_freq, mbs=self.params.mbs, vint=self.params.vint, softmax=self.params.sm,
-					 cost_function=self.params.cost_function)
-		self.ann.set_model(model)
-		model.run(steps=self.params.steps, bestk=self.params.bestk)
-		# TFT.fireup_tensorboard('probeview')
-
-
-	def glass(self):
-		case_generator = (lambda: load_generic_file('data/glass.txt', self.params.cfraction))
-		self.ann.set_cman(Caseman(cfunc=case_generator, vfrac=self.params.vfrac, tfrac=self.params.tfrac))
-		self.params.dims[0] = 9
-		self.params.dims[2] = 11
-		model = Gann(dims=self.params.dims, hidden_activation_function=self.params.hidden_activation_function,
-					 optimizer=self.params.optimizer, lower=self.params.weight_range_lower,
-					 upper=self.params.weight_range_upper, cman=self.ann.get_cman(), lrate=self.params.learning_rate,
-					 showfreq=self.params.show_freq, mbs=self.params.mbs, vint=self.params.vint, softmax=self.params.sm,
-					 cost_function=self.params.cost_function)
-		self.ann.set_model(model)
-		model.run(steps=self.params.steps, bestk=self.params.bestk)
-		# TFT.fireup_tensorboard('probeview')
-
-
-	def mnist(self):
-		case_generator = (lambda: load_flat_text_cases('all_flat_mnist_training_cases_text.txt', self.params.cfraction))
-		self.ann.set_cman(Caseman(cfunc=case_generator, vfrac=self.params.vfrac, tfrac=self.params.tfrac))
-		self.params.dims[0] = 784
-		self.params.dims[2] = 1
-		print(self.params.dims)
-		model = Gann(dims=self.params.dims, hidden_activation_function=self.params.hidden_activation_function,
-					 optimizer=self.params.optimizer, lower=self.params.weight_range_lower,
-					 upper=self.params.weight_range_upper, cman=self.ann.get_cman(), lrate=self.params.learning_rate,
-					 showfreq=self.params.show_freq, mbs=self.params.mbs, vint=self.params.vint, softmax=self.params.sm,
-					 cost_function=self.params.cost_function)
-		self.ann.set_model(model)
-		model.run(steps=self.params.steps, bestk=self.params.bestk)
-		# TFT.fireup_tensorboard('probeview')
+	# TFT.fireup_tensorboard('probeview')

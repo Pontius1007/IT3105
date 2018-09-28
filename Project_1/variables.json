@@ -5,7 +5,7 @@
     "output": 11
   },
   "hidden_activation_function": {
-    "name": "relu"
+    "name": "rule6"
   },
   "output_activation_function": {
     "softmax": "True"
@@ -33,7 +33,7 @@
     ]
   },
   "case_fraction": {
-  "ratio": 0.001
+  "ratio": 1.0
   },
   "validation_fraction": {
     "ratio": 0.1
@@ -72,6 +72,6 @@
     "amount": 5000
   },
   "bestk": {
-    "bool": "None"
+    "bool": "true"
   }
 }

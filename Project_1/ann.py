@@ -126,7 +126,15 @@ class Gann:
         feeder = {self.input: inputs, self.target: targets}
         self.test_func = self.error
         if bestk is not None:
-            print("shouldn't run here")
+            print("DOES IT EVEN FUCKING REACH HERE?!")
+            # testhing = [v[0] for v in targets]
+            # print(testhing)
+            # print(len(testhing))
+            # print(targets)
+            # print(TFT.int_to_one_hot(2,8))
+            # print([TFT.one_hot_to_int(list(v)) for v in targets])
+            print([TFT.one_hot_to_int(list(v)) for v in targets])
+            # self.test_func = self.gen_match_counter(self.predictor, testhing,
             self.test_func = self.gen_match_counter(self.predictor,[TFT.one_hot_to_int(list(v)) for v in targets],
                                                     k=bestk)
         testres, grabvals, _ = self.run_one_step(self.test_func, self.grabvars, self.probes, session=sess,
@@ -362,3 +370,22 @@ class Caseman():
 #     ann.runmore(epochs * 2, bestk=bestk)
 #     TFT.fireup_tensorboard('probeview')
 #     return ann
+
+def example_countex(dims, h_activation_function, optimizer, lower, upper, cfraction, steps, ncases, lrate, showint, mbs, vfrac,
+                    tfrac, vint, sm,
+                    bestk, cost_function):
+    nbits_placeholder = 15
+
+    # case_generator = load_flat_text_cases('all_flat_mnist_training_cases_text.txt', 0.01)
+    # print(load_flat_text_cases('all_flat_mnist_training_cases_text.txt', 0.001))
+    # case_generator = (lambda: load_flat_text_cases('all_flat_mnist_training_cases_text.txt'))
+    # case_generator = (lambda: TFT.gen_all_one_hot_cases(2**4))
+    case_generator = (lambda: load_generic_file('data/yeast.txt', cfraction))
+    cman = Caseman(cfunc=case_generator, vfrac=vfrac, tfrac=tfrac)
+
+    ann = Gann(dims, h_activation_function, optimizer, lower, upper, cman=cman, lrate=lrate, showint=showint, mbs=mbs,
+               vint=vint,
+               softmax=sm, cost_function=cost_function)
+    ann.run(steps, bestk=bestk)
+    TFT.fireup_tensorboard('probeview')
+    return ann
