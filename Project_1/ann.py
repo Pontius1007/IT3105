@@ -124,6 +124,7 @@ class Gann:
     # bestk=None, the standard MSE error function is used for testing.
 
     def do_mapping(self, number_of_cases):
+        names = [x.name for x in self.grabvars]
         self.reopen_current_session()
         test_cases = self.caseman.get_testing_cases()
         cases = test_cases[:number_of_cases]
@@ -131,7 +132,14 @@ class Gann:
         targets = [c[1] for c in cases]
         feeder = {self.input: inputs, self.target: targets}
         results = self.current_session.run([self.output, self.grabvars], feed_dict=feeder)
-        self.display_grabvars(results[1], self.grabvars)
+        fig_index = 0
+        for i, v in enumerate(results[1]):
+            if names: print("   " + names[i] + " = ", end="\n")
+            if type(v) == np.ndarray and len(v.shape) > 1:  # If v is a matrix, use hinton plotting
+                TFT.hinton_plot(v, fig=self.grabvar_figures[fig_index], title=names[i] + "mapping")
+                fig_index += 1
+            else:
+                print(v, end="\n\n")
 
     def do_testing(self, sess, cases, msg='Testing', bestk=None):
         inputs = [c[0] for c in cases]
@@ -139,7 +147,7 @@ class Gann:
         feeder = {self.input: inputs, self.target: targets}
         self.test_func = self.error
         if bestk is not None:
-            self.test_func = self.gen_match_counter(self.predictor,[TFT.one_hot_to_int(list(v)) for v in targets],
+            self.test_func = self.gen_match_counter(self.predictor, [TFT.one_hot_to_int(list(v)) for v in targets],
                                                     k=bestk)
         testres, grabvals, _ = self.run_one_step(self.test_func, self.grabvars, self.probes, session=sess,
                                                  feed_dict=feeder, show_interval=None)
