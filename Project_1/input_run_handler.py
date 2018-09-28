@@ -125,12 +125,7 @@ class InputRunHandler:
         case_generator = (lambda: TFT.gen_all_one_hot_cases(2 ** nbits))
 
         self.ann.set_cman(Caseman(cfunc=case_generator, vfrac=self.params.vfrac, tfrac=self.params.tfrac))
-        model = Gann(dims=self.params.dims, hidden_activation_function=self.params.hidden_activation_function,
-                     optimizer=self.params.optimizer, lower=self.params.weight_range_lower,
-                     upper=self.params.weight_range_upper, cman=self.ann.get_cman(), lrate=self.params.learning_rate,
-                     showfreq=self.params.show_freq, mbs=mbs, vint=self.params.vint, softmax=self.params.sm,
-                     cost_function=self.params.cost_function, grab_module_index=self.params.grab_module_index,
-                     grab_type=self.params.grab_type)
+        model = self.build_ann()
         self.ann.set_model(model)
         # model.gen_probe(0, 'wgt', ('hist', 'avg'))  # Plot a histogram and avg of the incoming weights to module 0.
         # model.gen_probe(1, 'out', ('avg', 'max'))  # Plot average and max value of module 1's output vector
@@ -143,11 +138,7 @@ class InputRunHandler:
         self.ann.set_cman(Caseman(cfunc=case_generator, vfrac=self.params.vfrac, tfrac=self.params.tfrac))
         self.params.dims[0] = 8
         self.params.dims[2] = 11
-        model = Gann(dims=self.params.dims, hidden_activation_function=self.params.hidden_activation_function,
-                     optimizer=self.params.optimizer, lower=self.params.weight_range_lower,
-                     upper=self.params.weight_range_upper, cman=self.ann.get_cman(), lrate=self.params.learning_rate,
-                     showfreq=self.params.show_freq, mbs=self.params.mbs, vint=self.params.vint, softmax=self.params.sm,
-                     cost_function=self.params.cost_function)
+        model = self.build_ann()
         self.ann.set_model(model)
         model.run(steps=self.params.steps, bestk=self.params.bestk)
         # TFT.fireup_tensorboard('probeview')
@@ -157,11 +148,7 @@ class InputRunHandler:
         self.ann.set_cman(Caseman(cfunc=case_generator, vfrac=self.params.vfrac, tfrac=self.params.tfrac))
         self.params.dims[0] = 11
         self.params.dims[2] = 11
-        model = Gann(dims=self.params.dims, hidden_activation_function=self.params.hidden_activation_function,
-                     optimizer=self.params.optimizer, lower=self.params.weight_range_lower,
-                     upper=self.params.weight_range_upper, cman=self.ann.get_cman(), lrate=self.params.learning_rate,
-                     showfreq=self.params.show_freq, mbs=self.params.mbs, vint=self.params.vint, softmax=self.params.sm,
-                     cost_function=self.params.cost_function)
+        model = self.build_ann()
         self.ann.set_model(model)
         model.run(steps=self.params.steps, bestk=self.params.bestk)
         # TFT.fireup_tensorboard('probeview')
@@ -171,11 +158,7 @@ class InputRunHandler:
         self.ann.set_cman(Caseman(cfunc=case_generator, vfrac=self.params.vfrac, tfrac=self.params.tfrac))
         self.params.dims[0] = 9
         self.params.dims[2] = 11
-        model = Gann(dims=self.params.dims, hidden_activation_function=self.params.hidden_activation_function,
-                     optimizer=self.params.optimizer, lower=self.params.weight_range_lower,
-                     upper=self.params.weight_range_upper, cman=self.ann.get_cman(), lrate=self.params.learning_rate,
-                     showfreq=self.params.show_freq, mbs=self.params.mbs, vint=self.params.vint, softmax=self.params.sm,
-                     cost_function=self.params.cost_function)
+        model = self.build_ann()
         self.ann.set_model(model)
         model.run(steps=self.params.steps, bestk=self.params.bestk)
         # TFT.fireup_tensorboard('probeview')
@@ -186,11 +169,7 @@ class InputRunHandler:
         self.ann.set_cman(Caseman(cfunc=case_generator, vfrac=self.params.vfrac, tfrac=self.params.tfrac))
         self.params.dims[0] = 784
         self.params.dims[2] = 10
-        model = Gann(dims=self.params.dims, hidden_activation_function=self.params.hidden_activation_function,
-                     optimizer=self.params.optimizer, lower=self.params.weight_range_lower,
-                     upper=self.params.weight_range_upper, cman=self.ann.get_cman(), lrate=self.params.learning_rate,
-                     showfreq=self.params.show_freq, mbs=self.params.mbs, vint=self.params.vint, softmax=self.params.sm,
-                     cost_function=self.params.cost_function)
+        model = self.build_ann()
         self.ann.set_model(model)
         model.run(steps=self.params.steps, bestk=self.params.bestk)
 
