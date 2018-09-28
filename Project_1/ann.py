@@ -99,8 +99,8 @@ class Gann:
         nmb = math.ceil(ncases / mbs)
         for cstart in range(0, steps):  # Loops through steps and sends one minibatch through per iteration
             step = self.global_training_step + cstart
-            cend = min(ncases, cstart + mbs)
-            minibatch = cases[cstart:cend]
+            # cend = min(ncases, cstart + mbs)
+            minibatch = cases[0:self.minibatch_size]
             np.random.shuffle(cases)
             inputs = [c[0] for c in minibatch]
             targets = [c[1] for c in minibatch]
@@ -357,17 +357,6 @@ class Caseman():
 #     ann.add_grabvar(0, 'wgt')  # Add a grabvar (to be displayed in its own matplotlib window).
 #     ann.run(epochs, bestk=bestk)
 #     ann.runmore(epochs * 2, bestk=bestk)
-#     TFT.fireup_tensorboard('probeview')
-#     return ann
-
-
-# def countex(epochs=5000, nbits=15, ncases=500, lrate=0.5, showint=500, mbs=20, vfrac=0.1, tfrac=0.1, vint=200, sm=True,
-#             bestk=1):
-#     case_generator = (lambda: TFT.gen_vector_count_cases(ncases, nbits))
-#     cman = Caseman(cfunc=case_generator, vfrac=vfrac, tfrac=tfrac)
-#     ann = Gann(dims=[nbits, nbits * 3, nbits + 1], cman=cman, lrate=lrate, showint=showint, mbs=mbs, vint=vint,
-#                softmax=sm)
-#     ann.run(epochs, bestk=bestk)
 #     TFT.fireup_tensorboard('probeview')
 #     return ann
 
