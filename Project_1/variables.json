@@ -50,9 +50,6 @@
   "map_batch_size": {
     "map_test": 0
   },
-  "map_layers": [
-    "Somerandomlayer"
-  ],
   "map_dendrogram": [
     "nameofarandomlayer"
   ],
@@ -79,10 +76,12 @@
   },
   "grab_module_index": [
     0,
-    1
+    1,
+    0
   ],
   "grab_type": [
     "wgt",
-    "wgt"
+    "wgt",
+    "bias"
   ]
 }
