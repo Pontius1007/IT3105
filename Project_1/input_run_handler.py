@@ -71,6 +71,11 @@ class InputRunHandler:
             number_of_cases = int(input("Enter the number of cases you want to map: "))
             self.ann.model.do_mapping(number_of_cases)
 
+        if u_input == "prediction" or u_input == "p":
+            number_of_cases = int(input("Enter the number of cases you want predict: "))
+            self.ann.model.do_prediction(number_of_cases)
+
+
     def load_json(self, filename):
         with open(filename) as f:
             data = json.load(f)
