@@ -39,7 +39,7 @@
     "ratio": 0.1
   },
   "validation_interval": {
-    "number": 200
+    "number": 500
   },
   "test_fraction": {
     "ratio": 0.1
@@ -63,19 +63,19 @@
     "listofbiasvectors"
   ],
   "steps": {
-    "number": 1000
+    "number": 10000
   },
   "grabbed_variables": {
-    "show_freq": 500
+    "show_freq": 5000
   },
   "num_gen_training_case": {
-    "amount": 5000
+    "amount": 500
   },
   "bestk": {
     "bool": "true"
   },
   "run_more": {
-    "steps": 500
+    "steps": 100
   },
   "grab_module_index": [
     0,
