@@ -142,6 +142,7 @@ class Gann:
                 fig_index += 1
             else:
                 print(v, end="\n\n")
+        self.close_current_session(view=False)
 
     def do_prediction(self, number_of_cases):
         self.reopen_current_session()
@@ -155,6 +156,7 @@ class Gann:
             print("The ANN guessed this: \n")
             print(self.current_session.run(self.output, feed_dict=feeder))
             print("The correct target value is: \n", r_target)
+        self.close_current_session(view=False)
 
     def do_testing(self, sess, cases, msg='Testing', bestk=None):
         inputs = [c[0] for c in cases]
