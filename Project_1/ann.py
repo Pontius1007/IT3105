@@ -41,7 +41,6 @@ class Gann:
     # Grabvars are displayed by my own code, so I have more control over the display format.  Each
     # grabvar gets its own matplotlib figure in which to display its value.
     def add_grabvar(self, module_index, type='wgt'):
-        print(module_index)
         self.grabvars.append(self.modules[module_index].getvar(type))
         self.grabvar_figures.append(PLT.figure())
 
@@ -86,7 +85,6 @@ class Gann:
         if self.optimizer == "rmsprop":
             optimizer = tf.train.RMSPropOptimizer(self.learning_rate)
         elif self.optimizer == "adagrad":
-            print(self.optimizer)
             optimizer = tf.train.AdagradOptimizer(self.learning_rate)
         elif self.optimizer == "adam":
             optimizer = tf.train.AdamOptimizer(self.learning_rate)

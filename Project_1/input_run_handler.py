@@ -19,6 +19,7 @@ class Parameters:
         self.sm = False
         self.cost_function = "MSE"
         self.ncases = 5000
+        self.map_cases = 0
 
         # For training
         self.bestk = 1
@@ -67,10 +68,6 @@ class InputRunHandler:
             elif data_input == "mnist":
                 self.mnist()
 
-        if u_input == "mapping" or u_input == "dm":
-            number_of_cases = int(input("Enter the number of cases you want to map: "))
-            self.ann.model.do_mapping(number_of_cases)
-
     def load_json(self, filename):
         with open(filename) as f:
             data = json.load(f)
@@ -96,6 +93,7 @@ class InputRunHandler:
         self.params.run_more_steps = int(data["run_more"]["steps"])
         self.params.grab_module_index = [i for i in data["grab_module_index"]]
         self.params.grab_type = [i for i in data["grab_type"]]
+        self.params.map_cases = data["do_mapping_cases"]
 
     def build_ann(self):
         model = Gann(dims=self.params.dims, hidden_activation_function=self.params.hidden_activation_function,
@@ -114,6 +112,9 @@ class InputRunHandler:
         model = self.build_ann()
         self.ann.set_model(model)
         model.run(steps=self.params.steps, bestk=self.params.bestk)
+        if self.params.map_cases != 0:
+            self.ann.model.do_mapping(self.params.map_cases)
+
         # TFT.fireup_tensorboard('probeview')
 
     def autoex(self):
@@ -130,6 +131,8 @@ class InputRunHandler:
         # model.gen_probe(1, 'out', ('avg', 'max'))  # Plot average and max value of module 1's output vector
         # model.add_grabvar(0, 'wgt')  # Add a grabvar (to be displayed in its own matplotlib window).
         model.run(steps=self.params.steps, bestk=self.params.bestk)
+        if self.params.map_cases != 0:
+            self.ann.model.do_mapping(self.params.map_cases)
         # model.runmore(self.params.run_more_steps, bestk=self.params.bestk)
 
     def yeast(self):
@@ -140,6 +143,8 @@ class InputRunHandler:
         model = self.build_ann()
         self.ann.set_model(model)
         model.run(steps=self.params.steps, bestk=self.params.bestk)
+        if self.params.map_cases != 0:
+            self.ann.model.do_mapping(self.params.map_cases)
         # TFT.fireup_tensorboard('probeview')
 
     def wine(self):
@@ -150,6 +155,8 @@ class InputRunHandler:
         model = self.build_ann()
         self.ann.set_model(model)
         model.run(steps=self.params.steps, bestk=self.params.bestk)
+        if self.params.map_cases != 0:
+            self.ann.model.do_mapping(self.params.map_cases)
         # TFT.fireup_tensorboard('probeview')
 
     def glass(self):
@@ -160,6 +167,8 @@ class InputRunHandler:
         model = self.build_ann()
         self.ann.set_model(model)
         model.run(steps=self.params.steps, bestk=self.params.bestk)
+        if self.params.map_cases != 0:
+            self.ann.model.do_mapping(self.params.map_cases)
         # TFT.fireup_tensorboard('probeview')
 
     def mnist(self):
@@ -171,4 +180,6 @@ class InputRunHandler:
         model = self.build_ann()
         self.ann.set_model(model)
         model.run(steps=self.params.steps, bestk=self.params.bestk)
+        if self.params.map_cases != 0:
+            self.ann.model.do_mapping(self.params.map_cases)
         # TFT.fireup_tensorboard('probeview')
