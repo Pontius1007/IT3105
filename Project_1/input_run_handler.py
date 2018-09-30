@@ -68,10 +68,6 @@ class InputRunHandler:
             elif data_input == "mnist":
                 self.mnist()
 
-        if u_input == "mapping" or u_input == "dm":
-            number_of_cases = int(input("Enter the number of cases you want to map: "))
-            self.ann.model.do_mapping(number_of_cases)
-
     def load_json(self, filename):
         with open(filename) as f:
             data = json.load(f)
