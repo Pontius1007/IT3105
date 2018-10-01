@@ -46,7 +46,7 @@ class InputRunHandler:
         if u_input == "load json" or u_input == "lj":
             while True:
                 filename = input("Enter the filepath to the JSON file. Leave blank for default: ")
-                filepath = "./config" + filename + ".json"
+                filepath = "./config/" + filename + ".json"
                 try:
                     if filename == "":
                         self.load_json("./config/variables.json")
@@ -63,27 +63,29 @@ class InputRunHandler:
         if u_input == "run" or u_input == "r":
             while True:
                 data_input = input("Please enter the dataset you want to run: ").lower()
-                try:
-                    if data_input == "bitcounter":
-                        self.bitcounter()
-                    elif data_input == "autoencoder":
-                        self.autoencoder()
-                    elif data_input == "parity":
-                        self.parity()
-                    elif data_input == "yeast":
-                        self.yeast()
-                    elif data_input == "glass":
-                        self.glass()
-                    elif data_input == "wine":
-                        self.wine()
-                    elif data_input == "iris":
-                        self.iris()
-                    elif data_input == "mnist":
-                        self.mnist()
-                    elif data_input == "q":
-                        break
-                except Exception as e:
-                    print("Not a supported dataset or bit: ", e)
+                #try:
+                if data_input == "bitcounter":
+                    self.bitcounter()
+                elif data_input == "autoencoder":
+                    self.autoencoder()
+                elif data_input == "parity":
+                    self.parity()
+                elif data_input == "symmetry":
+                    self.symmetry()
+                elif data_input == "yeast":
+                    self.yeast()
+                elif data_input == "glass":
+                    self.glass()
+                elif data_input == "wine":
+                    self.wine()
+                elif data_input == "iris":
+                    self.iris()
+                elif data_input == "mnist":
+                    self.mnist()
+                elif data_input == "q":
+                    break
+                #except Exception as e:
+                #    print("Not a supported dataset or bit: ", e)
                 else:
                     break
 
@@ -92,6 +94,7 @@ class InputRunHandler:
         if u_input == "show" or u_input == "plt":
             print("\n You will need to ctrl-z to run this program again. \n")
             PLT.show()
+        # TODO Add predict
 
     def load_json(self, filename):
         with open(filename) as f:
@@ -147,10 +150,22 @@ class InputRunHandler:
         model = self.build_ann()
         self.ann.set_model(model)
         model.run(steps=self.params.steps, bestk=self.params.bestk)
-        if self.params.map_cases != 0:
-            self.ann.model.do_mapping(self.params.map_cases)
-        if self.params.dendrogram_cases != 0:
-            self.ann.model.create_dendrogram(self.params.dendrogram_cases)
+        self.check_mapping_and_dendro()
+
+    def symmetry(self):
+        length = int(input("Enter the length of the vectors: "))
+        count = int(input("Enter the number of vectors: "))
+        case_generator = (lambda: TFT.gen_symvect_dataset(length, count))
+        case_man = Caseman(cfunc=case_generator, vfrac=self.params.vfrac, tfrac=self.params.tfrac)
+        self.params.dims[0] = len(case_man.training_cases[0][0])
+        self.params.dims[-1] = len(case_man.training_cases[0][1])
+        print("\nNumber of bits taken from input layer: ", length,
+              "and output set to target vector length at: ", self.params.dims[-1])
+        self.ann.set_cman(case_man)
+        model = self.build_ann()
+        self.ann.set_model(model)
+        model.run(steps=self.params.steps, bestk=self.params.bestk)
+        self.check_mapping_and_dendro()
 
     #  You will not be asked to run a performance test on an autoencoder at the demo
     #  session, but you may choose an autoencoder as the network that you explain in detail.
@@ -166,11 +181,7 @@ class InputRunHandler:
         # model.gen_probe(1, 'out', ('avg', 'max'))  # Plot average and max value of module 1's output vector
         # model.add_grabvar(0, 'wgt')  # Add a grabvar (to be displayed in its own matplotlib window).
         model.run(steps=self.params.steps, bestk=self.params.bestk)
-        if self.params.map_cases != 0:
-            self.ann.model.do_mapping(self.params.map_cases)
-        if self.params.dendrogram_cases != 0:
-            self.ann.model.create_dendrogram(self.params.dendrogram_cases)
-        # model.runmore(self.params.run_more_steps, bestk=self.params.bestk)
+        self.check_mapping_and_dendro()
 
     def bitcounter(self):
         nbits = int(input("Enter the length of the vector in bits. Enter 0 to set it to the input layer size: "))
@@ -180,10 +191,7 @@ class InputRunHandler:
         model = self.build_ann()
         self.ann.set_model(model)
         model.run(steps=self.params.steps, bestk=self.params.bestk)
-        if self.params.map_cases != 0:
-            self.ann.model.do_mapping(self.params.map_cases)
-        if self.params.dendrogram_cases != 0:
-            self.ann.model.create_dendrogram(self.params.dendrogram_cases)
+        self.check_mapping_and_dendro()
 
     def yeast(self):
         case_generator = (lambda: load_generic_file('data/yeast.txt', self.params.cfraction))
@@ -194,10 +202,7 @@ class InputRunHandler:
         model = self.build_ann()
         self.ann.set_model(model)
         model.run(steps=self.params.steps, bestk=self.params.bestk)
-        if self.params.map_cases != 0:
-            self.ann.model.do_mapping(self.params.map_cases)
-        if self.params.dendrogram_cases != 0:
-            self.ann.model.create_dendrogram(self.params.dendrogram_cases)
+        self.check_mapping_and_dendro()
 
     def wine(self):
         case_generator = (lambda: load_generic_file('data/winequality_red.txt', self.params.cfraction))
@@ -208,10 +213,7 @@ class InputRunHandler:
         model = self.build_ann()
         self.ann.set_model(model)
         model.run(steps=self.params.steps, bestk=self.params.bestk)
-        if self.params.map_cases != 0:
-            self.ann.model.do_mapping(self.params.map_cases)
-        if self.params.dendrogram_cases != 0:
-            self.ann.model.create_dendrogram(self.params.dendrogram_cases)
+        self.check_mapping_and_dendro()
 
     def glass(self):
         case_generator = (lambda: load_generic_file('data/glass.txt', self.params.cfraction))
@@ -222,10 +224,7 @@ class InputRunHandler:
         model = self.build_ann()
         self.ann.set_model(model)
         model.run(steps=self.params.steps, bestk=self.params.bestk)
-        if self.params.map_cases != 0:
-            self.ann.model.do_mapping(self.params.map_cases)
-        if self.params.dendrogram_cases != 0:
-            self.ann.model.create_dendrogram(self.params.dendrogram_cases)
+        self.check_mapping_and_dendro()
 
     def iris(self):
         case_generator = (lambda: load_iris_file('data/iris.txt', self.params.cfraction))
@@ -236,10 +235,7 @@ class InputRunHandler:
         model = self.build_ann()
         self.ann.set_model(model)
         model.run(steps=self.params.steps, bestk=self.params.bestk)
-        if self.params.map_cases != 0:
-            self.ann.model.do_mapping(self.params.map_cases)
-        if self.params.dendrogram_cases != 0:
-            self.ann.model.create_dendrogram(self.params.dendrogram_cases)
+        self.check_mapping_and_dendro()
 
     def mnist(self):
         case_generator = (
@@ -251,7 +247,4 @@ class InputRunHandler:
         model = self.build_ann()
         self.ann.set_model(model)
         model.run(steps=self.params.steps, bestk=self.params.bestk)
-        if self.params.map_cases != 0:
-            self.ann.model.do_mapping(self.params.map_cases)
-        if self.params.dendrogram_cases != 0:
-            self.ann.model.create_dendrogram(self.params.dendrogram_cases)
+        self.check_mapping_and_dendro()
