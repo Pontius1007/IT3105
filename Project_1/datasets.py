@@ -38,3 +38,30 @@ def load_generic_file(filename, cfraction, ):
         # have to shuffle to get whole range
         shuffle(output_list)
         return output_list[:fraction]
+
+# loads iris
+def load_iris_file(filename, cfraction, ):
+    with open(filename, 'r') as infile:
+        output_list = []
+        lines = infile.readlines()
+        fraction = int(np.ceil(cfraction * len(lines)))
+        for line in lines:
+            line_output = []
+            split_line = line.replace(';', ',')
+            split_line = split_line.strip().split(',')
+            input_vector = [float(i) for i in split_line[:-1]]
+            target_vector = (split_line[-1])
+            line_output.append(input_vector)
+            if target_vector == 'Iris-setosa':
+                line_output.append([1,0,0])
+            elif target_vector == 'Iris-versicolor':
+                line_output.append([0,1,0])
+            elif target_vector == 'Iris-virginica':
+                line_output.append([0,0,1])
+            else:
+                print("it was something else")
+                print(target_vector)
+            output_list.append(line_output)
+        # have to shuffle to get whole range
+        shuffle(output_list)
+        return output_list[:fraction]

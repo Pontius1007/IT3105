@@ -70,6 +70,8 @@ class InputRunHandler:
                 self.glass()
             elif data_input == "wine":
                 self.wine()
+            elif data_input == "iris":
+                self.iris()
             elif data_input == "mnist":
                 self.mnist()
 
@@ -163,9 +165,10 @@ class InputRunHandler:
 
     def yeast(self):
         case_generator = (lambda: load_generic_file('data/yeast.txt', self.params.cfraction))
-        self.ann.set_cman(Caseman(cfunc=case_generator, vfrac=self.params.vfrac, tfrac=self.params.tfrac))
-        self.params.dims[0] = 8
-        self.params.dims[2] = 11
+        caseman = Caseman(cfunc=case_generator, vfrac=self.params.vfrac, tfrac=self.params.tfrac)
+        self.ann.set_cman(caseman)
+        self.params.dims[0] = len(caseman.training_cases[0][0])
+        self.params.dims[-1] = len(caseman.training_cases[0][1])
         model = self.build_ann()
         self.ann.set_model(model)
         model.run(steps=self.params.steps, bestk=self.params.bestk)
@@ -176,9 +179,10 @@ class InputRunHandler:
 
     def wine(self):
         case_generator = (lambda: load_generic_file('data/winequality_red.txt', self.params.cfraction))
-        self.ann.set_cman(Caseman(cfunc=case_generator, vfrac=self.params.vfrac, tfrac=self.params.tfrac))
-        self.params.dims[0] = 11
-        self.params.dims[2] = 11
+        caseman = Caseman(cfunc=case_generator, vfrac=self.params.vfrac, tfrac=self.params.tfrac)
+        self.ann.set_cman(caseman)
+        self.params.dims[0] = len(caseman.training_cases[0][0])
+        self.params.dims[-1] = len(caseman.training_cases[0][1])
         model = self.build_ann()
         self.ann.set_model(model)
         model.run(steps=self.params.steps, bestk=self.params.bestk)
@@ -189,9 +193,26 @@ class InputRunHandler:
 
     def glass(self):
         case_generator = (lambda: load_generic_file('data/glass.txt', self.params.cfraction))
-        self.ann.set_cman(Caseman(cfunc=case_generator, vfrac=self.params.vfrac, tfrac=self.params.tfrac))
-        self.params.dims[0] = 9
-        self.params.dims[2] = 11
+        caseman = Caseman(cfunc=case_generator, vfrac=self.params.vfrac, tfrac=self.params.tfrac)
+        self.ann.set_cman(caseman)
+        self.params.dims[0] = len(caseman.training_cases[0][0])
+        self.params.dims[-1] = len(caseman.training_cases[0][1])
+        model = self.build_ann()
+        self.ann.set_model(model)
+        model.run(steps=self.params.steps, bestk=self.params.bestk)
+        if self.params.map_cases != 0:
+            self.ann.model.do_mapping(self.params.map_cases)
+        if self.params.dendrogram_cases != 0:
+            self.ann.model.create_dendrogram(self.params.dendrogram_cases)
+        PLT.show(block=False)
+        # TFT.fireup_tensorboard('probeview')
+
+    def iris(self):
+        case_generator = (lambda: load_iris_file('data/iris.txt', self.params.cfraction))
+        caseman = Caseman(cfunc=case_generator, vfrac=self.params.vfrac, tfrac=self.params.tfrac)
+        self.ann.set_cman(caseman)
+        self.params.dims[0] = len(caseman.training_cases[0][0])
+        self.params.dims[-1] = len(caseman.training_cases[0][1])
         model = self.build_ann()
         self.ann.set_model(model)
         model.run(steps=self.params.steps, bestk=self.params.bestk)
@@ -203,9 +224,10 @@ class InputRunHandler:
     def mnist(self):
         case_generator = (
             lambda: load_flat_text_cases('data/all_flat_mnist_training_cases_text.txt', self.params.cfraction))
-        self.ann.set_cman(Caseman(cfunc=case_generator, vfrac=self.params.vfrac, tfrac=self.params.tfrac))
-        self.params.dims[0] = 784
-        self.params.dims[2] = 10
+        caseman = Caseman(cfunc=case_generator, vfrac=self.params.vfrac, tfrac=self.params.tfrac)
+        self.ann.set_cman(caseman)
+        self.params.dims[0] = len(caseman.training_cases[0][0])
+        self.params.dims[-1] = len(caseman.training_cases[0][1])
         model = self.build_ann()
         self.ann.set_model(model)
         model.run(steps=self.params.steps, bestk=self.params.bestk)
