@@ -154,8 +154,9 @@ class Gann:
             results = self.current_session.run([self.output, self.grabvars], feed_dict=feeder)
             labels.append(TFT.bits_to_str(case[1]))
             features.append(results[0][0])
-
         TFT.dendrogram(features, labels)
+        self.close_current_session
+
 
     def do_testing(self, sess, cases, msg='Testing', bestk=None):
         inputs = [c[0] for c in cases]
