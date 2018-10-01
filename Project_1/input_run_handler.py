@@ -46,11 +46,12 @@ class InputRunHandler:
         if u_input == "load json" or u_input == "lj":
             while True:
                 filename = input("Enter the filepath to the JSON file. Leave blank for default: ")
+                filepath = "./config" + filename + ".json"
                 try:
                     if filename == "":
-                        self.load_json("variables.json")
+                        self.load_json("./config/variables.json")
                     else:
-                        self.load_json(filename)
+                        self.load_json(filepath)
                     print("Parameters are now set to: \n")
                     print(self.params)
                     print("\n")
