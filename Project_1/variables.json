@@ -74,6 +74,9 @@
   "run_more": {
     "steps": 100
   },
+  "do_mapping_cases":
+    15
+  ,
   "grab_module_index": [
     0,
     1,
