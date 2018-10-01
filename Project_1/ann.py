@@ -77,7 +77,7 @@ class Gann:
         if cost_function.upper() == "CE":
             self.error = tf.reduce_mean(
                 tf.nn.softmax_cross_entropy_with_logits_v2(logits=self.output, labels=self.target),
-                name='Cross-Entroypy')
+                name='Cross-Entropy')
         else:
             self.error = tf.reduce_mean(tf.square(self.target - self.output), name='MSE')
         self.predictor = self.output  # Simple prediction runs will request the value of output neurons
@@ -155,6 +155,23 @@ class Gann:
             print(self.current_session.run(self.output, feed_dict=feeder))
             print("The correct target value is: \n", r_target)
         self.close_current_session(view=False)
+
+    def create_dendrogram(self, number_of_cases):
+        self.reopen_current_session()
+        training_cases = self.caseman.get_training_cases()
+        cases = training_cases[:number_of_cases]
+
+        features = []
+        labels = []
+
+        for case in cases:
+            feeder = {self.input: [case[0]], self.target: [case[1]]}
+            results = self.current_session.run([self.output, self.grabvars], feed_dict=feeder)
+            labels.append(TFT.bits_to_str(case[1]))
+            features.append(results[0][0])
+        TFT.dendrogram(features, labels)
+        self.close_current_session(view=False)
+
 
     def do_testing(self, sess, cases, msg='Testing', bestk=None):
         inputs = [c[0] for c in cases]

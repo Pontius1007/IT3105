@@ -33,7 +33,7 @@
     ]
   },
   "case_fraction": {
-  "ratio": 0.01
+  "ratio": 0.1
   },
   "validation_fraction": {
     "ratio": 0.1
@@ -86,5 +86,7 @@
     "wgt",
     "wgt",
     "bias"
-  ]
+  ],
+  "do_dendrogram_cases":
+    15
 }
