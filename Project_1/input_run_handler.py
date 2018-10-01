@@ -44,31 +44,49 @@ class InputRunHandler:
 
     def evaluate_input(self, u_input):
         if u_input == "load json" or u_input == "lj":
-            filename = input("Enter the filepath to the JSON file. Leave blank for default: ")
-            if filename == "":
-                self.load_json("variables.json")
-            else:
-                self.load_json(filename)
-            print("Parameters are now set to: ")
-            print("\n")
-            print(self.params)
-            print("\n")
+            while True:
+                filename = input("Enter the filepath to the JSON file. Leave blank for default: ")
+                try:
+                    if filename == "":
+                        self.load_json("variables.json")
+                    else:
+                        self.load_json(filename)
+                    print("Parameters are now set to: \n")
+                    print(self.params)
+                    print("\n")
+                except (OSError, IOError) as e:
+                    print("Could not find file. Error: ", e)
+                else:
+                    break
 
         if u_input == "run" or u_input == "r":
-            data_input = input("Please enter the dataset you want to run: ").lower()
-            if data_input == "countex":
-                self.countex()
-            elif data_input == "autoex":
-                self.autoex()
-            elif data_input == "yeast":
-                self.yeast()
-            elif data_input == "glass":
-                self.glass()
-            elif data_input == "wine":
-                self.wine()
-            elif data_input == "mnist":
-                self.mnist()
+            while True:
+                data_input = input("Please enter the dataset you want to run: ").lower()
+                try:
+                    if data_input == "countex":
+                        self.countex()
+                    elif data_input == "autoex":
+                        self.autoex()
+                    elif data_input == "yeast":
+                        self.yeast()
+                    elif data_input == "glass":
+                        self.glass()
+                    elif data_input == "wine":
+                        self.wine()
+                    elif data_input == "mnist":
+                        self.mnist()
+                    elif data_input == "q":
+                        break
+                except Exception as e:
+                    print("Not a supported dataset or bit: ", e)
+                else:
+                    break
 
+        # Only reliable way to get interactive mode for matplot in a standard cmd shell. Use ipython to avoid
+        # Or, use MP
+        if u_input == "show" or u_input == "plt":
+            print("\n You will need to ctrl-z to run this program again. \n")
+            PLT.show()
 
     def load_json(self, filename):
         with open(filename) as f:
@@ -107,6 +125,12 @@ class InputRunHandler:
                      grab_type=self.params.grab_type)
         return model
 
+    def check_mapping_and_dendro(self):
+        if self.params.map_cases != 0:
+            self.ann.model.do_mapping(self.params.map_cases)
+        if self.params.dendrogram_cases != 0:
+            self.ann.model.create_dendrogram(self.params.dendrogram_cases)
+
     def countex(self):
         nbits = int(input("Enter the length of the vector in bits. Enter 0 to set it to the input layer size: "))
         nbits = nbits if (nbits != 0) else self.params.dims[0]
@@ -115,12 +139,7 @@ class InputRunHandler:
         model = self.build_ann()
         self.ann.set_model(model)
         model.run(steps=self.params.steps, bestk=self.params.bestk)
-        if self.params.map_cases != 0:
-            self.ann.model.do_mapping(self.params.map_cases)
-        if self.params.dendrogram_cases != 0:
-            self.ann.model.create_dendrogram(self.params.dendrogram_cases)
-        PLT.show(block=False)
-        # TFT.fireup_tensorboard('probeview')
+        self.check_mapping_and_dendro()
 
     def autoex(self):
         nbits = int(input("Enter the length of the vector in bits. "
@@ -140,8 +159,6 @@ class InputRunHandler:
             self.ann.model.do_mapping(self.params.map_cases)
         if self.params.dendrogram_cases != 0:
             self.ann.model.create_dendrogram(self.params.dendrogram_cases)
-        # model.runmore(self.params.run_more_steps, bestk=self.params.bestk)
-        PLT.show(block=False)
 
     def yeast(self):
         case_generator = (lambda: load_generic_file('data/yeast.txt', self.params.cfraction))
@@ -155,8 +172,6 @@ class InputRunHandler:
             self.ann.model.do_mapping(self.params.map_cases)
         if self.params.dendrogram_cases != 0:
             self.ann.model.create_dendrogram(self.params.dendrogram_cases)
-        PLT.show(block=False)
-        # TFT.fireup_tensorboard('probeview')
 
     def wine(self):
         case_generator = (lambda: load_generic_file('data/winequality_red.txt', self.params.cfraction))
@@ -170,8 +185,6 @@ class InputRunHandler:
             self.ann.model.do_mapping(self.params.map_cases)
         if self.params.dendrogram_cases != 0:
             self.ann.model.create_dendrogram(self.params.dendrogram_cases)
-        PLT.show(block=False)
-        # TFT.fireup_tensorboard('probeview')
 
     def glass(self):
         case_generator = (lambda: load_generic_file('data/glass.txt', self.params.cfraction))
@@ -185,8 +198,6 @@ class InputRunHandler:
             self.ann.model.do_mapping(self.params.map_cases)
         if self.params.dendrogram_cases != 0:
             self.ann.model.create_dendrogram(self.params.dendrogram_cases)
-        PLT.show(block=False)
-        # TFT.fireup_tensorboard('probeview')
 
     def mnist(self):
         case_generator = (
@@ -201,5 +212,3 @@ class InputRunHandler:
             self.ann.model.do_mapping(self.params.map_cases)
         if self.params.dendrogram_cases != 0:
             self.ann.model.create_dendrogram(self.params.dendrogram_cases)
-        PLT.show(block=False)
-        # TFT.fireup_tensorboard('probeview')
