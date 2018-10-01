@@ -7,6 +7,7 @@ import json
 import random
 from random import shuffle
 from datasets import *
+from itertools import cycle
 
 
 # ******* A General Artificial Neural Network ********
@@ -102,11 +103,19 @@ class Gann:
         mbs = self.minibatch_size
         ncases = len(cases)
         nmb = math.ceil(ncases / mbs)
+        start_index = 0
+        end_index = mbs
+        # The way we select minibatches might be subject to change.
         for cstart in range(0, steps):  # Loops through steps and sends one minibatch through per iteration
             step = self.global_training_step + cstart
-            # cend = min(ncases, cstart + mbs)
-            minibatch = cases[0:self.minibatch_size]
-            np.random.shuffle(cases)
+            minibatch = cases[start_index:end_index]
+            if end_index >= ncases:
+                start_index = 0
+                end_index = mbs
+                np.random.shuffle(cases)
+            else:
+                start_index = end_index
+                end_index += mbs
             inputs = [c[0] for c in minibatch]
             targets = [c[1] for c in minibatch]
             feeder = {self.input: inputs, self.target: targets}
@@ -147,7 +156,7 @@ class Gann:
         self.reopen_current_session()
         test_cases = self.caseman.get_testing_cases()
         for i in range(number_of_cases):
-            random_index = random.randint(0, len(test_cases)-1)
+            random_index = random.randint(0, len(test_cases) - 1)
             r_input = test_cases[random_index][0]
             r_target = test_cases[random_index][1]
             feeder = {self.input: [r_input]}
@@ -172,7 +181,6 @@ class Gann:
             features.append(results[0][0])
         TFT.dendrogram(features, labels)
         self.close_current_session(view=False)
-
 
     def do_testing(self, sess, cases, msg='Testing', bestk=None):
         inputs = [c[0] for c in cases]
