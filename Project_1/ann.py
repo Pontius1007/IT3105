@@ -113,7 +113,7 @@ class Gann:
             _, grabvals, _ = self.run_one_step([self.trainer], gvars, self.probes, session=sess,
                                                feed_dict=feeder, step=step, show_interval=self.show_interval)
             error += grabvals[0]
-            self.error_history.append((step, error / nmb))
+            self.error_history.append((step, grabvals[0]))
             self.consider_validation_testing(step, sess)
         self.global_training_step += steps
         TFT.plot_training_history(self.error_history, self.validation_history, xtitle="Steps", ytitle="Error",
