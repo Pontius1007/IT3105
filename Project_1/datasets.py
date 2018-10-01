@@ -36,8 +36,5 @@ def load_generic_file(filename, cfraction, ):
             line_output.append(hot_target)
             output_list.append(line_output)
         # have to shuffle to get whole range
-<<<<<<< HEAD
-=======
         shuffle(output_list)
->>>>>>> 7f1700fcf809dd02541f24b3d0fd79bdb3a29b54
         return output_list[:fraction]

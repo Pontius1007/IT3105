@@ -20,6 +20,7 @@ class Parameters:
         self.cost_function = "MSE"
         self.ncases = 5000
         self.map_cases = 0
+        self.dendrogram_cases = 0
 
         # For training
         self.bestk = 1
@@ -95,6 +96,7 @@ class InputRunHandler:
         self.params.grab_module_index = [i for i in data["grab_module_index"]]
         self.params.grab_type = [i for i in data["grab_type"]]
         self.params.map_cases = data["do_mapping_cases"]
+        self.params.dendrogram_cases = data["do_dendrogram_cases"]
 
     def build_ann(self):
         model = Gann(dims=self.params.dims, hidden_activation_function=self.params.hidden_activation_function,
@@ -115,6 +117,8 @@ class InputRunHandler:
         model.run(steps=self.params.steps, bestk=self.params.bestk)
         if self.params.map_cases != 0:
             self.ann.model.do_mapping(self.params.map_cases)
+        if self.params.dendrogram_cases != 0:
+            self.ann.model.create_dendrogram(self.params.dendrogram_cases)
 
         # TFT.fireup_tensorboard('probeview')
 
@@ -134,6 +138,8 @@ class InputRunHandler:
         model.run(steps=self.params.steps, bestk=self.params.bestk)
         if self.params.map_cases != 0:
             self.ann.model.do_mapping(self.params.map_cases)
+        if self.params.dendrogram_cases != 0:
+            self.ann.model.create_dendrogram(self.params.dendrogram_cases)
         # model.runmore(self.params.run_more_steps, bestk=self.params.bestk)
 
     def yeast(self):
@@ -146,6 +152,8 @@ class InputRunHandler:
         model.run(steps=self.params.steps, bestk=self.params.bestk)
         if self.params.map_cases != 0:
             self.ann.model.do_mapping(self.params.map_cases)
+        if self.params.dendrogram_cases != 0:
+            self.ann.model.create_dendrogram(self.params.dendrogram_cases)
         # TFT.fireup_tensorboard('probeview')
 
     def wine(self):
@@ -158,6 +166,8 @@ class InputRunHandler:
         model.run(steps=self.params.steps, bestk=self.params.bestk)
         if self.params.map_cases != 0:
             self.ann.model.do_mapping(self.params.map_cases)
+        if self.params.dendrogram_cases != 0:
+            self.ann.model.create_dendrogram(self.params.dendrogram_cases)
         # TFT.fireup_tensorboard('probeview')
 
     def glass(self):
@@ -170,6 +180,8 @@ class InputRunHandler:
         model.run(steps=self.params.steps, bestk=self.params.bestk)
         if self.params.map_cases != 0:
             self.ann.model.do_mapping(self.params.map_cases)
+        if self.params.dendrogram_cases != 0:
+            self.ann.model.create_dendrogram(self.params.dendrogram_cases)
         # TFT.fireup_tensorboard('probeview')
 
     def mnist(self):
@@ -183,4 +195,6 @@ class InputRunHandler:
         model.run(steps=self.params.steps, bestk=self.params.bestk)
         if self.params.map_cases != 0:
             self.ann.model.do_mapping(self.params.map_cases)
+        if self.params.dendrogram_cases != 0:
+            self.ann.model.create_dendrogram(self.params.dendrogram_cases)
         # TFT.fireup_tensorboard('probeview')
