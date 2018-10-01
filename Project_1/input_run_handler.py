@@ -117,6 +117,8 @@ class InputRunHandler:
         model.run(steps=self.params.steps, bestk=self.params.bestk)
         if self.params.map_cases != 0:
             self.ann.model.do_mapping(self.params.map_cases)
+        if self.params.dendrogram_cases != 0:
+            self.ann.model.create_dendrogram(self.params.dendrogram_cases)
         PLT.show(block=False)
 
         # TFT.fireup_tensorboard('probeview')
@@ -152,6 +154,8 @@ class InputRunHandler:
         model.run(steps=self.params.steps, bestk=self.params.bestk)
         if self.params.map_cases != 0:
             self.ann.model.do_mapping(self.params.map_cases)
+        if self.params.dendrogram_cases != 0:
+            self.ann.model.create_dendrogram(self.params.dendrogram_cases)
         PLT.show(block=False)
         # TFT.fireup_tensorboard('probeview')
 
@@ -165,6 +169,8 @@ class InputRunHandler:
         model.run(steps=self.params.steps, bestk=self.params.bestk)
         if self.params.map_cases != 0:
             self.ann.model.do_mapping(self.params.map_cases)
+        if self.params.dendrogram_cases != 0:
+            self.ann.model.create_dendrogram(self.params.dendrogram_cases)
         PLT.show(block=False)
         # TFT.fireup_tensorboard('probeview')
 
@@ -178,6 +184,8 @@ class InputRunHandler:
         model.run(steps=self.params.steps, bestk=self.params.bestk)
         if self.params.map_cases != 0:
             self.ann.model.do_mapping(self.params.map_cases)
+        if self.params.dendrogram_cases != 0:
+            self.ann.model.create_dendrogram(self.params.dendrogram_cases)
         PLT.show(block=False)
         # TFT.fireup_tensorboard('probeview')
 
@@ -192,5 +200,7 @@ class InputRunHandler:
         model.run(steps=self.params.steps, bestk=self.params.bestk)
         if self.params.map_cases != 0:
             self.ann.model.do_mapping(self.params.map_cases)
+        if self.params.dendrogram_cases != 0:
+            self.ann.model.create_dendrogram(self.params.dendrogram_cases)
         PLT.show(block=False)
         # TFT.fireup_tensorboard('probeview')
