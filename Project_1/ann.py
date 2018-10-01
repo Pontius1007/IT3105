@@ -7,6 +7,7 @@ import json
 import random
 from random import shuffle
 from datasets import *
+from itertools import cycle
 
 
 # ******* A General Artificial Neural Network ********
@@ -102,18 +103,26 @@ class Gann:
         mbs = self.minibatch_size
         ncases = len(cases)
         nmb = math.ceil(ncases / mbs)
+        start_index = 0
+        end_index = mbs
+        # The way we select minibatches might be subject to change.
         for cstart in range(0, steps):  # Loops through steps and sends one minibatch through per iteration
             step = self.global_training_step + cstart
-            # cend = min(ncases, cstart + mbs)
-            minibatch = cases[0:self.minibatch_size]
-            np.random.shuffle(cases)
+            minibatch = cases[start_index:end_index]
+            if end_index >= ncases:
+                start_index = 0
+                end_index = mbs
+                np.random.shuffle(cases)
+            else:
+                start_index = end_index
+                end_index += mbs
             inputs = [c[0] for c in minibatch]
             targets = [c[1] for c in minibatch]
             feeder = {self.input: inputs, self.target: targets}
             _, grabvals, _ = self.run_one_step([self.trainer], gvars, self.probes, session=sess,
                                                feed_dict=feeder, step=step, show_interval=self.show_interval)
             error += grabvals[0]
-            self.error_history.append((step, error / nmb))
+            self.error_history.append((step, grabvals[0]))
             self.consider_validation_testing(step, sess)
         self.global_training_step += steps
         TFT.plot_training_history(self.error_history, self.validation_history, xtitle="Steps", ytitle="Error",
@@ -147,7 +156,7 @@ class Gann:
         self.reopen_current_session()
         test_cases = self.caseman.get_testing_cases()
         for i in range(number_of_cases):
-            random_index = random.randint(0, len(test_cases)-1)
+            random_index = random.randint(0, len(test_cases) - 1)
             r_input = test_cases[random_index][0]
             r_target = test_cases[random_index][1]
             feeder = {self.input: [r_input]}
@@ -172,7 +181,6 @@ class Gann:
             features.append(results[0][0])
         TFT.dendrogram(features, labels)
         self.close_current_session(view=False)
-
 
     def do_testing(self, sess, cases, msg='Testing', bestk=None):
         inputs = [c[0] for c in cases]
@@ -250,8 +258,22 @@ class Gann:
                 fig = PLT.figure()
                 TFT.hinton_plot(v, fig=fig, title=names[i] + ' at step ' + str(step))
                 fig_index += 1
+            elif 'bias' in str(names[i]):
+                fig = PLT.figure()
+                v_list = v.tolist()
+                v_length = len(v_list)
+                x_axis = list(range(1, v_length + 1))
+                PLT.plot(x_axis, v_list, 'ro')
+                for a, b in zip(x_axis, v_list):
+                    PLT.text(a, b, str(round(b, 6)))
+                PLT.title("Bias at step: " + str(step))
+                PLT.xlabel("Node")
+                PLT.ylabel("Value")
+                PLT.draw()
+                PLT.pause(0.1)
             else:
                 print(v, end="\n\n")
+                
 
     def run(self, steps=100, sess=None, continued=False, bestk=None):
         PLT.ion()

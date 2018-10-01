@@ -419,13 +419,11 @@ def simple_plot(yvals, xvals=None, xtitle='X', ytitle='Y', title='Y = F(X)'):
 
 # Each history is a list of pairs (timestamp, value).
 def plot_training_history(error_hist, validation_hist=[], xtitle="Epoch", ytitle="Error", title="History", fig=True):
+    if fig: PLT.figure()
     if len(error_hist) > 0:
-        if fig: PLT.figure()
-        simple_plot([p[1] for p in error_hist], [p[0] for p in error_hist], xtitle=xtitle, ytitle=ytitle, title=title)
+        simple_plot([p[1] for p in error_hist], [p[0] for p in error_hist], xtitle="Steps", ytitle="Error", title="Error and Validation History")
     if len(validation_hist) > 0:
-        if fig: PLT.figure()
-        simple_plot([p[1] for p in validation_hist], [p[0] for p in validation_hist], title="Validation History")
-
+        simple_plot([p[1] for p in validation_hist], [p[0] for p in validation_hist], xtitle="Steps", ytitle="Error", title="Error and Validation History")
 
 # alpha = transparency
 def simple_scatter_plot(points, alpha=0.5, radius=3):

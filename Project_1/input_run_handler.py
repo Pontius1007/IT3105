@@ -44,37 +44,53 @@ class InputRunHandler:
 
     def evaluate_input(self, u_input):
         if u_input == "load json" or u_input == "lj":
-            filename = input("Enter the file name to the JSON file without the extension. "
-                             "Must be located in the config folder. Leave blank for default: ")
-            filepath = "./config/" + filename + ".json"
-            if filename == "":
-                self.load_json("./config/variables.json")
-            else:
-                self.load_json(filepath)
-            print("Parameters are now set to: ")
-            print("\n")
-            print(self.params)
-            print("\n")
+            while True:
+                filename = input("Enter the filepath to the JSON file. Leave blank for default: ")
+                try:
+                    if filename == "":
+                        self.load_json("variables.json")
+                    else:
+                        self.load_json(filename)
+                    print("Parameters are now set to: \n")
+                    print(self.params)
+                    print("\n")
+                except (OSError, IOError) as e:
+                    print("Could not find file. Error: ", e)
+                else:
+                    break
 
         if u_input == "run" or u_input == "r":
-            data_input = input("Please enter the dataset you want to run: ").lower()
-            if data_input == "bitcounter":
-                self.bitcounter()
-            elif data_input == "autoencoder":
-                self.autoencoder()
-            elif data_input == "parity":
-                self.parity()
-            elif data_input == "yeast":
-                self.yeast()
-            elif data_input == "glass":
-                self.glass()
-            elif data_input == "wine":
-                self.wine()
-            elif data_input == "iris":
-                self.iris()
-            elif data_input == "mnist":
-                self.mnist()
+            while True:
+                data_input = input("Please enter the dataset you want to run: ").lower()
+                try:
+                    if data_input == "bitcounter":
+                        self.bitcounter()
+                    elif data_input == "autoencoder":
+                        self.autoencoder()
+                    elif data_input == "parity":
+                        self.parity()
+                    elif data_input == "yeast":
+                        self.yeast()
+                    elif data_input == "glass":
+                        self.glass()
+                    elif data_input == "wine":
+                        self.wine()
+                    elif data_input == "iris":
+                        self.iris()
+                    elif data_input == "mnist":
+                        self.mnist()
+                    elif data_input == "q":
+                        break
+                except Exception as e:
+                    print("Not a supported dataset or bit: ", e)
+                else:
+                    break
 
+        # Only reliable way to get interactive mode for matplot in a standard cmd shell. Use ipython to avoid
+        # Or, use MP
+        if u_input == "show" or u_input == "plt":
+            print("\n You will need to ctrl-z to run this program again. \n")
+            PLT.show()
 
     def load_json(self, filename):
         with open(filename) as f:
@@ -113,6 +129,12 @@ class InputRunHandler:
                      grab_type=self.params.grab_type)
         return model
 
+    def check_mapping_and_dendro(self):
+        if self.params.map_cases != 0:
+            self.ann.model.do_mapping(self.params.map_cases)
+        if self.params.dendrogram_cases != 0:
+            self.ann.model.create_dendrogram(self.params.dendrogram_cases)
+
     def parity(self):
         nbits = self.params.dims[0]
         case_generator = (lambda: TFT.gen_all_parity_cases(nbits))
@@ -128,7 +150,6 @@ class InputRunHandler:
             self.ann.model.do_mapping(self.params.map_cases)
         if self.params.dendrogram_cases != 0:
             self.ann.model.create_dendrogram(self.params.dendrogram_cases)
-
 
     #  You will not be asked to run a performance test on an autoencoder at the demo
     #  session, but you may choose an autoencoder as the network that you explain in detail.
@@ -204,8 +225,6 @@ class InputRunHandler:
             self.ann.model.do_mapping(self.params.map_cases)
         if self.params.dendrogram_cases != 0:
             self.ann.model.create_dendrogram(self.params.dendrogram_cases)
-        PLT.show(block=False)
-        # TFT.fireup_tensorboard('probeview')
 
     def iris(self):
         case_generator = (lambda: load_iris_file('data/iris.txt', self.params.cfraction))
