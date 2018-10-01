@@ -142,33 +142,20 @@ class Gann:
                 print(v, end="\n\n")
 
     def create_dendrogram(self, number_of_cases):
-        names = [x.name for x in self.grabvars]
         self.reopen_current_session()
         training_cases = self.caseman.get_training_cases()
-        cases = test_cases[:number_of_cases]
-        inputs = [c[0] for c in cases]
-        targets = [c[1] for c in cases]
-        print(inputs)
-        print(targets)
-        feeder = {self.input: inputs, self.target: targets}
-        results = self.current_session.run([self.output, self.grabvars], feed_dict=feeder)
-        print(results[1][0][0])
+        cases = training_cases[:number_of_cases]
 
         features = []
         labels = []
 
-        
+        for case in cases:
+            feeder = {self.input: [case[0]], self.target: [case[1]]}
+            results = self.current_session.run([self.output, self.grabvars], feed_dict=feeder)
+            labels.append(TFT.bits_to_str(case[1]))
+            features.append(results[0][0])
 
         TFT.dendrogram(features, labels)
-
-        # fig_index = 0
-        # for i, v in enumerate(results[1]):
-        #     if names: print("   " + names[i] + " = ", end="\n")
-        #     if type(v) == np.ndarray and len(v.shape) > 1:  # If v is a matrix, use hinton plotting
-        #         TFT.hinton_plot(v, fig=self.grabvar_figures[fig_index], title=names[i] + "mapping")
-        #         fig_index += 1
-        #     else:
-        #         print(v, end="\n\n")
 
     def do_testing(self, sess, cases, msg='Testing', bestk=None):
         inputs = [c[0] for c in cases]
