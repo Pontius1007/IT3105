@@ -115,6 +115,7 @@ class InputRunHandler:
         model.run(steps=self.params.steps, bestk=self.params.bestk)
         if self.params.map_cases != 0:
             self.ann.model.do_mapping(self.params.map_cases)
+        PLT.show(block=False)
 
         # TFT.fireup_tensorboard('probeview')
 
@@ -135,6 +136,7 @@ class InputRunHandler:
         if self.params.map_cases != 0:
             self.ann.model.do_mapping(self.params.map_cases)
         # model.runmore(self.params.run_more_steps, bestk=self.params.bestk)
+        PLT.show(block=False)
 
     def yeast(self):
         case_generator = (lambda: load_generic_file('data/yeast.txt', self.params.cfraction))
@@ -146,6 +148,7 @@ class InputRunHandler:
         model.run(steps=self.params.steps, bestk=self.params.bestk)
         if self.params.map_cases != 0:
             self.ann.model.do_mapping(self.params.map_cases)
+        PLT.show(block=False)
         # TFT.fireup_tensorboard('probeview')
 
     def wine(self):
@@ -158,6 +161,7 @@ class InputRunHandler:
         model.run(steps=self.params.steps, bestk=self.params.bestk)
         if self.params.map_cases != 0:
             self.ann.model.do_mapping(self.params.map_cases)
+        PLT.show(block=False)
         # TFT.fireup_tensorboard('probeview')
 
     def glass(self):
@@ -170,6 +174,7 @@ class InputRunHandler:
         model.run(steps=self.params.steps, bestk=self.params.bestk)
         if self.params.map_cases != 0:
             self.ann.model.do_mapping(self.params.map_cases)
+        PLT.show(block=False)
         # TFT.fireup_tensorboard('probeview')
 
     def mnist(self):
@@ -183,4 +188,5 @@ class InputRunHandler:
         model.run(steps=self.params.steps, bestk=self.params.bestk)
         if self.params.map_cases != 0:
             self.ann.model.do_mapping(self.params.map_cases)
+        PLT.show(block=False)
         # TFT.fireup_tensorboard('probeview')
