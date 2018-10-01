@@ -2,19 +2,17 @@ import numpy as np
 import tflowtools as TFT
 from random import shuffle
 
-# should be taken from variables.json
-
 
 # loads mnist
-def load_flat_text_cases(filename, cfraction,):
+def load_flat_text_cases(filename, cfraction, ):
     f = open(filename, "r")
     lines = [line.split(" ") for line in f.read().split("\n")]
     f.close()
     len_lines = float(len(lines))
-    fraction = int(np.ceil(cfraction*len_lines))
+    fraction = int(np.ceil(cfraction * len_lines))
     new_lines = lines[:fraction]
-    x_l = list(map(int, new_lines[0]))[:(fraction-1)] # target
-    x_t = [list(map(int, line)) for line in new_lines[1:]] # input
+    x_l = list(map(int, new_lines[0]))[:(fraction - 1)]  # target
+    x_t = [list(map(int, line)) for line in new_lines[1:]]  # input
     np.array(x_t)
     x_t = np.divide(x_t, 255)
     x_l = [TFT.int_to_one_hot(i, 10) for i in x_l]
@@ -22,11 +20,11 @@ def load_flat_text_cases(filename, cfraction,):
 
 
 # loads yeast, wine, etc.
-def load_generic_file(filename, cfraction,):
+def load_generic_file(filename, cfraction, ):
     with open(filename, 'r') as infile:
         output_list = []
         lines = infile.readlines()
-        fraction = int(np.ceil(cfraction*len(lines)))
+        fraction = int(np.ceil(cfraction * len(lines)))
         for line in lines:
             line_output = []
             split_line = line.replace(';', ',')
@@ -38,4 +36,8 @@ def load_generic_file(filename, cfraction,):
             line_output.append(hot_target)
             output_list.append(line_output)
         # have to shuffle to get whole range
+<<<<<<< HEAD
+=======
+        shuffle(output_list)
+>>>>>>> 7f1700fcf809dd02541f24b3d0fd79bdb3a29b54
         return output_list[:fraction]

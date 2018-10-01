@@ -4,6 +4,7 @@ import math
 import matplotlib.pyplot as PLT
 import tflowtools as TFT
 import json
+import random
 from random import shuffle
 from datasets import *
 
@@ -41,7 +42,6 @@ class Gann:
     # Grabvars are displayed by my own code, so I have more control over the display format.  Each
     # grabvar gets its own matplotlib figure in which to display its value.
     def add_grabvar(self, module_index, type='wgt'):
-        print(module_index)
         self.grabvars.append(self.modules[module_index].getvar(type))
         self.grabvar_figures.append(PLT.figure())
 
@@ -86,7 +86,6 @@ class Gann:
         if self.optimizer == "rmsprop":
             optimizer = tf.train.RMSPropOptimizer(self.learning_rate)
         elif self.optimizer == "adagrad":
-            print(self.optimizer)
             optimizer = tf.train.AdagradOptimizer(self.learning_rate)
         elif self.optimizer == "adam":
             optimizer = tf.train.AdamOptimizer(self.learning_rate)
@@ -133,6 +132,7 @@ class Gann:
         feeder = {self.input: inputs, self.target: targets}
         results = self.current_session.run([self.output, self.grabvars], feed_dict=feeder)
         fig_index = 0
+        # Below is modified code from display_grabvars
         for i, v in enumerate(results[1]):
             if names: print("   " + names[i] + " = ", end="\n")
             if type(v) == np.ndarray and len(v.shape) > 1:  # If v is a matrix, use hinton plotting
@@ -140,6 +140,21 @@ class Gann:
                 fig_index += 1
             else:
                 print(v, end="\n\n")
+        self.close_current_session(view=False)
+
+    def do_prediction(self, number_of_cases):
+        self.reopen_current_session()
+        test_cases = self.caseman.get_testing_cases()
+        for i in range(number_of_cases):
+            random_index = random.randint(0, len(test_cases)-1)
+            r_input = test_cases[random_index][0]
+            r_target = test_cases[random_index][1]
+            feeder = {self.input: [r_input]}
+            print("The input is: \n", r_input)
+            print("The ANN guessed this: \n")
+            print(self.current_session.run(self.output, feed_dict=feeder))
+            print("The correct target value is: \n", r_target)
+        self.close_current_session(view=False)
 
     def create_dendrogram(self, number_of_cases):
         self.reopen_current_session()
