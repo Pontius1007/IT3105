@@ -43,7 +43,8 @@ class Gann:
     # grabvar gets its own matplotlib figure in which to display its value.
     def add_grabvar(self, module_index, type='wgt'):
         self.grabvars.append(self.modules[module_index].getvar(type))
-        self.grabvar_figures.append(PLT.figure())
+        if type != 'bias':
+            self.grabvar_figures.append(PLT.figure())
 
     def roundup_probes(self):
         self.probes = tf.summary.merge_all()
@@ -116,7 +117,7 @@ class Gann:
             self.consider_validation_testing(step, sess)
         self.global_training_step += steps
         TFT.plot_training_history(self.error_history, self.validation_history, xtitle="Steps", ytitle="Error",
-                                  title="", fig=not continued)
+                                  title="TRAINING HISTORY", fig=not continued)
 
     # bestk = 1 when you're doing a classification task and the targets are one-hot vectors.  This will invoke the
     # gen_match_counter error function. Otherwise, when
@@ -246,7 +247,8 @@ class Gann:
         for i, v in enumerate(grabbed_vals):
             if names: print("   " + names[i] + " = ", end="\n")
             if type(v) == np.ndarray and len(v.shape) > 1:  # If v is a matrix, use hinton plotting
-                TFT.hinton_plot(v, fig=self.grabvar_figures[fig_index], title=names[i] + ' at step ' + str(step))
+                fig = PLT.figure()
+                TFT.hinton_plot(v, fig=fig, title=names[i] + ' at step ' + str(step))
                 fig_index += 1
             else:
                 print(v, end="\n\n")

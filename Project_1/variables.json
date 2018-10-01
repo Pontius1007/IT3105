@@ -14,7 +14,7 @@
     "name": "MSE"
   },
   "learning_rate": {
-    "value": 0.1
+    "value": 0.01
   },
   "ini_weight_range": {
     "lower_bound": -0.1,
@@ -88,5 +88,5 @@
     "bias"
   ],
   "do_dendrogram_cases":
-    15
+    0
 }

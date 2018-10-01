@@ -120,7 +120,6 @@ class InputRunHandler:
         if self.params.dendrogram_cases != 0:
             self.ann.model.create_dendrogram(self.params.dendrogram_cases)
         PLT.show(block=False)
-
         # TFT.fireup_tensorboard('probeview')
 
     def autoex(self):
