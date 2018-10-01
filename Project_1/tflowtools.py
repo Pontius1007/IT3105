@@ -408,6 +408,7 @@ def pp_matrix(m, style='{:.3f}'):
 # *******  DATA PLOTTING ROUTINES *********
 
 def simple_plot(yvals, xvals=None, xtitle='X', ytitle='Y', title='Y = F(X)'):
+    print("SIMPLE PLOT RUN WITH " + str(title))
     xvals = xvals if xvals is not None else list(range(len(yvals)))
     PLT.plot(xvals, yvals)
     PLT.xlabel(xtitle)

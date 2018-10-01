@@ -250,8 +250,22 @@ class Gann:
                 fig = PLT.figure()
                 TFT.hinton_plot(v, fig=fig, title=names[i] + ' at step ' + str(step))
                 fig_index += 1
+            elif 'bias' in str(names[i]):
+                fig = PLT.figure()
+                v_list = v.tolist()
+                v_length = len(v_list)
+                x_axis = list(range(1, v_length + 1))
+                PLT.plot(x_axis, v_list, 'ro')
+                for a, b in zip(x_axis, v_list):
+                    PLT.text(a, b, str(round(b, 6)))
+                PLT.title("Bias at step: " + str(step))
+                PLT.xlabel("Node")
+                PLT.ylabel("Value")
+                PLT.draw()
+                PLT.pause(0.1)
             else:
                 print(v, end="\n\n")
+                
 
     def run(self, steps=100, sess=None, continued=False, bestk=None):
         PLT.ion()
