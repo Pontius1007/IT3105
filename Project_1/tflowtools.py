@@ -422,7 +422,6 @@ def plot_training_history(error_hist, validation_hist=[], xtitle="Epoch", ytitle
     if fig: PLT.figure()
     if len(error_hist) > 0:
         simple_plot([p[1] for p in error_hist], [p[0] for p in error_hist], xtitle="Steps", ytitle="Error", title="Error and Validation History")
-        PLT.hold(True)
     if len(validation_hist) > 0:
         simple_plot([p[1] for p in validation_hist], [p[0] for p in validation_hist], xtitle="Steps", ytitle="Error", title="Error and Validation History")
 
