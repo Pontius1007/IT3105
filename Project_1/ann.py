@@ -170,7 +170,7 @@ class Gann:
             labels.append(TFT.bits_to_str(case[1]))
             features.append(results[0][0])
         TFT.dendrogram(features, labels)
-        self.close_current_session
+        self.close_current_session(view=False)
 
 
     def do_testing(self, sess, cases, msg='Testing', bestk=None):
@@ -234,7 +234,6 @@ class Gann:
             sess.probe_stream.add_summary(results[2], global_step=step)
         else:
             results = sess.run([operators, grabbed_vars], feed_dict=feed_dict)
-            # print(results[1])
         if show_interval and (step % show_interval == 0):
             self.display_grabvars(results[1], grabbed_vars, step=step)
         return results[0], results[1], sess
