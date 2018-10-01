@@ -68,6 +68,7 @@ class InputRunHandler:
             elif data_input == "mnist":
                 self.mnist()
 
+
     def load_json(self, filename):
         with open(filename) as f:
             data = json.load(f)

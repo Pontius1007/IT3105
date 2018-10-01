@@ -39,13 +39,16 @@
     "ratio": 0.1
   },
   "validation_interval": {
-    "number": 200
+    "number": 500
   },
   "test_fraction": {
     "ratio": 0.1
   },
   "minibatch_size": {
     "number_of_training_cases": 100
+  },
+  "map_batch_size": {
+    "map_test": 0
   },
   "map_dendrogram": [
     "nameofarandomlayer"
@@ -57,29 +60,31 @@
     "listofbiasvectors"
   ],
   "steps": {
-    "number": 1000
+    "number": 10000
   },
   "grabbed_variables": {
-    "show_freq": 500
+    "show_freq": 5000
   },
   "num_gen_training_case": {
-    "amount": 5000
+    "amount": 500
   },
   "bestk": {
     "bool": "true"
   },
   "run_more": {
-    "steps": 500
+    "steps": 100
   },
   "do_mapping_cases":
     15
   ,
   "grab_module_index": [
     0,
-    1
+    1,
+    0
   ],
   "grab_type": [
     "wgt",
-    "wgt"
+    "wgt",
+    "bias"
   ]
 }
