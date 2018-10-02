@@ -46,7 +46,7 @@ class InputRunHandler:
         if u_input == "load json" or u_input == "lj":
             while True:
                 filename = input("Enter the filepath to the JSON file. Leave blank for default: ")
-                filepath = "./config" + filename + ".json"
+                filepath = "./config/" + filename + ".json"
                 try:
                     if filename == "":
                         self.load_json("./config/variables.json")
@@ -186,7 +186,7 @@ class InputRunHandler:
             self.ann.model.create_dendrogram(self.params.dendrogram_cases)
 
     def yeast(self):
-        case_generator = (lambda: load_generic_file('data/yeast.txt', self.params.cfraction))
+        case_generator = (lambda: load_generic_file('data/yeast.txt', self.params.cfraction, 11))
         caseman = Caseman(cfunc=case_generator, vfrac=self.params.vfrac, tfrac=self.params.tfrac)
         self.ann.set_cman(caseman)
         self.params.dims[0] = len(caseman.training_cases[0][0])
@@ -200,7 +200,7 @@ class InputRunHandler:
             self.ann.model.create_dendrogram(self.params.dendrogram_cases)
 
     def wine(self):
-        case_generator = (lambda: load_generic_file('data/winequality_red.txt', self.params.cfraction))
+        case_generator = (lambda: load_generic_file('data/winequality_red.txt', self.params.cfraction, 11))
         caseman = Caseman(cfunc=case_generator, vfrac=self.params.vfrac, tfrac=self.params.tfrac)
         self.ann.set_cman(caseman)
         self.params.dims[0] = len(caseman.training_cases[0][0])
@@ -214,11 +214,12 @@ class InputRunHandler:
             self.ann.model.create_dendrogram(self.params.dendrogram_cases)
 
     def glass(self):
-        case_generator = (lambda: load_generic_file('data/glass.txt', self.params.cfraction))
+        case_generator = (lambda: load_generic_file('data/glass.txt', self.params.cfraction, 8))
         caseman = Caseman(cfunc=case_generator, vfrac=self.params.vfrac, tfrac=self.params.tfrac)
         self.ann.set_cman(caseman)
         self.params.dims[0] = len(caseman.training_cases[0][0])
         self.params.dims[-1] = len(caseman.training_cases[0][1])
+        print(self.params.dims)
         model = self.build_ann()
         self.ann.set_model(model)
         model.run(steps=self.params.steps, bestk=self.params.bestk)
