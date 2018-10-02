@@ -1,8 +1,8 @@
 {
   "dimensions": {
-    "input": 101,
+    "input": 16,
     "hidden_layer_one": 6,
-    "output": 2
+    "output": 17
   },
   "hidden_activation_function": {
     "name": "relu"
@@ -21,19 +21,10 @@
     "upper_bound": 0.1
   },
   "optimizer": {
-    "name": "asdf"
-  },
-  "data_source": {
-    "data_type": "file", 
-    "file_path": "test.txt",
-    "function_name": "gen_vector_count_cases",
-    "args": [
-      10,
-      10
-    ]
+    "name": "adam"
   },
   "case_fraction": {
-  "ratio": 0.1
+  "ratio": 0.01
   },
   "validation_fraction": {
     "ratio": 0.1
@@ -45,28 +36,19 @@
     "ratio": 0.1
   },
   "minibatch_size": {
-    "number_of_training_cases": 10
+    "number_of_training_cases": 100
   },
   "map_batch_size": {
     "map_test": 0
   },
-  "map_dendrogram": [
-    "nameofarandomlayer"
-  ],
-  "display_weights": [
-    "listofweightarray"
-  ],
-  "display_biases": [
-    "listofbiasvectors"
-  ],
   "steps": {
-    "number": 10000
+    "number": 10001
   },
   "grabbed_variables": {
     "show_freq": 5000
   },
   "num_gen_training_case": {
-    "amount": 2000
+    "amount": 500
   },
   "bestk": {
     "bool": "true"
