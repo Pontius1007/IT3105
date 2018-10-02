@@ -16,7 +16,6 @@ def load_flat_text_cases(filename, cfraction, ):
     np.array(x_t)
     x_t = np.divide(x_t, 255)
     x_l = [TFT.int_to_one_hot(i, 10) for i in x_l]
-    print(fraction)
     return [list(i) for i in zip(x_t, x_l)]
 
 

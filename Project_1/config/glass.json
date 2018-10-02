@@ -1,9 +1,9 @@
 {
   "dimensions": {
     "input": 16,
-    "hidden_layer_one": 100,
-    "hidden_layer_two": 125,
-    "hidden_layer_three": 12,
+    "hidden_layer_one": 125,
+    "hidden_layer_two": 100,
+    "hidden_layer_three": 20,
     "output": 17
   },
   "hidden_activation_function": {
@@ -16,7 +16,7 @@
     "name": "MSE"
   },
   "learning_rate": {
-    "value": 0.003
+    "value": 0.0004
   },
   "ini_weight_range": {
     "lower_bound": -0.05,
@@ -32,22 +32,22 @@
     "ratio": 0.1
   },
   "validation_interval": {
-    "number": 500
+    "number": 100
   },
   "test_fraction": {
     "ratio": 0.1
   },
   "minibatch_size": {
-    "number_of_training_cases": 380
+    "number_of_training_cases": 214
   },
   "map_batch_size": {
     "map_test": 0
   },
   "steps": {
-    "number": 10000
+    "number": 20000
   },
   "grabbed_variables": {
-    "show_freq": 5000
+    "show_freq": 10000
   },
   "num_gen_training_case": {
     "amount": 500
@@ -59,7 +59,7 @@
     "steps": 100
   },
   "do_mapping_cases":
-    15
+    0
   ,
   "grab_module_index": [
     0,
@@ -72,5 +72,5 @@
     "bias"
   ],
   "do_dendrogram_cases":
-    15
+    0
 }
