@@ -246,7 +246,7 @@ class InputRunHandler:
         self.check_mapping_and_dendro()
 
     def wine(self):
-        case_generator = (lambda: load_generic_file('data/winequality_red.txt', self.params.cfraction))
+        case_generator = (lambda: load_generic_file('data/winequality_red.txt', self.params.cfraction, 11))
         case_man = Caseman(cfunc=case_generator, vfrac=self.params.vfrac, tfrac=self.params.tfrac)
         self.ann.set_cman(case_man)
         self.params.dims[0] = len(case_man.training_cases[0][0])
@@ -259,7 +259,7 @@ class InputRunHandler:
         self.check_mapping_and_dendro()
 
     def glass(self):
-        case_generator = (lambda: load_generic_file('data/glass.txt', self.params.cfraction))
+        case_generator = (lambda: load_generic_file('data/glass.txt', self.params.cfraction, 8))
         case_man = Caseman(cfunc=case_generator, vfrac=self.params.vfrac, tfrac=self.params.tfrac)
         self.ann.set_cman(case_man)
         self.params.dims[0] = len(case_man.training_cases[0][0])
@@ -272,7 +272,7 @@ class InputRunHandler:
         self.check_mapping_and_dendro()
 
     def iris(self):
-        case_generator = (lambda: load_iris_file('data/iris.txt', self.params.cfraction))
+        case_generator = (lambda: load_iris_file('data/iris.txt', self.params.cfraction, 11))
         case_man = Caseman(cfunc=case_generator, vfrac=self.params.vfrac, tfrac=self.params.tfrac)
         self.ann.set_cman(case_man)
         self.params.dims[0] = len(case_man.training_cases[0][0])
