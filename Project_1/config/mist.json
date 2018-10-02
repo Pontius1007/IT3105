@@ -1,20 +1,20 @@
 {
   "dimensions": {
     "input": 16,
-    "hidden_layer_one": 6,
+    "hidden_layer_one": 500,
     "output": 17
   },
   "hidden_activation_function": {
     "name": "relu"
   },
   "output_activation_function": {
-    "softmax": "False"
+    "softmax": "True"
   },
   "cost_function": {
-    "name": "MSE"
+    "name": "CE"
   },
   "learning_rate": {
-    "value": 0.01
+    "value": 0.18
   },
   "ini_weight_range": {
     "lower_bound": -0.1,
@@ -24,7 +24,7 @@
     "name": "adam"
   },
   "case_fraction": {
-  "ratio": 0.01
+  "ratio": 0.10
   },
   "validation_fraction": {
     "ratio": 0.1
@@ -42,10 +42,10 @@
     "map_test": 0
   },
   "steps": {
-    "number": 10001
+    "number": 25001
   },
   "grabbed_variables": {
-    "show_freq": 5000
+    "show_freq": 12500
   },
   "num_gen_training_case": {
     "amount": 500
