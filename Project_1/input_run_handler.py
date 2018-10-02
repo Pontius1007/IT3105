@@ -234,7 +234,7 @@ class InputRunHandler:
         self.check_mapping_and_dendro()
 
     def yeast(self):
-        case_generator = (lambda: load_generic_file('data/yeast.txt', self.params.cfraction))
+        case_generator = (lambda: load_generic_file('data/yeast.txt', self.params.cfraction, 11))
         case_man = Caseman(cfunc=case_generator, vfrac=self.params.vfrac, tfrac=self.params.tfrac)
         self.ann.set_cman(case_man)
         self.params.dims[0] = len(case_man.training_cases[0][0])
