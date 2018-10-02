@@ -195,6 +195,7 @@ class InputRunHandler:
         model.run(steps=self.params.steps, bestk=self.params.bestk)
         self.check_mapping_and_dendro()
 
+    # Todo double check the use of ncases in this example
     def bitcounter(self):
         nbits = input("Enter the length of the vector in bits. 15 is default: ")
         nbits = nbits if nbits else 15
