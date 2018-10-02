@@ -28,8 +28,6 @@ class Parameters:
         self.run_more_steps = 500
 
         # For grabbed variables
-        self.grabbed_weights = []
-        self.grabbed_biases = []
         self.grab_module_index = []
         self.grab_type = []
 
@@ -96,7 +94,10 @@ class InputRunHandler:
         if u_input == "show" or u_input == "plt":
             print("\n You will need to ctrl-z to run this program again. \n")
             PLT.show()
-        # TODO Add predict
+
+        if u_input == "predict" or u_input == "p":
+            ncases = int(input("Enter the number of cases you want to predict: "))
+            self.ann.model.do_prediction(ncases)
 
     def load_json(self, filename):
         with open(filename) as f:
@@ -157,8 +158,10 @@ class InputRunHandler:
         self.check_mapping_and_dendro()
 
     def symmetry(self):
-        length = int(input("Enter the length of the vectors: "))
-        count = int(input("Enter the number of vectors: "))
+        length = input("Enter the length of the vectors. 101 set to default: ")
+        length = length if length else 101
+        count = input("Enter the number of vectors. Default set to 2000: ")
+        count = count if count else 2000
         case_generator = (lambda: TFT.gen_symvect_dataset(length, count))
         case_man = Caseman(cfunc=case_generator, vfrac=self.params.vfrac, tfrac=self.params.tfrac)
         self.params.dims[0] = len(case_man.training_cases[0][0])
