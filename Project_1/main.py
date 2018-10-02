@@ -25,10 +25,10 @@ class Ann():
 def main():
     ann = Ann()
     irh = InputRunHandler(ann)
+    cprint(figlet_format('AI is the future', font='doom'),
+           'yellow', attrs=['bold'])
 
     while True:
-        cprint(figlet_format('AI is the future', font='doom'),
-               'yellow', attrs=['bold'])
         print("\n Welcome to our project. Press 'h' for help. \n")
         u_input = input("Enter command: ")
 
