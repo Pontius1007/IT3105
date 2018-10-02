@@ -4,7 +4,6 @@
     "hidden_layer_one": 8,
     "hidden_layer_two": 16,
     "hidden_layer_three": 16,
-    "hidden_layer_one": 8,
     "output": 17
   },
   "hidden_activation_function": {
@@ -26,15 +25,6 @@
   "optimizer": {
     "name": "adam"
   },
-  "data_source": {
-    "data_type": "file", 
-    "file_path": "test.txt",
-    "function_name": "gen_vector_count_cases",
-    "args": [
-      10,
-      10
-    ]
-  },
   "case_fraction": {
   "ratio": 1.0
   },
@@ -53,17 +43,8 @@
   "map_batch_size": {
     "map_test": 0
   },
-  "map_dendrogram": [
-    "nameofarandomlayer"
-  ],
-  "display_weights": [
-    "listofweightarray"
-  ],
-  "display_biases": [
-    "listofbiasvectors"
-  ],
   "steps": {
-    "number": 10000
+    "number": 10001
   },
   "grabbed_variables": {
     "show_freq": 5000

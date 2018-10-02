@@ -21,19 +21,10 @@
     "upper_bound": 0.1
   },
   "optimizer": {
-    "name": "default"
-  },
-  "data_source": {
-    "data_type": "file", 
-    "file_path": "test.txt",
-    "function_name": "gen_vector_count_cases",
-    "args": [
-      10,
-      10
-    ]
+    "name": "adam"
   },
   "case_fraction": {
-  "ratio": 1.0
+  "ratio": 0.01
   },
   "validation_fraction": {
     "ratio": 0.1
@@ -50,15 +41,6 @@
   "map_batch_size": {
     "map_test": 0
   },
-  "map_dendrogram": [
-    "nameofarandomlayer"
-  ],
-  "display_weights": [
-    "listofweightarray"
-  ],
-  "display_biases": [
-    "listofbiasvectors"
-  ],
   "steps": {
     "number": 10001
   },
