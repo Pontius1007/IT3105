@@ -204,9 +204,6 @@ def gen_symvect_dataset(vlen, count):
     s2 = count - s1
     cases = gen_symvect_cases(vlen, s1) + gen_anti_symvect_cases(vlen, s2)
     NPR.shuffle(cases)
-    print(cases)
-    for case in cases:
-        print(case)
     return cases
 
 
