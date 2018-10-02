@@ -16,7 +16,7 @@
     "name": "MSE"
   },
   "learning_rate": {
-    "value": 0.0004
+    "value": 0.0005
   },
   "ini_weight_range": {
     "lower_bound": -0.05,
@@ -32,22 +32,22 @@
     "ratio": 0.1
   },
   "validation_interval": {
-    "number": 100
+    "number": 500
   },
   "test_fraction": {
     "ratio": 0.1
   },
   "minibatch_size": {
-    "number_of_training_cases": 214
+    "number_of_training_cases": 256
   },
   "map_batch_size": {
     "map_test": 0
   },
   "steps": {
-    "number": 20000
+    "number": 25000
   },
   "grabbed_variables": {
-    "show_freq": 10000
+    "show_freq": 0
   },
   "num_gen_training_case": {
     "amount": 500
@@ -63,7 +63,7 @@
   ,
   "grab_module_index": [
     0,
-    1,
+    0,
     0
   ],
   "grab_type": [
