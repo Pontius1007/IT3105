@@ -5,7 +5,7 @@ from datasets import *
 
 class Parameters:
     def __init__(self):
-        self.dims = []
+        self.dims = [0, 0, 0]
         self.hidden_activation_function = "relu"
         self.optimizer = "RMSprop"
         self.weight_range_lower = -0.1
@@ -72,6 +72,8 @@ class InputRunHandler:
                         self.parity()
                     elif data_input == "symmetry":
                         self.symmetry()
+                    elif data_input == "segmentcounter" or data_input == "sc":
+                        self.segmentcounter()
                     elif data_input == "yeast":
                         self.yeast()
                     elif data_input == "glass":
@@ -140,11 +142,13 @@ class InputRunHandler:
             self.ann.model.create_dendrogram(self.params.dendrogram_cases)
 
     def parity(self):
-        nbits = self.params.dims[0]
+        nbits = input("Enter the length of the vectors. Default to 10: ")
+        nbits = nbits if nbits else 10
         case_generator = (lambda: TFT.gen_all_parity_cases(nbits))
         case_man = Caseman(cfunc=case_generator, vfrac=self.params.vfrac, tfrac=self.params.tfrac)
-        self.params.dims[-1]= len(case_man.training_cases[0][1])
-        print("\nNumber of bits taken from input layer: ", nbits,
+        self.params.dims[0] = len(case_man.training_cases[0][0])
+        self.params.dims[-1] = len(case_man.training_cases[0][1])
+        print("\nNumber of bits taken from input layer: ", self.params.dims[0],
               "and output set to target vector length at: ", self.params.dims[-1])
         self.ann.set_cman(case_man)
         model = self.build_ann()
@@ -159,7 +163,7 @@ class InputRunHandler:
         case_man = Caseman(cfunc=case_generator, vfrac=self.params.vfrac, tfrac=self.params.tfrac)
         self.params.dims[0] = len(case_man.training_cases[0][0])
         self.params.dims[-1] = len(case_man.training_cases[0][1])
-        print("\nNumber of bits taken from input layer: ", length,
+        print("\nNumber of bits taken from input layer: ", self.params.dims[0],
               "and output set to target vector length at: ", self.params.dims[-1])
         self.ann.set_cman(case_man)
         model = self.build_ann()
@@ -174,7 +178,12 @@ class InputRunHandler:
                           "Please be careful and not crash my shit with a number like 32: "))
         case_generator = (lambda: TFT.gen_all_one_hot_cases(2 ** nbits))
 
-        self.ann.set_cman(Caseman(cfunc=case_generator, vfrac=self.params.vfrac, tfrac=self.params.tfrac))
+        case_man = Caseman(cfunc=case_generator, vfrac=self.params.vfrac, tfrac=self.params.tfrac)
+        self.ann.set_cman(case_man)
+        self.params.dims[0] = len(case_man.training_cases[0][0])
+        self.params.dims[-1] = len(case_man.training_cases[0][1])
+        print("\nNumber of bits taken from input layer: ", self.params.dims[0],
+              "and output set to target vector length at: ", self.params.dims[-1])
         model = self.build_ann()
         self.ann.set_model(model)
         # model.gen_probe(0, 'wgt', ('hist', 'avg'))  # Plot a histogram and avg of the incoming weights to module 0.
@@ -184,10 +193,37 @@ class InputRunHandler:
         self.check_mapping_and_dendro()
 
     def bitcounter(self):
-        nbits = int(input("Enter the length of the vector in bits. Enter 0 to set it to the input layer size: "))
-        nbits = nbits if (nbits != 0) else self.params.dims[0]
+        nbits = input("Enter the length of the vector in bits. 15 is default: ")
+        nbits = nbits if nbits else 15
         case_generator = (lambda: TFT.gen_vector_count_cases(self.params.ncases, nbits))
-        self.ann.set_cman(Caseman(cfunc=case_generator, vfrac=self.params.vfrac, tfrac=self.params.tfrac))
+        case_man = Caseman(cfunc=case_generator, vfrac=self.params.vfrac, tfrac=self.params.tfrac)
+        self.ann.set_cman(case_man)
+        self.params.dims[0] = len(case_man.training_cases[0][0])
+        self.params.dims[-1] = len(case_man.training_cases[0][1])
+        print("\nNumber of bits taken from input layer: ", self.params.dims[0],
+              "and output set to target vector length at: ", self.params.dims[-1])
+        model = self.build_ann()
+        self.ann.set_model(model)
+        model.run(steps=self.params.steps, bestk=self.params.bestk)
+        self.check_mapping_and_dendro()
+
+    def segmentcounter(self):
+        size = input("Enter the size. 25 is default: ")
+        size = size if size else 25
+        count = input("Enter the number of cases. 1000 default: ")
+        count = count if count else 1000
+        minsegs = input("Enter the minimum number of segments in a vector. Default 0: ")
+        minsegs = minsegs if minsegs else 0
+        maxsegs = input("Enter the maximum number of segments in a vector. Default 5: ")
+        maxsegs = maxsegs if maxsegs else 5
+        print(size, count, minsegs, maxsegs)
+        case_generator = (lambda: TFT.gen_segmented_vector_cases(size, count, minsegs, maxsegs))
+        case_man = Caseman(cfunc=case_generator, vfrac=self.params.vfrac, tfrac=self.params.tfrac)
+        self.ann.set_cman(case_man)
+        self.params.dims[0] = len(case_man.training_cases[0][0])
+        self.params.dims[-1] = len(case_man.training_cases[0][1])
+        print("\nNumber of bits taken from input layer: ", self.params.dims[0],
+              "and output set to target vector length at: ", self.params.dims[-1])
         model = self.build_ann()
         self.ann.set_model(model)
         model.run(steps=self.params.steps, bestk=self.params.bestk)
@@ -195,10 +231,12 @@ class InputRunHandler:
 
     def yeast(self):
         case_generator = (lambda: load_generic_file('data/yeast.txt', self.params.cfraction))
-        caseman = Caseman(cfunc=case_generator, vfrac=self.params.vfrac, tfrac=self.params.tfrac)
-        self.ann.set_cman(caseman)
-        self.params.dims[0] = len(caseman.training_cases[0][0])
-        self.params.dims[-1] = len(caseman.training_cases[0][1])
+        case_man = Caseman(cfunc=case_generator, vfrac=self.params.vfrac, tfrac=self.params.tfrac)
+        self.ann.set_cman(case_man)
+        self.params.dims[0] = len(case_man.training_cases[0][0])
+        self.params.dims[-1] = len(case_man.training_cases[0][1])
+        print("\nNumber of bits taken from input layer: ", self.params.dims[0],
+              "and output set to target vector length at: ", self.params.dims[-1])
         model = self.build_ann()
         self.ann.set_model(model)
         model.run(steps=self.params.steps, bestk=self.params.bestk)
@@ -206,10 +244,12 @@ class InputRunHandler:
 
     def wine(self):
         case_generator = (lambda: load_generic_file('data/winequality_red.txt', self.params.cfraction))
-        caseman = Caseman(cfunc=case_generator, vfrac=self.params.vfrac, tfrac=self.params.tfrac)
-        self.ann.set_cman(caseman)
-        self.params.dims[0] = len(caseman.training_cases[0][0])
-        self.params.dims[-1] = len(caseman.training_cases[0][1])
+        case_man = Caseman(cfunc=case_generator, vfrac=self.params.vfrac, tfrac=self.params.tfrac)
+        self.ann.set_cman(case_man)
+        self.params.dims[0] = len(case_man.training_cases[0][0])
+        self.params.dims[-1] = len(case_man.training_cases[0][1])
+        print("\nNumber of bits taken from input layer: ", self.params.dims[0],
+              "and output set to target vector length at: ", self.params.dims[-1])
         model = self.build_ann()
         self.ann.set_model(model)
         model.run(steps=self.params.steps, bestk=self.params.bestk)
@@ -217,10 +257,12 @@ class InputRunHandler:
 
     def glass(self):
         case_generator = (lambda: load_generic_file('data/glass.txt', self.params.cfraction))
-        caseman = Caseman(cfunc=case_generator, vfrac=self.params.vfrac, tfrac=self.params.tfrac)
-        self.ann.set_cman(caseman)
-        self.params.dims[0] = len(caseman.training_cases[0][0])
-        self.params.dims[-1] = len(caseman.training_cases[0][1])
+        case_man = Caseman(cfunc=case_generator, vfrac=self.params.vfrac, tfrac=self.params.tfrac)
+        self.ann.set_cman(case_man)
+        self.params.dims[0] = len(case_man.training_cases[0][0])
+        self.params.dims[-1] = len(case_man.training_cases[0][1])
+        print("\nNumber of bits taken from input layer: ", self.params.dims[0],
+              "and output set to target vector length at: ", self.params.dims[-1])
         model = self.build_ann()
         self.ann.set_model(model)
         model.run(steps=self.params.steps, bestk=self.params.bestk)
@@ -228,10 +270,12 @@ class InputRunHandler:
 
     def iris(self):
         case_generator = (lambda: load_iris_file('data/iris.txt', self.params.cfraction))
-        caseman = Caseman(cfunc=case_generator, vfrac=self.params.vfrac, tfrac=self.params.tfrac)
-        self.ann.set_cman(caseman)
-        self.params.dims[0] = len(caseman.training_cases[0][0])
-        self.params.dims[-1] = len(caseman.training_cases[0][1])
+        case_man = Caseman(cfunc=case_generator, vfrac=self.params.vfrac, tfrac=self.params.tfrac)
+        self.ann.set_cman(case_man)
+        self.params.dims[0] = len(case_man.training_cases[0][0])
+        self.params.dims[-1] = len(case_man.training_cases[0][1])
+        print("\nNumber of bits taken from input layer: ", self.params.dims[0],
+              "and output set to target vector length at: ", self.params.dims[-1])
         model = self.build_ann()
         self.ann.set_model(model)
         model.run(steps=self.params.steps, bestk=self.params.bestk)
@@ -240,10 +284,12 @@ class InputRunHandler:
     def mnist(self):
         case_generator = (
             lambda: load_flat_text_cases('data/all_flat_mnist_training_cases_text.txt', self.params.cfraction))
-        caseman = Caseman(cfunc=case_generator, vfrac=self.params.vfrac, tfrac=self.params.tfrac)
-        self.ann.set_cman(caseman)
-        self.params.dims[0] = len(caseman.training_cases[0][0])
-        self.params.dims[-1] = len(caseman.training_cases[0][1])
+        case_man = Caseman(cfunc=case_generator, vfrac=self.params.vfrac, tfrac=self.params.tfrac)
+        self.ann.set_cman(case_man)
+        self.params.dims[0] = len(case_man.training_cases[0][0])
+        self.params.dims[-1] = len(case_man.training_cases[0][1])
+        print("\nNumber of bits taken from input layer: ", self.params.dims[0],
+              "and output set to target vector length at: ", self.params.dims[-1])
         model = self.build_ann()
         self.ann.set_model(model)
         model.run(steps=self.params.steps, bestk=self.params.bestk)
