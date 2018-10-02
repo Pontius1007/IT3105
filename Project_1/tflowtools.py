@@ -176,7 +176,14 @@ def check_vector_symmetry(v):
 # This produces a set of symmetric vectors and appends the class label onto the end (for ease of use in ML).
 
 def gen_symvect_cases(vlen, count, label=1):
-    return [gen_symmetric_vector(vlen) + [label] for i in range(count)]
+    cases = []
+    for i in range(count):
+        case = []
+        vector = gen_symmetric_vector(vlen)
+        case.append(vector)
+        case.append([0, 1])
+        cases.append(case)
+    return cases
 
 
 def gen_anti_symvect_cases(vlen, count, label=0):
@@ -184,13 +191,16 @@ def gen_anti_symvect_cases(vlen, count, label=0):
     while len(cases) < count:
         v = gen_dense_vector(vlen, density=NPR.uniform(0, 1))
         if not (check_vector_symmetry(v)):
-            cases.append(v + [label])
+            case = []
+            case.append(v)
+            case.append([1, 0])
+            cases.append(case)
     return cases
 
 
 # Generate a dataset with an equal (or nearly so if vlen is odd) number of symmetric and anti-symmetric bit vectors
 def gen_symvect_dataset(vlen, count):
-    s1 = math.floor(count / 2);
+    s1 = math.floor(count / 2)
     s2 = count - s1
     cases = gen_symvect_cases(vlen, s1) + gen_anti_symvect_cases(vlen, s2)
     NPR.shuffle(cases)
@@ -540,6 +550,7 @@ def gen_dim_reduced_data(feature_array, target_size, eigen_values, eigen_vectors
 # metric = euclidean, cityblock (manhattan), hamming, cosine, correlation ... (see matplotlib distance.pdist for all 23)
 def dendrogram(features, labels, metric='euclidean', mode='average', ax=None, title='Dendrogram', orient='top',
                lrot=90.0):
+    PLT.figure()
     ax = ax if ax else PLT.gca()
     cluster_history = SCH.linkage(features, method=mode, metric=metric)
     SCH.dendrogram(cluster_history, labels=labels, orientation=orient, leaf_rotation=lrot)

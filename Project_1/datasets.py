@@ -20,7 +20,7 @@ def load_flat_text_cases(filename, cfraction, ):
 
 
 # loads yeast, wine, etc.
-def load_generic_file(filename, cfraction, ):
+def load_generic_file(filename, cfraction, hot_length):
     with open(filename, 'r') as infile:
         output_list = []
         lines = infile.readlines()
@@ -31,7 +31,7 @@ def load_generic_file(filename, cfraction, ):
             split_line = split_line.strip().split(',')
             input_vector = [float(i) for i in split_line[:-1]]
             target_vector = int(split_line[-1])
-            hot_target = TFT.int_to_one_hot(target_vector, 11)
+            hot_target = TFT.int_to_one_hot(target_vector, hot_length)
             line_output.append(input_vector)
             line_output.append(hot_target)
             output_list.append(line_output)
