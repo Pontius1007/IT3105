@@ -218,8 +218,8 @@ class InputRunHandler:
         count = count if count else 1000
         minsegs = input("Enter the minimum number of segments in a vector. Default 0: ")
         minsegs = minsegs if minsegs else 0
-        maxsegs = input("Enter the maximum number of segments in a vector. Default 5: ")
-        maxsegs = maxsegs if maxsegs else 5
+        maxsegs = input("Enter the maximum number of segments in a vector. Default 8: ")
+        maxsegs = maxsegs if maxsegs else 8
         print(size, count, minsegs, maxsegs)
         case_generator = (lambda: TFT.gen_segmented_vector_cases(size, count, minsegs, maxsegs))
         case_man = Caseman(cfunc=case_generator, vfrac=self.params.vfrac, tfrac=self.params.tfrac)
