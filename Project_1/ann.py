@@ -257,11 +257,7 @@ class Gann:
         fig_index = 0
         for i, v in enumerate(grabbed_vals):
             if names: print("   " + names[i] + " = ", end="\n")
-<<<<<<< HEAD
             if type(v) == np.ndarray and len(v.shape) > 1 and ('out' not in str(names[i])):  # If v is a matrix, use hinton plotting
-=======
-            if type(v) == np.ndarray and len(v.shape) > 1 and ("out" not in str(names[i])):  # If v is a matrix, use hinton plotting
->>>>>>> 0243984a68e405f8b38100fb141a54b753442032
                 fig = PLT.figure()
                 TFT.hinton_plot(v, fig=fig, title=names[i] + ' at step ' + str(step))
                 fig_index += 1
