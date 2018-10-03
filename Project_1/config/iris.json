@@ -2,6 +2,7 @@
   "dimensions": {
     "input": 16,
     "hidden_layer_one": 4,
+    "hidden_layer_two": 2,
     "output": 17
   },
   "hidden_activation_function": {
@@ -17,14 +18,14 @@
     "value": 0.1
   },
   "ini_weight_range": {
-    "lower_bound": -0.1,
-    "upper_bound": 0.1
+    "lower_bound": 0,
+    "upper_bound": 0.5
   },
   "optimizer": {
     "name": "adam"
   },
   "case_fraction": {
-  "ratio": 0.01
+  "ratio": 1.0
   },
   "validation_fraction": {
     "ratio": 0.1
@@ -33,16 +34,16 @@
     "number": 500
   },
   "test_fraction": {
-    "ratio": 0.3
+    "ratio": 0.1
   },
   "minibatch_size": {
-    "number_of_training_cases": 100
+    "number_of_training_cases": 16
   },
   "map_batch_size": {
     "map_test": 0
   },
   "steps": {
-    "number": 10001
+    "number": 300
   },
   "grabbed_variables": {
     "show_freq": 5000
@@ -70,5 +71,5 @@
     "bias"
   ],
   "do_dendrogram_cases":
-    0
+    15
 }
