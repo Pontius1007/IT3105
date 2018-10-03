@@ -24,7 +24,7 @@
     "name": "adam"
   },
   "case_fraction": {
-  "ratio": 0.01
+  "ratio": 1.0
   },
   "validation_fraction": {
     "ratio": 0.1
