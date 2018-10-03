@@ -15,7 +15,7 @@
     "softmax": "False"
   },
   "cost_function": {
-    "name": "QE"
+    "name": "CE"
   },
   "learning_rate": {
     "value": 0.002
