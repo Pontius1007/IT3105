@@ -171,15 +171,16 @@ class Gann:
         training_cases = self.caseman.get_training_cases()
         cases = training_cases[:number_of_cases]
 
-        features = []
-        labels = []
-
-        for case in cases:
-            feeder = {self.input: [case[0]], self.target: [case[1]]}
-            results = self.current_session.run([self.output, self.grabvars], feed_dict=feeder)
-            labels.append(TFT.bits_to_str(case[1]))
-            features.append(results[0][0])
-        TFT.dendrogram(features, labels)
+        for x in range(0, len(self.grabvars)):
+            features = []
+            labels = []
+            for case in cases:
+                feeder = {self.input: [case[0]], self.target: [case[1]]}
+                results = self.current_session.run([self.output, self.grabvars], feed_dict=feeder)
+                r = results[1][x][0]
+                labels.append(TFT.bits_to_str(case[0]))
+                features.append(r)
+            TFT.dendrogram(features, labels)
         self.close_current_session(view=False)
 
     def do_testing(self, sess, cases, msg='Testing', bestk=None):
@@ -254,7 +255,7 @@ class Gann:
         fig_index = 0
         for i, v in enumerate(grabbed_vals):
             if names: print("   " + names[i] + " = ", end="\n")
-            if type(v) == np.ndarray and len(v.shape) > 1:  # If v is a matrix, use hinton plotting
+            if type(v) == np.ndarray and len(v.shape) > 1 and ("out" not in str(names[i])):  # If v is a matrix, use hinton plotting
                 fig = PLT.figure()
                 TFT.hinton_plot(v, fig=fig, title=names[i] + ' at step ' + str(step))
                 fig_index += 1
