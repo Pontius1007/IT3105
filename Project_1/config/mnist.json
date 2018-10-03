@@ -45,7 +45,7 @@
     "number": 2000
   },
   "grabbed_variables": {
-    "show_freq": 12500
+    "show_freq": 500
   },
   "num_gen_training_case": {
     "amount": 500
@@ -60,15 +60,9 @@
     15
   ,
   "grab_module_index": [
-    0,
-    1,
-    0
   ],
   "grab_type": [
-    "wgt",
-    "wgt",
-    "bias"
   ],
   "do_dendrogram_cases":
-    0
+    15
 }
