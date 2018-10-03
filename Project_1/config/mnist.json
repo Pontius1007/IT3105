@@ -30,7 +30,7 @@
     "ratio": 0.2
   },
   "validation_interval": {
-    "number": 500
+    "number": 100
   },
   "test_fraction": {
     "ratio": 0.3
