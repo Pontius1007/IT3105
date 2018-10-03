@@ -61,33 +61,33 @@ class InputRunHandler:
         if u_input == "run" or u_input == "r":
             while True:
                 data_input = input("Please enter the dataset you want to run: ").lower()
-                try:
-                    if data_input == "bitcounter":
-                        self.bitcounter()
-                    elif data_input == "autoencoder":
-                        self.autoencoder()
-                    elif data_input == "parity":
-                        self.parity()
-                    elif data_input == "symmetry":
-                        self.symmetry()
-                    elif data_input == "segmentcounter" or data_input == "sc":
-                        self.segmentcounter()
-                    elif data_input == "yeast":
-                        self.yeast()
-                    elif data_input == "glass":
-                        self.glass()
-                    elif data_input == "wine":
-                        self.wine()
-                    elif data_input == "iris":
-                        self.iris()
-                    elif data_input == "mnist":
-                        self.mnist()
-                    elif data_input == "q":
-                        break
-                except Exception as e:
-                    print("Not a supported dataset or bit: ", e)
-                else:
+                # try:
+                if data_input == "bitcounter":
+                    self.bitcounter()
+                elif data_input == "autoencoder":
+                    self.autoencoder()
+                elif data_input == "parity":
+                    self.parity()
+                elif data_input == "symmetry":
+                    self.symmetry()
+                elif data_input == "segmentcounter" or data_input == "sc":
+                    self.segmentcounter()
+                elif data_input == "yeast":
+                    self.yeast()
+                elif data_input == "glass":
+                    self.glass()
+                elif data_input == "wine":
+                    self.wine()
+                elif data_input == "iris":
+                    self.iris()
+                elif data_input == "mnist":
+                    self.mnist()
+                elif data_input == "q":
                     break
+                # except Exception as e:
+                #     print("Not a supported dataset or bit: ", e)
+                # else:
+                #     break
 
         # Only reliable way to get interactive mode for matplot in a standard cmd shell. Use ipython to avoid
         # Or, use MP

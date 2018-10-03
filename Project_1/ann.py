@@ -141,12 +141,14 @@ class Gann:
         targets = [c[1] for c in cases]
         feeder = {self.input: inputs, self.target: targets}
         results = self.current_session.run([self.output, self.grabvars], feed_dict=feeder)
+        new_target = np.array(targets)
+        TFT.hinton_plot(new_target, fig=PLT.figure(), title="Input Targets")
         fig_index = 0
         # Below is modified code from display_grabvars
         for i, v in enumerate(results[1]):
             if names: print("   " + names[i] + " = ", end="\n")
             if type(v) == np.ndarray and len(v.shape) > 1:  # If v is a matrix, use hinton plotting
-                TFT.hinton_plot(v, fig=self.grabvar_figures[fig_index], title=names[i] + "mapping")
+                TFT.hinton_plot(v, fig=self.grabvar_figures[fig_index], title=names[i] + " Activation Levels")
                 fig_index += 1
             else:
                 print(v, end="\n\n")
@@ -254,7 +256,7 @@ class Gann:
         fig_index = 0
         for i, v in enumerate(grabbed_vals):
             if names: print("   " + names[i] + " = ", end="\n")
-            if type(v) == np.ndarray and len(v.shape) > 1:  # If v is a matrix, use hinton plotting
+            if type(v) == np.ndarray and len(v.shape) > 1 and ('out' not in str(names[i])):  # If v is a matrix, use hinton plotting
                 fig = PLT.figure()
                 TFT.hinton_plot(v, fig=fig, title=names[i] + ' at step ' + str(step))
                 fig_index += 1

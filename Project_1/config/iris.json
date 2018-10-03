@@ -1,7 +1,7 @@
 {
   "dimensions": {
     "input": 16,
-    "hidden_layer_one": 9,
+    "hidden_layer_one": 3,
     "output": 17
   },
   "hidden_activation_function": {
@@ -62,12 +62,14 @@
   "grab_module_index": [
     0,
     1,
+    1,
     0
   ],
   "grab_type": [
-    "wgt",
-    "wgt",
-    "bias"
+    "out",
+    "out",
+    "bias",
+    "wgt"
   ],
   "do_dendrogram_cases":
     8
