@@ -132,7 +132,7 @@ class Gann:
     # gen_match_counter error function. Otherwise, when
     # bestk=None, the standard MSE error function is used for testing.
 
-    def do_mapping(self, number_of_cases):
+    def do_mapping(self, number_of_cases, bestk):
         names = [x.name for x in self.grabvars]
         self.reopen_current_session()
         test_cases = self.caseman.get_testing_cases()
@@ -141,6 +141,14 @@ class Gann:
         targets = [c[1] for c in cases]
         feeder = {self.input: inputs, self.target: targets}
         results = self.current_session.run([self.output, self.grabvars], feed_dict=feeder)
+        self.test_func = self.predictor
+        if bestk is not None:
+            self.test_func = self.gen_match_counter(self.predictor,[TFT.one_hot_to_int(list(v)) for v in targets],k=bestk)
+        testres, grabvals, _ = self.run_one_step(self.test_func, self.grabvars, self.probes, session=self.current_session,
+                                           feed_dict=feeder,  show_interval=self.show_interval,step = self.global_training_step)
+        print("here is testres")
+        print(testres)
+        print(grabvals)
         new_target = np.array(targets)
         TFT.hinton_plot(new_target, fig=PLT.figure(), title="Input Targets")
         fig_index = 0
@@ -172,7 +180,9 @@ class Gann:
         self.reopen_current_session()
         training_cases = self.caseman.get_training_cases()
         cases = training_cases[:number_of_cases]
-
+        print(self.grabvars)
+        for grab in self.grabvars:
+            print(grab.name)
         for x in range(0, len(self.grabvars)):
             features = []
             labels = []
@@ -180,7 +190,7 @@ class Gann:
                 feeder = {self.input: [case[0]], self.target: [case[1]]}
                 results = self.current_session.run([self.output, self.grabvars], feed_dict=feeder)
                 r = results[1][x][0]
-                labels.append(TFT.bits_to_str(case[0]))
+                labels.append(TFT.bits_to_str(case[1]))
                 features.append(r)
             TFT.dendrogram(features, labels)
         self.close_current_session(view=False)
@@ -273,7 +283,7 @@ class Gann:
                 PLT.xlabel("Node")
                 PLT.ylabel("Value")
                 PLT.draw()
-                PLT.pause(0.1)
+                PLT.pause(0.1)            
             else:
                 print(v, end="\n\n")
                 

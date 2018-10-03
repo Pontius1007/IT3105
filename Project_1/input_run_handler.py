@@ -138,7 +138,7 @@ class InputRunHandler:
 
     def check_mapping_and_dendro(self):
         if self.params.map_cases != 0:
-            self.ann.model.do_mapping(self.params.map_cases)
+            self.ann.model.do_mapping(self.params.map_cases, self.params.bestk)
         if self.params.dendrogram_cases != 0:
             self.ann.model.create_dendrogram(self.params.dendrogram_cases)
 
