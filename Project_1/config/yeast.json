@@ -1,25 +1,26 @@
 {
   "dimensions": {
     "input": 16,
-    "hidden_layer_one": 150,
-    "hidden_layer_two": 100,
-    "hidden_layer_three": 50,
+    "hidden_layer_one": 256,
+    "hidden_layer_two": 128,
+    "hidden_layer_three": 64,
+    "lol": 32,
     "output": 17
   },
   "hidden_activation_function": {
     "name": "relu"
   },
   "output_activation_function": {
-    "softmax": "True"
+    "softmax": "False"
   },
   "cost_function": {
-    "name": "MSE"
+    "name": "CE"
   },
   "learning_rate": {
-    "value": 0.01
+    "value": 0.0035
   },
   "ini_weight_range": {
-    "lower_bound": -0.1,
+    "lower_bound": -0.05,
     "upper_bound": 0.1
   },
   "optimizer": {
@@ -38,7 +39,7 @@
     "ratio": 0.1
   },
   "minibatch_size": {
-    "number_of_training_cases": 256
+    "number_of_training_cases": 128
   },
   "map_batch_size": {
     "map_test": 0
@@ -62,15 +63,9 @@
     15
   ,
   "grab_module_index": [
-    0,
-    1,
-    0
   ],
   "grab_type": [
-    "wgt",
-    "wgt",
-    "bias"
   ],
   "do_dendrogram_cases":
-    0
+    15
 }
