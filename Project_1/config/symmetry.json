@@ -46,7 +46,7 @@
     "number": 10001
   },
   "grabbed_variables": {
-    "show_freq": 50000
+    "show_freq": 10000
   },
   "num_gen_training_case": {
     "amount": 500
