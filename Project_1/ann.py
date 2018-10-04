@@ -134,7 +134,7 @@ class Gann:
 
     def do_mapping(self, map_layers, number_of_cases, bestk):
         self.reopen_current_session()
-        test_cases = self.caseman.get_testing_cases()
+        test_cases = self.caseman.get_training_cases()
         cases = test_cases[:number_of_cases]
         inputs = [c[0] for c in cases]
         targets = [c[1] for c in cases]

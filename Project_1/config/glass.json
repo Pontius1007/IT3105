@@ -67,13 +67,17 @@
     0,
     1,
     0,
-    1
+    1,
+    4,
+    5
   ],
   "grab_type": [
     "out",
     "out",
     "wgt",
-    "bias"
+    "bias",
+    "out",
+    "out"
   ],
   "do_dendrogram_cases":
     8,
@@ -82,7 +86,7 @@
     1
   ],
   "map_layers": [
-    0,
-    1
+    4,
+    5
   ]
 }
