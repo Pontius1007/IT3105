@@ -126,6 +126,8 @@ class InputRunHandler:
         self.params.grab_type = [i for i in data["grab_type"]]
         self.params.map_cases = data["do_mapping_cases"]
         self.params.dendrogram_cases = data["do_dendrogram_cases"]
+        self.params.dendrogram_layers = data["dendrogram_layers"]
+        self.params.map_layers = data["map_layers"]
 
     def build_ann(self):
         model = Gann(dims=self.params.dims, hidden_activation_function=self.params.hidden_activation_function,
@@ -138,9 +140,9 @@ class InputRunHandler:
 
     def check_mapping_and_dendro(self):
         if self.params.map_cases != 0:
-            self.ann.model.do_mapping(self.params.map_cases, self.params.bestk)
-        if self.params.dendrogram_cases != 0:
-            self.ann.model.create_dendrogram(self.params.dendrogram_cases)
+            self.ann.model.do_mapping(self.params.map_layers, self.params.map_cases, self.params.bestk)
+        if self.params.dendrogram_layers != 0:
+            self.ann.model.create_dendrogram(self.params.dendrogram_layers, self.params.map_cases, bestk=self.params.bestk)
 
     def parity(self):
         nbits = input("Enter the length of the vectors. Default to 10: ")
