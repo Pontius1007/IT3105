@@ -11,7 +11,7 @@
     "softmax": "True"
   },
   "cost_function": {
-    "name": "MSE"
+    "name": "CE"
   },
   "learning_rate": {
     "value": 0.001
@@ -78,7 +78,7 @@
     0,
     1,
     0,
-    1
+    0
   ],
   "grab_type": [
     "out",
