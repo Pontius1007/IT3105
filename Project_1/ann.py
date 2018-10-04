@@ -44,8 +44,8 @@ class Gann:
     # grabvar gets its own matplotlib figure in which to display its value.
     def add_grabvar(self, module_index, type='wgt'):
         self.grabvars.append(self.modules[module_index].getvar(type))
-        if type != 'bias':
-            self.grabvar_figures.append(PLT.figure())
+        # if type != 'bias':
+        #     self.grabvar_figures.append(PLT.figure())
 
     def roundup_probes(self):
         self.probes = tf.summary.merge_all()
@@ -277,13 +277,10 @@ class Gann:
         names = [x.name for x in grabbed_vars]
         msg = "Grabbed Variables at Step " + str(step)
         # print("\n" + msg, end="\n")
-        fig_index = 0
         for i, v in enumerate(grabbed_vals):
             if names: print("   " + names[i] + " = ", end="\n")
             if type(v) == np.ndarray and len(v.shape) > 1 and ('out' not in str(names[i])):  # If v is a matrix, use hinton plotting
-                fig = PLT.figure()
-                TFT.hinton_plot(v, fig=fig, title=names[i] + ' at step ' + str(step))
-                fig_index += 1
+                TFT.hinton_plot(v, fig=PLT.figure(), title=names[i] + ' at step ' + str(step))
             elif 'bias' in str(names[i]):
                 fig = PLT.figure()
                 v_list = v.tolist()
