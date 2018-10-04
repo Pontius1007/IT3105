@@ -71,6 +71,21 @@
     "wgt",
     "bias"
   ],
+  "do_mapping_cases":
+    8
+  ,
+  "grab_module_index": [
+    0,
+    1,
+    0,
+    1
+  ],
+  "grab_type": [
+    "out",
+    "out",
+    "wgt",
+    "bias"
+  ],
   "do_dendrogram_cases":
     8,
   "dendrogram_layers": [

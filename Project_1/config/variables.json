@@ -57,18 +57,28 @@
     "steps": 100
   },
   "do_mapping_cases":
-    15
+    8
   ,
   "grab_module_index": [
     0,
     1,
-    0
+    0,
+    1
   ],
   "grab_type": [
-    "wgt",
+    "out",
+    "out",
     "wgt",
     "bias"
   ],
   "do_dendrogram_cases":
-    0
+    8,
+  "dendrogram_layers": [
+    0,
+    1
+  ],
+  "map_layers": [
+    0,
+    1
+  ]
 }
