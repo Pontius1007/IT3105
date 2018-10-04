@@ -557,6 +557,6 @@ def dendrogram(features, labels, metric='euclidean', mode='average', ax=None, ti
     PLT.tight_layout()
     ax.set_title(title)
     ax.set_ylabel(metric + ' distance')
-    PLT.title("Dendrogram")
+    PLT.title("Dendrogram " + str(title))
     PLT.draw()
     PLT.pause(0.01)

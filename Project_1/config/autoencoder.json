@@ -45,7 +45,7 @@
     "number": 10001
   },
   "grabbed_variables": {
-    "show_freq": 5000
+    "show_freq": 10000
   },
   "num_gen_training_case": {
     "amount": 500
@@ -57,18 +57,27 @@
     "steps": 100
   },
   "do_mapping_cases":
-    15
+    8
   ,
   "grab_module_index": [
     0,
     1,
-    0
+    0,
+    1
   ],
   "grab_type": [
-    "wgt",
+    "out",
+    "out",
     "wgt",
     "bias"
   ],
   "do_dendrogram_cases":
-    0
-}
+    8,
+  "dendrogram_layers": [
+    0,
+    1
+  ],
+  "map_layers": [
+    0,
+    1
+  ]

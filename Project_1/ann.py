@@ -44,8 +44,8 @@ class Gann:
     # grabvar gets its own matplotlib figure in which to display its value.
     def add_grabvar(self, module_index, type='wgt'):
         self.grabvars.append(self.modules[module_index].getvar(type))
-        if type != 'bias':
-            self.grabvar_figures.append(PLT.figure())
+        # if type != 'bias':
+        #     self.grabvar_figures.append(PLT.figure())
 
     def roundup_probes(self):
         self.probes = tf.summary.merge_all()
@@ -132,27 +132,37 @@ class Gann:
     # gen_match_counter error function. Otherwise, when
     # bestk=None, the standard MSE error function is used for testing.
 
-    def do_mapping(self, number_of_cases):
-        names = [x.name for x in self.grabvars]
+    def do_mapping(self, map_layers, number_of_cases, bestk):
         self.reopen_current_session()
-        test_cases = self.caseman.get_testing_cases()
+        test_cases = self.caseman.get_training_cases()
         cases = test_cases[:number_of_cases]
         inputs = [c[0] for c in cases]
         targets = [c[1] for c in cases]
         feeder = {self.input: inputs, self.target: targets}
-        results = self.current_session.run([self.output, self.grabvars], feed_dict=feeder)
+        grabvar_names = [grabvar for grabvar in self.grabvars]
+        grabvar_layers = []
+        for layer in map_layers:
+            for grabvar in grabvar_names:
+                if ('-'+str(layer)+'-out') in str(grabvar.name):
+                    grabvar_layers.append(grabvar)
+        for grabvar in grabvar_layers:
+            features = []
+            for index, case in enumerate(cases):
+                self.test_func = self.predictor
+                if bestk is not None:
+                    self.test_func = self.gen_match_counter(self.predictor,
+                                                            [TFT.one_hot_to_int(list(v)) for v in targets], k=bestk)
+                testres, grabvals, _ = self.run_one_step(self.test_func, grabvar, self.probes,
+                                                         session=self.current_session,
+                                                         feed_dict=feeder, show_interval=self.show_interval,
+                                                         step=self.global_training_step)
+                features.append(grabvals[index])
+
+            TFT.hinton_plot(np.array(features), fig=PLT.figure(), title=grabvar.name + " Activation Levels")
+
         new_target = np.array(targets)
         TFT.hinton_plot(new_target, fig=PLT.figure(), title="Input Targets")
-        fig_index = 0
-        # Below is modified code from display_grabvars
-        for i, v in enumerate(results[1]):
-            if names: print("   " + names[i] + " = ", end="\n")
-            if type(v) == np.ndarray and len(v.shape) > 1:  # If v is a matrix, use hinton plotting
-                TFT.hinton_plot(v, fig=self.grabvar_figures[fig_index], title=names[i] + " Activation Levels")
-                fig_index += 1
-            else:
-                print(v, end="\n\n")
-        self.close_current_session(view=False)
+
 
     def do_prediction(self, number_of_cases):
         self.reopen_current_session()
@@ -168,22 +178,35 @@ class Gann:
             print("The correct target value is: \n", r_target)
         self.close_current_session(view=False)
 
-    def create_dendrogram(self, number_of_cases):
+    def create_dendrogram(self, dendrogram_layers, number_of_cases, bestk):
         self.reopen_current_session()
-        training_cases = self.caseman.get_training_cases()
-        cases = training_cases[:number_of_cases]
-
-        for x in range(0, len(self.grabvars)):
+        test_cases = self.caseman.get_testing_cases()
+        cases = test_cases[:number_of_cases]
+        inputs = [c[0] for c in cases]
+        targets = [c[1] for c in cases]
+        feeder = {self.input: inputs, self.target: targets}
+        grabvar_names = [grabvar for grabvar in self.grabvars]
+        grabvar_layers = []
+        for layer in dendrogram_layers:
+            for grabvar in grabvar_names:
+                if ('-'+str(layer)+'-out') in str(grabvar.name):
+                    grabvar_layers.append(grabvar)
+        for grabvar in grabvar_layers:
             features = []
             labels = []
-            for case in cases:
-                feeder = {self.input: [case[0]], self.target: [case[1]]}
-                results = self.current_session.run([self.output, self.grabvars], feed_dict=feeder)
-                r = results[1][x][0]
-                labels.append(TFT.bits_to_str(case[0]))
-                features.append(r)
-            TFT.dendrogram(features, labels)
-        self.close_current_session(view=False)
+            for index, case in enumerate(cases):
+                self.test_func = self.predictor
+                if bestk is not None:
+                    self.test_func = self.gen_match_counter(self.predictor,
+                                                            [TFT.one_hot_to_int(list(v)) for v in targets], k=bestk)
+                testres, grabvals, _ = self.run_one_step(self.test_func, grabvar, self.probes,
+                                                         session=self.current_session,
+                                                         feed_dict=feeder, show_interval=self.show_interval,
+                                                         step=self.global_training_step)
+                labels.append(TFT.bits_to_str(case[1]))
+                features.append(grabvals[index])
+            TFT.dendrogram(features, labels, title=grabvar.name)
+
 
     def do_testing(self, sess, cases, msg='Testing', bestk=None):
         inputs = [c[0] for c in cases]
@@ -253,14 +276,11 @@ class Gann:
     def display_grabvars(self, grabbed_vals, grabbed_vars, step=1):
         names = [x.name for x in grabbed_vars]
         msg = "Grabbed Variables at Step " + str(step)
-        print("\n" + msg, end="\n")
-        fig_index = 0
+        # print("\n" + msg, end="\n")
         for i, v in enumerate(grabbed_vals):
             if names: print("   " + names[i] + " = ", end="\n")
             if type(v) == np.ndarray and len(v.shape) > 1 and ('out' not in str(names[i])):  # If v is a matrix, use hinton plotting
-                fig = PLT.figure()
-                TFT.hinton_plot(v, fig=fig, title=names[i] + ' at step ' + str(step))
-                fig_index += 1
+                TFT.hinton_plot(v, fig=PLT.figure(), title=names[i] + ' at step ' + str(step))
             elif 'bias' in str(names[i]):
                 fig = PLT.figure()
                 v_list = v.tolist()
@@ -269,13 +289,14 @@ class Gann:
                 PLT.plot(x_axis, v_list, 'ro')
                 for a, b in zip(x_axis, v_list):
                     PLT.text(a, b, str(round(b, 6)))
-                PLT.title("Bias at step: " + str(step))
+                PLT.title("Bias at step: " + str(step) + " for layer " + names[i])
                 PLT.xlabel("Node")
                 PLT.ylabel("Value")
                 PLT.draw()
-                PLT.pause(0.1)
+                PLT.pause(0.1)            
             else:
-                print(v, end="\n\n")
+                # print(v, end="\n\n")
+                pass
                 
 
     def run(self, steps=100, sess=None, continued=False, bestk=None):
