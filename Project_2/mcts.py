@@ -2,6 +2,7 @@ from math import *
 import random
 
 
+# Functions related to the node tree and keeping track of the states
 class Node:
     def init(self, parent=None, state=None):
         self.parent = parent
@@ -30,13 +31,15 @@ class Node:
         self.child_nodes = child_nodes
 
     def get_random_child(self):
-        return self.child_nodes[random.randint(0, len(self.child_nodes))]
+        return self.child_nodes[random.randint(0, len(self.child_nodes) - 1)]
 
     def add_child(self, child_node):
         self.child_nodes.append(child_node)
 
 
-
+# MCTS spesific logic. Independent from NIM-code.
+# TODO: Finish Expand, evalue and backprop.
+# TODO: Create a function for finding the next move. Using all of the functions below to determine the right choice
 class MCTS:
 
     # traverse from root to node using tree policy (UCB shit)
@@ -67,15 +70,43 @@ class MCTS:
 
 
 # State manager for NIM
-class NimState:
+class GameState:
+    def __init__(self, player=1, numberofpieces=10, maxremove=2):
+        self.player = player
+        self.wins = 0
+        self.visits = 1
 
-    def nim(self, n, k):
-        pieces = n
-        if k < 1:
-            raise Exception("k cannot be lower than 1")
-        maximum_removal = k
-        while pieces > 0:
-            return None
+        # NIM related attributes
+        self.numberOfPieces = numberofpieces
+        self.maxRemovePieces = maxremove
+
+    def get_wins(self):
+        return self.wins
+
+    def set_wins(self, wins):
+        self.wins = wins
+
+    def get_visits(self):
+        return self.visits
+
+    def set_visits(self, visits):
+        self.visits = visits
+
+    def get_number_of_pieces(self):
+        return self.numberOfPieces
+
+    def set_number_of_pieces(self, pieces):
+        self.numberOfPieces = pieces
+
+    def get_max_remove_pieces(self):
+        return self.maxRemovePieces
+
+    def set_max_remove_pieces(self, maxremove):
+        self.maxRemovePieces = maxremove
+
+    def game_over(self):
+        return True if self.numberOfPieces == 0 else False
+
 
 
 class Run:
