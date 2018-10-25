@@ -124,11 +124,11 @@ class GameState:
         all_possible_states = []
 
         for i in range(1, max_states + 1):
-            if self.numberOfPieces <= max_states:
-                break
-
-            all_possible_states.append(GameState(player=current_player, numberofpieces=self.numberOfPieces-1,
+            if self.numberOfPieces > 0:
+                all_possible_states.append(GameState(player=current_player, numberofpieces=self.numberOfPieces-1,
                                                  maxremove=max_states))
+            else:
+                break
         return all_possible_states
 
     def play_random_move(self, next_state_moves):
