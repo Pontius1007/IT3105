@@ -82,8 +82,17 @@ class MCTS:
         
 
     # pass evaluating of final state up the tree, updating data
-    def backpropogate(self):
-        return None
+    def backpropogate(self, node, winner):
+        unupdated_node = node
+        while unupdated_node is not None:
+            visits = unupdated_node.get_state().get_visits()
+            unupdated_node.get_state().set_visits(visits + 1)
+
+            if unupdated_node.get_state().get_player() == winner:
+                wins = visits = unupdated_node.get_state().get_wins()
+                unupdated_node.get_state().set_wins(wins + 1)
+
+            unupdated_node = unupdated_node.get_parent()
 
 
 # State manager for NIM
@@ -153,4 +162,6 @@ class GameState:
 
 class Run:
     def run(self):
-        return None
+        start_node = Node()
+
+Run().run()
