@@ -7,8 +7,6 @@ class Node:
     def init(self, parent=None, state=None):
         self.parent = parent
         self.child_nodes = []
-        self.visits = 1
-        self.wins = 0
         # How many pieces left, number of child nodes etc
         self.state = state
 
@@ -36,10 +34,13 @@ class Node:
     def add_child(self, child_node):
         self.child_nodes.append(child_node)
 
+    #TODO Return the child with highest UTC score, if we need it.
+
 
 # MCTS spesific logic. Independent from NIM-code.
 # TODO: Finish Expand, evalue and backprop.
 # TODO: Create a function for finding the next move. Using all of the functions below to determine the right choice
+# TODO: Do we need to elaborate on the UCB search algorithm?
 class MCTS:
 
     # traverse from root to node using tree policy (UCB shit)
@@ -104,9 +105,34 @@ class GameState:
     def set_max_remove_pieces(self, maxremove):
         self.maxRemovePieces = maxremove
 
-    def game_over(self):
-        return True if self.numberOfPieces == 0 else False
+    def get_player(self):
+        return self.player
 
+    def set_player(self, player):
+        self.player = player
+
+    def switch_player(self, player):
+        return 2 if player == 1 else 1
+
+    def game_over(self):
+        return True if self.numberOfPieces <= 0 else False
+
+    #TODO Needs testing
+    def next_state_moves(self):
+        max_states = self.maxRemovePieces
+        current_player = self.player
+        all_possible_states = []
+
+        for i in range(1, max_states + 1):
+            if self.numberOfPieces <= max_states:
+                break
+
+            all_possible_states.append(GameState(player=current_player, numberofpieces=self.numberOfPieces-1,
+                                                 maxremove=max_states))
+        return all_possible_states
+
+    def play_random_move(self, next_state_moves):
+        return next_state_moves[random.randint(0, len(next_state_moves) - 1)]
 
 
 class Run:
