@@ -43,6 +43,10 @@ class Node:
 # TODO: Do we need to elaborate on the UCB search algorithm?
 class MCTS:
 
+    # returns ucb value
+    def ucb(self, node, child):
+        return child.wins / child.visits + 2 * sqrt(log(node.visits) / child.visits)
+
     # traverse from root to node using tree policy (UCB shit)
     def search(self, node):
         if len(node.child_nodes) == 0:
@@ -50,20 +54,32 @@ class MCTS:
         best_child = None
         highest_ucb = 0
         for child in node.child_nodes:
-            ucb = child.wins / child.visits + 2 * sqrt(log(node.visits) / child.visits)
+            ucb = ucb(node, child)
             if ucb > highest_ucb:
                 best_child = child
         return self.search(best_child)
 
     # generate some or all states of child states of a parent state
-    def expand(self, parent, children):
-        for child in children:
-            node = Node(parent)
-            parent.child_nodes.append(node)
+    def expand(self, node):
+        possible_moves = node.get_state.next_state_moves()
+
+        for move in possible_moves:
+            child_node = Node(parent=node, state=move)
+            node.add_child(child_node)
+        return node
 
     # estimates value of node using default policy
-    def evaluate(self):
-        return None
+    def evaluate(self, node):
+        simulated_node = node
+        state = simulated_node.get_state()
+
+        while not state.game_over():
+            state = state.play_random_move()
+            state.switch_player(state.get_player())
+        
+        winner = 3 - state.get_player()
+        return winner
+        
 
     # pass evaluating of final state up the tree, updating data
     def backpropogate(self):
@@ -124,7 +140,7 @@ class GameState:
         all_possible_states = []
 
         for i in range(1, max_states + 1):
-            if self.numberOfPieces > 0:
+            if (self.numberOfPieces - i) >= 0:
                 all_possible_states.append(GameState(player=current_player, numberofpieces=self.numberOfPieces-1,
                                                  maxremove=max_states))
             else:
