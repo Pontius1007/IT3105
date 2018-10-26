@@ -4,7 +4,7 @@ import random
 
 # Functions related to the node tree and keeping track of the states
 class Node:
-    def init(self, parent=None, state=None):
+    def __init__(self, parent=None, state=None):
         self.parent = parent
         self.child_nodes = []
         # How many pieces left, number of child nodes etc
@@ -45,24 +45,23 @@ class MCTS:
 
     # returns ucb value
     def ucb(self, node, child):
-        return child.wins / child.visits + 2 * sqrt(log(node.visits) / child.visits)
+        return child.get_state().get_wins() / child.get_state().get_visits() + 2 * sqrt(log(node.get_state().get_visits()) / child.get_state().get_visits())
 
     # traverse from root to node using tree policy (UCB shit)
     def search(self, node):
-        if len(node.child_nodes) == 0:
+        if len(node.get_child_nodes()) == 0:
             return node
         best_child = None
-        highest_ucb = 0
+        highest_ucb = -999999
         for child in node.child_nodes:
-            ucb = ucb(node, child)
+            ucb = MCTS().ucb(node, child)
             if ucb > highest_ucb:
                 best_child = child
         return self.search(best_child)
 
     # generate some or all states of child states of a parent state
     def expand(self, node):
-        possible_moves = node.get_state.next_state_moves()
-
+        possible_moves = node.get_state().next_state_moves()
         for move in possible_moves:
             child_node = Node(parent=node, state=move)
             node.add_child(child_node)
@@ -161,7 +160,34 @@ class GameState:
 
 
 class Run:
-    def run(self):
-        start_node = Node()
+    def run(self, batch, starting_player, simulations, numberofpieces, maxremove):
+        root_node = Node(parent=None, state=GameState(player=1, numberofpieces=10, maxremove=3))
+        root_copy = root_node
+        for simulation in range(0, simulations):
+            print("")
+            print("")
+            print("")
+            print("ITERATION")
+            print(root_copy)
+            print("length of root: " + str(len(root_copy.get_child_nodes())))
+            best_node = MCTS().search(root_copy)
+            print(best_node)
+            print("length: " + str(len(best_node.get_child_nodes())))
+            # it doesn't even enter this loop
+            while len(best_node.get_child_nodes()) > 0:
+                print("DOES IT GO INSIDE OF HERE")
+                best_node = MCTS().search(best_node)
+                print("Best node set to: " + str(best_node))
+                print("WAS IT DONE")
+            root_copy = MCTS().expand(best_node)
+            print("node EXPANDED")
+            print(root_copy)
+            print(("length: ") + str(len(best_node.get_child_nodes())))
 
-Run().run()
+
+        # while not start_node.get_state().game_over():
+        #     player = start_node.get_state().get_player()
+
+
+
+Run().run(batch=10, starting_player="mix", simulations=3, numberofpieces=10, maxremove=3)
