@@ -176,29 +176,34 @@ class Run:
             print("")
             print("")
             print("ITERATION")
-            print(root_node)
-            print("length of root: " + str(len(root_node.get_child_nodes())))
+            # this searches through tree based on UCT value
             best_node = MCTS().search(root_node)
             print(best_node)
-            print("length: " + str(len(best_node.get_child_nodes())))
-            # it doesn't even enter this loop
-            while len(best_node.get_child_nodes()) > 0:
-                print("DOES IT GO INSIDE OF HERE")
-                best_node = MCTS().search(best_node)
-                print("Best node set to: " + str(best_node))
-                print("WAS IT DONE")
+
+            # expands the node with children if there are possible states
             MCTS().expand(best_node)
             print("node EXPANDED")
             print(("length: ") + str(len(best_node.get_child_nodes())))
 
-            for child in best_node.get_child_nodes():
-                wins = 0                
-                for i in range(0, simulations):
-                    winner = MCTS().evaluate(child)
-                    if winner == 1:
-                        wins += 1
-                wins = float(float(wins)/float(simulations))
-                MCTS().backpropogate(child, wins)
+            
+            if len(best_node.get_child_nodes()) > 0:
+                best_node = best_node.get_random_child()
+            
+            winner = MCTS().evaluate(best_node)
+            print(winner)
+
+                
+            
+
+
+            # for child in best_node.get_child_nodes():
+            #     wins = 0                
+            #     # for i in range(0, simulations):
+            #     winner = MCTS().evaluate(child)
+            #     if winner == 1:
+            #         wins += 1
+            #     wins = float(float(wins)/float(simulations))
+            #     MCTS().backpropogate(child, wins)
 
 
 
@@ -207,4 +212,4 @@ class Run:
 
 
 
-Run().run(batch=10, starting_player="mix", simulations=30, numberofpieces=10, maxremove=3)
+Run().run(batch=10, starting_player="mix", simulations=3, numberofpieces=10, maxremove=3)
