@@ -198,17 +198,10 @@ class Run:
                             highest_ratio = ratio
                             next_move = child
                     else:
-                        lowest_ratio = ratio
-                        next_move = child
+                        if ratio < lowest_ratio:
+                            lowest_ratio = ratio
+                            next_move = child
 
-                # print("")
-                # print("")
-                # print("Current move")
-                # print(batch_node)
-                # print("next move")
-                # print(next_move)
-                # print("")
-                # print("")
                 root_node = Node(
                     state=GameState(player=current_player, numberofpieces=next_move.get_state().get_number_of_pieces(),
                                     maxremove=maxremove))
