@@ -171,7 +171,6 @@ class GameState:
 
 class Run:
     def run(self, batch, starting_player, simulations, numberofpieces, maxremove):
-<<<<<<< HEAD
         
         total_wins = 0
 
@@ -193,7 +192,7 @@ class Run:
                 for child in batch_node.get_child_nodes():
                     ratio = float(child.get_state().get_wins())/float(child.get_state().get_visits() - 1)
 
-                    if starting_player == current_player:
+                    if starting_player != current_player:
                         if ratio > highest_ratio:
                             highest_ratio = ratio
                             next_move = child
@@ -201,7 +200,14 @@ class Run:
                         lowest_ratio = ratio
                         next_move = child
                 
-
+                # print("")
+                # print("")
+                # print("Current move")
+                # print(batch_node)
+                # print("next move")
+                # print(next_move)
+                # print("")
+                # print("")
                 root_node = Node(state=GameState(player=current_player, numberofpieces=next_move.get_state().get_number_of_pieces(), maxremove=maxremove))
 
                     
@@ -215,23 +221,6 @@ class Run:
         print("Won " + str(total_wins) + " times out of " + str(batch) + " batches.")
         
         
-=======
-
-        # for i in range()
-
-        root_node = Node(parent=None,
-                         state=GameState(player=starting_player, numberofpieces=numberofpieces, maxremove=maxremove))
-
-        batch_node = Run().find_move(root_node, simulations)
-        next_move = None
-        highest_ratio = -9999
-
-        for child in batch_node.get_child_nodes():
-            ratio = float(child.get_state().get_wins()) / float(child.get_state().get_visits())
-            print(child.get_state().get_wins())
-            print(ratio)
-
->>>>>>> ac966f66f57eb0cff229712b3f3a51d2c74c11df
     def find_move(self, node, simulations):
         move_node = node
         for simulation in range(0, simulations):
@@ -253,4 +242,4 @@ class Run:
         return move_node
 
 
-Run().run(batch=10, starting_player=1, simulations=10, numberofpieces=14, maxremove=3)
+Run().run(batch=10, starting_player=1, simulations=5000, numberofpieces=3, maxremove=3)
