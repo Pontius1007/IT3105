@@ -90,8 +90,7 @@ class MCTS:
         while unupdated_node is not None:
             visits = unupdated_node.get_state().get_visits()
             unupdated_node.get_state().set_visits(visits + 1)
-
-            if unupdated_node.get_state().get_player() == winner:
+            if unupdated_node.get_state().get_player() != winner:
                 wins = unupdated_node.get_state().get_wins()
                 unupdated_node.get_state().set_wins(wins + 1)
 
@@ -171,28 +170,52 @@ class GameState:
 
 class Run:
     def run(self, batch, starting_player, simulations, numberofpieces, maxremove):
-
-        # for i in range()
-
-        root_node = Node(parent=None, state=GameState(player=starting_player, numberofpieces=numberofpieces, maxremove=maxremove))
         
-        batch_node = Run().find_move(root_node, simulations)
-        next_move = None
-        highest_ratio = -9999
+        total_wins = 0
 
-        for child in batch_node.get_child_nodes():
-            ratio = float(child.get_state().get_wins())/float(child.get_state().get_visits())
-            print(child.get_state().get_wins())
-            print(ratio)
+        for i in range(0, batch):
+            if starting_player == 'mix':
+                starting_player = random.randint(1,2)
+            print("starting player: ", starting_player)
+            root_node = Node(parent=None, state=GameState(player=starting_player, numberofpieces=numberofpieces, maxremove=maxremove))
+            game_over = False
+            
+            while not game_over:
+            
+                batch_node = Run().find_move(root_node, simulations)
+                next_move = None
+                highest_ratio = -float('inf')
+                lowest_ratio = float('inf')
+                current_player = batch_node.get_state().switch_player(batch_node.get_state().get_player())
+
+                for child in batch_node.get_child_nodes():
+                    ratio = float(child.get_state().get_wins())/float(child.get_state().get_visits() - 1)
+
+                    if starting_player == current_player:
+                        if ratio > highest_ratio:
+                            highest_ratio = ratio
+                            next_move = child
+                    else:
+                        lowest_ratio = ratio
+                        next_move = child
+                
+
+                root_node = Node(state=GameState(player=current_player, numberofpieces=next_move.get_state().get_number_of_pieces(), maxremove=maxremove))
+
+                    
+                if root_node.get_state().game_over():
+                    winner = root_node.get_state().switch_player(root_node.get_state().get_player())
+                    print(winner)
+                    if starting_player == winner:
+                        total_wins += 1
+                    game_over = True
+            
+        print("Won " + str(total_wins) + " times out of " + str(batch) + " batches.")
         
         
     def find_move(self, node, simulations):
         move_node = node
         for simulation in range(0, simulations):
-            print("")
-            print("")
-            print("")
-            print("ITERATION")
 
             # this searches through tree based on UCT value
             best_node = MCTS().search(move_node)
@@ -214,4 +237,4 @@ class Run:
 
 
 
-Run().run(batch=10, starting_player=1, simulations=30, numberofpieces=3, maxremove=3)
+Run().run(batch=10, starting_player=1, simulations=10, numberofpieces=14, maxremove=3)
