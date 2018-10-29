@@ -73,8 +73,8 @@ class MCTS:
         state = simulated_node.get_state()
 
         while not state.game_over():
-            state = state.play_random_move()
-            state.switch_player(state.get_player())
+            state = state.play_random_move(state.next_state_moves())
+            state.set_player(state.switch_player(state.get_player()))
         
         winner = 3 - state.get_player()
         return winner
@@ -136,7 +136,10 @@ class GameState:
         self.player = player
 
     def switch_player(self, player):
-        return 2 if player == 1 else 1
+        if player == 1:
+            return 2
+        if player == 2:
+            return 1
 
     def game_over(self):
         return True if self.numberOfPieces <= 0 else False
@@ -149,7 +152,7 @@ class GameState:
 
         for i in range(1, max_states + 1):
             if (self.numberOfPieces - i) >= 0:
-                all_possible_states.append(GameState(player=current_player, numberofpieces=self.numberOfPieces-1,
+                all_possible_states.append(GameState(player=current_player, numberofpieces=self.numberOfPieces-i,
                                                  maxremove=max_states))
             else:
                 break
@@ -162,15 +165,14 @@ class GameState:
 class Run:
     def run(self, batch, starting_player, simulations, numberofpieces, maxremove):
         root_node = Node(parent=None, state=GameState(player=1, numberofpieces=10, maxremove=3))
-        root_copy = root_node
         for simulation in range(0, simulations):
             print("")
             print("")
             print("")
             print("ITERATION")
-            print(root_copy)
-            print("length of root: " + str(len(root_copy.get_child_nodes())))
-            best_node = MCTS().search(root_copy)
+            print(root_node)
+            print("length of root: " + str(len(root_node.get_child_nodes())))
+            best_node = MCTS().search(root_node)
             print(best_node)
             print("length: " + str(len(best_node.get_child_nodes())))
             # it doesn't even enter this loop
@@ -179,10 +181,19 @@ class Run:
                 best_node = MCTS().search(best_node)
                 print("Best node set to: " + str(best_node))
                 print("WAS IT DONE")
-            root_copy = MCTS().expand(best_node)
+            MCTS().expand(best_node)
             print("node EXPANDED")
-            print(root_copy)
             print(("length: ") + str(len(best_node.get_child_nodes())))
+
+            for child in best_node.get_child_nodes():
+                wins = 0                
+                for i in range(0, simulations):
+                    winner = MCTS().evaluate(child)
+                    if winner == 1:
+                        wins += 1
+                wins = float(float(wins)/float(simulations))
+                MCTS().backpropogate(child, wins)
+
 
 
         # while not start_node.get_state().game_over():
@@ -190,4 +201,4 @@ class Run:
 
 
 
-Run().run(batch=10, starting_player="mix", simulations=3, numberofpieces=10, maxremove=3)
+Run().run(batch=10, starting_player="mix", simulations=30, numberofpieces=10, maxremove=3)
