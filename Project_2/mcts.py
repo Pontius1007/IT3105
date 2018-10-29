@@ -48,7 +48,7 @@ class MCTS:
 
     # returns ucb value
     def ucb(self, node, child):
-        return child.get_state().get_wins() / child.get_state().get_visits() + 2 * sqrt(log(node.get_state().get_visits()) / child.get_state().get_visits())
+        return child.get_state().get_wins() / child.get_state().get_visits() + 1 * sqrt(log(node.get_state().get_visits()) / child.get_state().get_visits())
 
     # traverse from root to node using tree policy (UCB shit)
     def search(self, node):
@@ -58,6 +58,7 @@ class MCTS:
         highest_ucb = -999999
         for child in node.child_nodes:
             ucb = MCTS().ucb(node, child)
+            print(ucb)
             if ucb > highest_ucb:
                 best_child = child
         return self.search(best_child)
@@ -68,8 +69,6 @@ class MCTS:
         for move in possible_moves:
             child_node = Node(parent=node, state=move)
             node.add_child(child_node)
-            child_node.set_parent(node)
-            print(child_node)
         return node
 
     # estimates value of node using default policy
@@ -173,12 +172,17 @@ class GameState:
 class Run:
     def run(self, batch, starting_player, simulations, numberofpieces, maxremove):
 
-        
+        # for i in range()
 
         root_node = Node(parent=None, state=GameState(player=starting_player, numberofpieces=numberofpieces, maxremove=maxremove))
-        test = Run().find_move(root_node, simulations)
-        for child in test.get_child_nodes():
+        
+        batch_node = Run().find_move(root_node, simulations)
+        next_move = None
+        highest_ratio = -9999
+        for child in batch_node.get_child_nodes():
+            ratio = float(child.get_state().get_wins())/float(child.get_state().get_visits())
             print(child)
+            print(ratio)
         
         
     def find_move(self, node, simulations):
