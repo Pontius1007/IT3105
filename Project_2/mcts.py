@@ -10,6 +10,9 @@ class Node:
         # How many pieces left, number of child nodes etc
         self.state = state
 
+    def __str__(self):
+        return ' ,  '.join(['{key} = {value}'.format(key=key, value=self.__dict__.get(key)) for key in self.__dict__])
+
     def get_state(self):
         return self.state
 
@@ -104,6 +107,9 @@ class GameState:
         # NIM related attributes
         self.numberOfPieces = numberofpieces
         self.maxRemovePieces = maxremove
+
+    def __str__(self):
+        return ' ,  '.join(['{key} = {value}'.format(key=key, value=self.__dict__.get(key)) for key in self.__dict__])
 
     def get_wins(self):
         return self.wins
