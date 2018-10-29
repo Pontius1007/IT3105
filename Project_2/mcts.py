@@ -37,7 +37,7 @@ class Node:
     def add_child(self, child_node):
         self.child_nodes.append(child_node)
 
-    #TODO Return the child with highest UTC score, if we need it.
+    # TODO Return the child with highest UTC score, if we need it.
 
 
 # MCTS spesific logic. Independent from NIM-code.
@@ -48,7 +48,8 @@ class MCTS:
 
     # returns ucb value
     def ucb(self, node, child):
-        return child.get_state().get_wins() / child.get_state().get_visits() + 1 * sqrt(log(node.get_state().get_visits()) / child.get_state().get_visits())
+        return child.get_state().get_wins() / child.get_state().get_visits() + 1 * sqrt(
+            log(node.get_state().get_visits()) / child.get_state().get_visits())
 
     # traverse from root to node using tree policy (UCB shit)
     def search(self, node):
@@ -79,10 +80,9 @@ class MCTS:
         while not state.game_over():
             state = state.play_random_move(state.next_state_moves())
             state.set_player(state.switch_player(state.get_player()))
-        
+
         winner = 3 - state.get_player()
         return winner
-        
 
     # pass evaluating of final state up the tree, updating data
     def backpropogate(self, node, winner):
@@ -151,7 +151,7 @@ class GameState:
     def game_over(self):
         return True if self.numberOfPieces <= 0 else False
 
-    #TODO Needs testing
+    # TODO Needs testing
     def next_state_moves(self):
         max_states = self.maxRemovePieces
         current_player = self.player
@@ -159,8 +159,9 @@ class GameState:
 
         for i in range(1, max_states + 1):
             if (self.numberOfPieces - i) >= 0:
-                all_possible_states.append(GameState(player=GameState().switch_player(current_player), numberofpieces=self.numberOfPieces-i,
-                                                 maxremove=max_states))
+                all_possible_states.append(
+                    GameState(player=GameState().switch_player(current_player), numberofpieces=self.numberOfPieces - i,
+                              maxremove=max_states))
             else:
                 break
         return all_possible_states
@@ -174,18 +175,18 @@ class Run:
 
         # for i in range()
 
-        root_node = Node(parent=None, state=GameState(player=starting_player, numberofpieces=numberofpieces, maxremove=maxremove))
-        
+        root_node = Node(parent=None,
+                         state=GameState(player=starting_player, numberofpieces=numberofpieces, maxremove=maxremove))
+
         batch_node = Run().find_move(root_node, simulations)
         next_move = None
         highest_ratio = -9999
 
         for child in batch_node.get_child_nodes():
-            ratio = float(child.get_state().get_wins())/float(child.get_state().get_visits())
+            ratio = float(child.get_state().get_wins()) / float(child.get_state().get_visits())
             print(child.get_state().get_wins())
             print(ratio)
-        
-        
+
     def find_move(self, node, simulations):
         move_node = node
         for simulation in range(0, simulations):
@@ -199,19 +200,16 @@ class Run:
 
             # expands the node with children if there are possible states
             MCTS().expand(best_node)
-            
+
             # if node was expanded, choose a random child to evaluate
             if len(best_node.get_child_nodes()) > 0:
                 best_node = best_node.get_random_child()
-            
+
             winner = MCTS().evaluate(best_node)
 
             # traverses up tree with winner
             MCTS().backpropogate(best_node, winner)
         return move_node
-
-            
-
 
 
 Run().run(batch=10, starting_player=1, simulations=30, numberofpieces=3, maxremove=3)
