@@ -68,6 +68,8 @@ class MCTS:
         for move in possible_moves:
             child_node = Node(parent=node, state=move)
             node.add_child(child_node)
+            child_node.set_parent(node)
+            print(child_node)
         return node
 
     # estimates value of node using default policy
@@ -158,7 +160,7 @@ class GameState:
 
         for i in range(1, max_states + 1):
             if (self.numberOfPieces - i) >= 0:
-                all_possible_states.append(GameState(player=current_player, numberofpieces=self.numberOfPieces-i,
+                all_possible_states.append(GameState(player=GameState().switch_player(current_player), numberofpieces=self.numberOfPieces-i,
                                                  maxremove=max_states))
             else:
                 break
@@ -170,46 +172,41 @@ class GameState:
 
 class Run:
     def run(self, batch, starting_player, simulations, numberofpieces, maxremove):
-        root_node = Node(parent=None, state=GameState(player=1, numberofpieces=10, maxremove=3))
+
+        
+
+        root_node = Node(parent=None, state=GameState(player=starting_player, numberofpieces=numberofpieces, maxremove=maxremove))
+        test = Run().find_move(root_node, simulations)
+        for child in test.get_child_nodes():
+            print(child)
+        
+        
+    def find_move(self, node, simulations):
+        move_node = node
         for simulation in range(0, simulations):
             print("")
             print("")
             print("")
             print("ITERATION")
+
             # this searches through tree based on UCT value
-            best_node = MCTS().search(root_node)
-            print(best_node)
+            best_node = MCTS().search(move_node)
 
             # expands the node with children if there are possible states
             MCTS().expand(best_node)
-            print("node EXPANDED")
-            print(("length: ") + str(len(best_node.get_child_nodes())))
-
             
+            # if node was expanded, choose a random child to evaluate
             if len(best_node.get_child_nodes()) > 0:
                 best_node = best_node.get_random_child()
             
             winner = MCTS().evaluate(best_node)
-            print(winner)
 
-                
+            # traverses up tree with winner
+            MCTS().backpropogate(best_node, winner)
+        return move_node
+
             
 
 
-            # for child in best_node.get_child_nodes():
-            #     wins = 0                
-            #     # for i in range(0, simulations):
-            #     winner = MCTS().evaluate(child)
-            #     if winner == 1:
-            #         wins += 1
-            #     wins = float(float(wins)/float(simulations))
-            #     MCTS().backpropogate(child, wins)
 
-
-
-        # while not start_node.get_state().game_over():
-        #     player = start_node.get_state().get_player()
-
-
-
-Run().run(batch=10, starting_player="mix", simulations=3, numberofpieces=10, maxremove=3)
+Run().run(batch=10, starting_player=1, simulations=30, numberofpieces=10, maxremove=3)
