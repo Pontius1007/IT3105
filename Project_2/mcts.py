@@ -173,7 +173,7 @@ class GameState:
 
 class Run:
     def run(self, batch, starting_player, simulations, numberofpieces, maxremove):
-        
+
         total_wins = 0
 
         for i in range(0, batch):
@@ -181,7 +181,7 @@ class Run:
                 starting_player = random.randint(1,2)
             root_node = Node(parent=None, state=GameState(player=starting_player, numberofpieces=numberofpieces, maxremove=maxremove))
             game_over = False
-            
+
             while not game_over:
                 print(root_node)
 
@@ -221,10 +221,9 @@ class Run:
                     if starting_player == winner:
                         total_wins += 1
                     game_over = True
-            
+
         print("Won " + str(total_wins) + " times out of " + str(batch) + " batches.")
-        
-        
+
     def find_move(self, node, simulations):
         move_node = node
         print("NODE")
