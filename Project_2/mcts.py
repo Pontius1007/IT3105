@@ -197,8 +197,9 @@ class Run:
                             highest_ratio = ratio
                             next_move = child
                     else:
-                        lowest_ratio = ratio
-                        next_move = child
+                        if ratio < lowest_ratio:
+                            lowest_ratio = ratio
+                            next_move = child
                 
                 # print("")
                 # print("")
@@ -242,4 +243,4 @@ class Run:
         return move_node
 
 
-Run().run(batch=10, starting_player=1, simulations=5000, numberofpieces=3, maxremove=3)
+Run().run(batch=10, starting_player=1, simulations=30, numberofpieces=3, maxremove=3)
