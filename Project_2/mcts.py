@@ -58,9 +58,9 @@ class MCTS:
         highest_ucb = -999999
         for child in node.child_nodes:
             ucb = MCTS().ucb(node, child)
-            print(ucb)
             if ucb > highest_ucb:
                 best_child = child
+                highest_ucb = ucb
         return self.search(best_child)
 
     # generate some or all states of child states of a parent state
@@ -92,7 +92,7 @@ class MCTS:
             unupdated_node.get_state().set_visits(visits + 1)
 
             if unupdated_node.get_state().get_player() == winner:
-                wins = visits = unupdated_node.get_state().get_wins()
+                wins = unupdated_node.get_state().get_wins()
                 unupdated_node.get_state().set_wins(wins + 1)
 
             unupdated_node = unupdated_node.get_parent()
@@ -179,9 +179,10 @@ class Run:
         batch_node = Run().find_move(root_node, simulations)
         next_move = None
         highest_ratio = -9999
+
         for child in batch_node.get_child_nodes():
             ratio = float(child.get_state().get_wins())/float(child.get_state().get_visits())
-            print(child)
+            print(child.get_state().get_wins())
             print(ratio)
         
         
@@ -213,4 +214,4 @@ class Run:
 
 
 
-Run().run(batch=10, starting_player=1, simulations=30, numberofpieces=10, maxremove=3)
+Run().run(batch=10, starting_player=1, simulations=30, numberofpieces=3, maxremove=3)
