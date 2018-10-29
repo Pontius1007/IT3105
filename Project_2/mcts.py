@@ -171,18 +171,19 @@ class GameState:
 
 class Run:
     def run(self, batch, starting_player, simulations, numberofpieces, maxremove):
-        
+
         total_wins = 0
 
         for i in range(0, batch):
             if starting_player == 'mix':
-                starting_player = random.randint(1,2)
+                starting_player = random.randint(1, 2)
             print("starting player: ", starting_player)
-            root_node = Node(parent=None, state=GameState(player=starting_player, numberofpieces=numberofpieces, maxremove=maxremove))
+            root_node = Node(parent=None, state=GameState(player=starting_player, numberofpieces=numberofpieces,
+                                                          maxremove=maxremove))
             game_over = False
-            
+
             while not game_over:
-            
+
                 batch_node = Run().find_move(root_node, simulations)
                 next_move = None
                 highest_ratio = -float('inf')
@@ -190,7 +191,7 @@ class Run:
                 current_player = batch_node.get_state().switch_player(batch_node.get_state().get_player())
 
                 for child in batch_node.get_child_nodes():
-                    ratio = float(child.get_state().get_wins())/float(child.get_state().get_visits() - 1)
+                    ratio = float(child.get_state().get_wins()) / float(child.get_state().get_visits() - 1)
 
                     if starting_player != current_player:
                         if ratio > highest_ratio:
@@ -199,7 +200,7 @@ class Run:
                     else:
                         lowest_ratio = ratio
                         next_move = child
-                
+
                 # print("")
                 # print("")
                 # print("Current move")
@@ -208,19 +209,19 @@ class Run:
                 # print(next_move)
                 # print("")
                 # print("")
-                root_node = Node(state=GameState(player=current_player, numberofpieces=next_move.get_state().get_number_of_pieces(), maxremove=maxremove))
+                root_node = Node(
+                    state=GameState(player=current_player, numberofpieces=next_move.get_state().get_number_of_pieces(),
+                                    maxremove=maxremove))
 
-                    
                 if root_node.get_state().game_over():
                     winner = root_node.get_state().switch_player(root_node.get_state().get_player())
                     print(winner)
                     if starting_player == winner:
                         total_wins += 1
                     game_over = True
-            
+
         print("Won " + str(total_wins) + " times out of " + str(batch) + " batches.")
-        
-        
+
     def find_move(self, node, simulations):
         move_node = node
         for simulation in range(0, simulations):
@@ -242,4 +243,4 @@ class Run:
         return move_node
 
 
-Run().run(batch=10, starting_player=1, simulations=5000, numberofpieces=3, maxremove=3)
+Run().run(batch=10, starting_player=1, simulations=500, numberofpieces=12, maxremove=3)
