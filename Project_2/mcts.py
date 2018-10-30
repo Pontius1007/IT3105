@@ -113,8 +113,8 @@ class MCTS:
 
     # returns ucb value
     def ucb(self, node, child):
-        qsa = float(child.get_state().get_wins()) / float(child.get_state().get_visits())
-        usa = 1 * sqrt(log(node.get_state().get_visits()) / (1 + child.get_state().get_visits()))
+        qsa = abs(float(child.get_state().get_wins()) / float(child.get_state().get_visits()))
+        usa = 2 * sqrt(log(node.get_state().get_visits()) / (1 + child.get_state().get_visits()))
         return qsa + usa
 
     # traverse from root to node using tree policy (UCB)
@@ -144,7 +144,7 @@ class MCTS:
         state = simulated_node.get_state()
 
         while not state.game_over():
-            state = state.play_random_move(state.next_state_moves())
+            state = random.choice(state.next_state_moves())
 
         winner = 3 - state.get_player()
         return winner
@@ -177,6 +177,7 @@ class Run:
         for i in range(0, batch):
             if starting_player == 'mix':
                 starting_player = random.randint(1,2)
+
             root_node = Node(parent=None, state=GameState(player=starting_player, numberofpieces=numberofpieces, maxremove=maxremove))
             game_over = False
 
@@ -228,7 +229,7 @@ class Run:
         move_node = node
         player = node.get_state().get_player()
 
-        for simulation in range(0, simulations):
+        for i in range(0, simulations):
 
             # this searches through tree based on UCT value
             best_node = MCTS().search(move_node)
@@ -240,10 +241,10 @@ class Run:
             if len(best_node.get_child_nodes()) > 0:
                 best_node = random.choice(best_node.get_child_nodes())
 
+            # simulates winner
             winner = MCTS().evaluate(best_node)
 
             # traverses up tree with winner
-            
             MCTS().backpropogate(best_node, winner, player)
         
         return move_node
