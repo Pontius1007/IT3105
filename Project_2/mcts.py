@@ -48,7 +48,8 @@ class MCTS:
 
     # returns ucb value
     def ucb(self, node, child):
-        return child.get_state().get_wins() / child.get_state().get_visits() + 3 * sqrt(
+        # print("ucb wins: " + str(child.get_state().get_wins()) + " ucb visits: " + str(child.get_state().get_visits()))
+        return (float(child.get_state().get_wins()) / float(child.get_state().get_visits())) + 2 * sqrt(
             log(node.get_state().get_visits()) / child.get_state().get_visits())
 
     # traverse from root to node using tree policy (UCB)
@@ -56,7 +57,7 @@ class MCTS:
         if len(node.get_child_nodes()) == 0:
             return node
         best_child = None
-        highest_ucb = -999999
+        highest_ucb = -float('inf')
         for child in node.child_nodes:
             ucb = MCTS().ucb(node, child)
             if ucb > highest_ucb:
@@ -75,25 +76,26 @@ class MCTS:
     # estimates value of node using default policy
     def evaluate(self, node):
         simulated_node = node
+        # print(simulated_node)
         state = simulated_node.get_state()
 
         while not state.game_over():
             state = state.play_random_move(state.next_state_moves())
-            state.set_player(state.switch_player(state.get_player()))
+            # state.set_player(state.switch_player(state.get_player()))
 
         winner = 3 - state.get_player()
         return winner
 
     # pass evaluating of final state up the tree, updating data
-    def backpropogate(self, node, winner, starting_player):
+    def backpropogate(self, node, winner, player):
         unupdated_node = node
         while unupdated_node is not None:
             visits = unupdated_node.get_state().get_visits()
             unupdated_node.get_state().set_visits(visits + 1)
-            node_player = unupdated_node.get_state().get_player()
+            # node_player = unupdated_node.get_state().get_player()
             # print("winner: " + str(winner) + " unupdated node: " + str(node_player) + " starting player: " + str(starting_player))
 
-            if node_player == winner == starting_player:
+            if winner == 1:
                 wins = unupdated_node.get_state().get_wins()
                 unupdated_node.get_state().set_wins(wins + 1)
 
@@ -184,39 +186,53 @@ class Run:
             game_over = False
 
             while not game_over:
-
+                print("")
+                print("")
 
                 current_player = root_node.get_state().get_player()
                 batch_node = Run().find_move(root_node, simulations)
-                print()
-                print()
+                
                 print("Batch node:")
                 print(batch_node)
 
                 next_move = None
                 highest_ratio = -float('inf')
+                lowest_ratio = float('inf')
                 current_player = batch_node.get_state().get_player()
-                print(current_player)
+                # print(current_player)
                 
 
                 for child in batch_node.get_child_nodes():
-                    print(child)
+                    # print(child)
                     # print()
                     # print()
-                    ratio = float(1) - float(child.get_state().get_wins())/float(child.get_state().get_visits() - 1)
+                    # ratio = float(1) - float(child.get_state().get_wins())/float(child.get_state().get_visits() - 1)
+                    # ratio = MCTS().ucb(batch_node, child)
+                    
+
+                    ratio = float(child.get_state().get_wins())/float(child.get_state().get_visits()) + 1 * sqrt(
+            log(batch_node.get_state().get_visits()) / child.get_state().get_visits())
+                    print("ucb wins: " + str(child.get_state().get_wins()) + " ucb visits: " + str(child.get_state().get_visits()))
+                    print(float(child.get_state().get_wins())/float(child.get_state().get_visits()))
+            
                     # if starting_player == current_player:
                     print("Player: " + str(current_player) + " Ratio: " + str(ratio) + " highest: "
                           + str(highest_ratio) + " visits: " + str(child.get_state().get_visits()) + " wins: " + str(child.get_state().get_wins()) + " pieces left: " + str(child.get_state().get_number_of_pieces()))
+                    if current_player == 1:
+                        if ratio > highest_ratio:
+                            highest_ratio = ratio
+                            next_move = child
+                    else:
+                        if ratio < lowest_ratio:
+                            lowest_ratio = ratio
+                            next_move = child
 
-                    if ratio > highest_ratio:
-                        highest_ratio = ratio
-                        next_move = child
 
 
                 print("Child")
-                print(next_move)
-                print(next_move.get_state().get_wins())
-                print(next_move.get_state().get_visits())
+                # print(next_move)
+                # print(next_move.get_state().get_wins())
+                # print(next_move.get_state().get_visits())
                 root_node = Node(state=GameState(player=(3 - current_player), numberofpieces=next_move.get_state().get_number_of_pieces(), maxremove=maxremove))
 
 
@@ -231,6 +247,7 @@ class Run:
 
     def find_move(self, node, simulations):
         move_node = node
+        player = node.get_state().get_player()
 
 
         for simulation in range(0, simulations):
@@ -245,12 +262,17 @@ class Run:
             if len(best_node.get_child_nodes()) > 0:
                 best_node = random.choice(best_node.get_child_nodes())
 
+            # print(best_node)
             winner = MCTS().evaluate(best_node)
 
             # traverses up tree with winner
-            player = best_node.get_state().get_player()
-            MCTS().backpropogate(best_node, winner, winner)
+            
+
+            # print("winner " + str(winner))
+            # if player != winner:
+            #     print("hey")
+            MCTS().backpropogate(best_node, winner, player)
         return move_node
 
 
-Run().run(batch=1, starting_player=1, simulations=1000, numberofpieces=6, maxremove=3)
+Run().run(batch=10, starting_player=1, simulations=1000, numberofpieces=14, maxremove=3)
