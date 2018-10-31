@@ -99,7 +99,7 @@ class GameState:
         for i in range(1, max_states + 1):
             if (self.numberOfPieces - i) >= 0:
                 all_possible_states.append(
-                    GameState(player=GameState().switch_player(current_player), numberofpieces=self.numberOfPieces - i))
+                    GameState(player=GameState().switch_player(current_player), numberofpieces=self.numberOfPieces - i, maxremove=self.maxRemovePieces))
             else:
                 break
         return all_possible_states
@@ -114,6 +114,8 @@ class MCTS:
     # returns ucb value
     def ucb(self, node, child):
         qsa = child.get_wins() / child.get_visits()
+        new_qsa = qsa * -1
+        # print("old: " + str(qsa) + " new: " + str(new_qsa))
         usa = 1 * sqrt(log(node.get_visits()) / (1 + child.get_visits()))
         return qsa + usa
 
@@ -140,9 +142,9 @@ class MCTS:
 
     # estimates value of node using default policy
     def evaluate(self, node):
+        # print(node)
         simulated_node = node
         state = simulated_node.get_state()
-
         while not state.game_over():
             state = random.choice(state.next_state_moves())
 
@@ -152,7 +154,7 @@ class MCTS:
     # pass evaluating of final state up the tree, updating data
     def backpropogate(self, node, winner, player):
         unupdated_node = node
-        if winner == 2:
+        if winner == 1:
             while unupdated_node is not None:
                 visits = unupdated_node.get_visits()
                 unupdated_node.set_visits(visits + 1)
@@ -161,7 +163,7 @@ class MCTS:
                 unupdated_node.set_wins(wins + 1)
                 unupdated_node = unupdated_node.get_parent()
 
-        if winner == 1:
+        if winner == 2:
             while unupdated_node is not None:
                 visits = unupdated_node.get_visits()
                 unupdated_node.set_visits(visits + 1)
@@ -184,6 +186,7 @@ class Run:
             game_over = False
 
             while not game_over:
+                print("")
                 print("")
                 print("")
 
@@ -233,7 +236,7 @@ class Run:
 
         for i in range(0, simulations):
 
-
+            # this chooses the node with a random policy instead of UCT policy
             temp_node = move_node
             best_node = temp_node
 
@@ -262,4 +265,4 @@ class Run:
         return move_node
 
 
-Run().run(batch=1, starting_player=1, simulations=1000, numberofpieces=14, maxremove=3)
+Run().run(batch=1, starting_player=1, simulations=100, numberofpieces=14, maxremove=3)
