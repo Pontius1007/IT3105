@@ -40,7 +40,6 @@ class Node:
         temp = self.child_nodes
         if not len(temp):
             temp = self.get_child_nodes()
-        # temp = self.get_state().next_state_moves()
         return random.choice(temp)
 
     def add_child(self, child_node):
@@ -98,8 +97,8 @@ class GameState:
     def game_over(self):
         return True if self.numberOfPieces <= 0 else False
 
+    # returns next possible nodes of a node
     def next_node_states(self):
-
         children = []
         for i in range(1, min(self.numberOfPieces, self.maxRemovePieces) + 1):
             children.append(GameState(player=3-self.player, numberofpieces=self.numberOfPieces - i, maxremove=self.maxRemovePieces))
@@ -172,17 +171,8 @@ class Run:
             game_over = False
 
             while not game_over:
-                print("")
-                print("")
-                print("")
-
                 
                 batch_node = Run().find_move(root_node, simulations, batch_player)
-
-                print("Move node:")
-                print(batch_node)
-                print("Pieces left: " + str(batch_node.get_state().get_number_of_pieces()))
-                print("Children:")
 
                 next_move = None
                 highest_ratio = -float('inf')
@@ -193,20 +183,17 @@ class Run:
                 for child in batch_node.child_nodes:
                     ratio = float(child.get_wins())/float(child.get_visits())
 
-                    if current_player == 1:
-                        print("Player: " + str(current_player) + " Ratio: " + str(ratio) + " highest: "
-                          + str(highest_ratio) + "    WINS:" + str(child.get_wins()) + " VISITS:" + str(child.get_visits() - 1) + "    pieces left: " + str(child.get_state().get_number_of_pieces()))
+                    if current_player == batch_player:
                         if ratio > highest_ratio:
                             highest_ratio = ratio
                             next_move = child
                     else:
-                        print("Player: " + str(current_player) + " Ratio: " + str(ratio) + " lowest: "
-                          + str(lowest_ratio) + "    WINS:" + str(child.get_wins()) + " VISITS:" + str(child.get_visits() - 1) + "    pieces left: " + str(child.get_state().get_number_of_pieces()))
-                        if ratio < lowest_ratio:
+                       if ratio < lowest_ratio:
                             lowest_ratio = ratio
                             next_move = child
 
                 root_node = Node(state=GameState(player=(3 - current_player), numberofpieces=next_move.get_state().get_number_of_pieces(), maxremove=maxremove))
+                
                 if root_node.get_state().game_over():
                     winner = 3 - root_node.get_state().get_player()
                     if starting_player == winner:
@@ -223,18 +210,8 @@ class Run:
 
         for i in range(0, simulations):
 
-            # this chooses the node with a random policy instead of UCT policy
-            # temp_node = move_node
-            # best_node = temp_node
-
-
             # this searches through tree based on UCT value
             best_node = MCTS().search(move_node, batch_player)
-
-            # while len(temp_node.get_child_nodes()) > 0:
-            #     best_node = random.choice(temp_node.get_child_nodes())
-            #     temp_node = best_node
-
 
             # expands the node with children if there are possible states
             MCTS().expand(best_node)
@@ -252,4 +229,4 @@ class Run:
         return move_node
 
 
-Run().run(batch=10, starting_player=1, simulations=10000, numberofpieces=14, maxremove=3)
+Run().run(batch=10, starting_player=1, simulations=1000, numberofpieces=12, maxremove=3)
