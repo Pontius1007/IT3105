@@ -157,13 +157,20 @@ class MCTS:
 
 
 class Run:
-    def run(self, batch, starting_player, simulations, numberofpieces, maxremove):
+    def run(self, batch, starting_player, simulations, numberofpieces, maxremove, verbose=False, mix=False):
 
-        total_wins = 0
+        total_wins_player1 = 0
+        total_wins_player2 = 0
+        mix = False
+        if starting_player == 'mix':
+            mix = True
 
         for i in range(0, batch):
-            if starting_player == 'mix':
+            if mix:
                 starting_player = random.randint(1,2)
+                print(starting_player)
+            else:
+                starting_player = starting_player
 
             root_node = Node(parent=None, state=GameState(player=starting_player, numberofpieces=numberofpieces, maxremove=maxremove))
             batch_player = starting_player
@@ -191,16 +198,25 @@ class Run:
                        if ratio < lowest_ratio:
                             lowest_ratio = ratio
                             next_move = child
+                if verbose:
+                    print("Player " + str(current_player) + " selected " + str(batch_node.state.get_number_of_pieces()-next_move.state.get_number_of_pieces()) + " pieces."
+                        + " There are " + str(next_move.state.get_number_of_pieces()) + " pieces left.")
 
                 root_node = Node(state=GameState(player=(3 - current_player), numberofpieces=next_move.get_state().get_number_of_pieces(), maxremove=maxremove))
                 
                 if root_node.get_state().game_over():
                     winner = 3 - root_node.get_state().get_player()
-                    if starting_player == winner:
-                        total_wins += 1
+                    if verbose:
+                        print("Player " + str(winner) + " wins.")
+                        print("")
+                    if winner == 1:
+                        total_wins_player1 += 1
+                    if winner == 2:
+                        total_wins_player2 += 1
                     game_over = True
-
-        print("Won " + str(total_wins) + " times out of " + str(batch) + " batches.")
+        print("")
+        print("Player 1" + " won " + str(total_wins_player1) + " times out of " + str(batch) + " batches." + " (" + str(100*total_wins_player1/batch) + "%)")
+        print("Player 2" + " won " + str(total_wins_player2) + " times out of " + str(batch) + " batches." + " (" + str(100*total_wins_player2/batch) + "%)")
 
 
     def find_move(self, node, simulations, batch_player):
@@ -229,4 +245,4 @@ class Run:
         return move_node
 
 
-Run().run(batch=10, starting_player=1, simulations=1000, numberofpieces=12, maxremove=3)
+Run().run(batch=10, starting_player=1, simulations=1000, numberofpieces=12, maxremove=3, verbose=True)
