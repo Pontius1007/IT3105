@@ -5,7 +5,7 @@ import mcts
 
 
 class Run:
-    def run(self, batch, starting_player, simulations, numberofpieces, maxremove, verbose=False):
+    def run(self, batch, starting_player, simulations, dimensions, verbose=False):
 
         total_wins_player1 = 0
         total_wins_player2 = 0
@@ -21,8 +21,9 @@ class Run:
                 starting_player = starting_player
 
             root_node = node.Node(parent=None,
-                                  state=gamestate.GameState(player=starting_player, numberofpieces=numberofpieces,
-                                                            maxremove=maxremove))
+                                  state=gamestate.GameState(player=starting_player, dimensions=dimensions))
+            root_node.state.initialize_hexboard()
+
             batch_player = starting_player
 
             game_over = False
@@ -96,4 +97,5 @@ class Run:
         return move_node
 
 
-Run().run(batch=1, starting_player=1, simulations=5000, numberofpieces=14, maxremove=3, verbose=True)
+
+Run().run(batch=1, starting_player=1, simulations=10, dimensions=5, verbose=True)

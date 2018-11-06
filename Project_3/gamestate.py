@@ -20,6 +20,24 @@ class GameState:
                 row_list.append(hexCell.HexCell())
             hexBoard.append(row_list)
         self.hexBoard = hexBoard
+        # finds neighbor coordinates
+        for i, row in enumerate(self.hexBoard):
+            for j, cell in enumerate(row):
+                neighbours = []
+                if i - 1 is not None:
+                    neighbours.append([i - 1, j])
+                if i - 1 is not None and j + 1 is not None:
+                    neighbours.append([i - 1, j + 1])
+                if j - 1 is not None:
+                    neighbours.append([i, j - 1])
+                if j + 1 is not None:
+                    neighbours.append([i, j + 1])
+                if i + 1 is not None and j - 1 is not None:
+                    neighbours.append([i + 1, j - 1])
+                if i + 1 is not None:
+                    neighbours.append([i + 1, j])
+                cell.set_neighbours(neighbours)
+
 
     def print_hexboard(self):
         board = self.flatten()
@@ -85,25 +103,27 @@ class GameState:
             for cell in self.hexBoard[-1]:
                 if unvisited_1[0] == cell:
                     return True
-            # adds unvisited neighbors
-            for neighbor in unvisited_1[0].neighbors:
-                if neighbor.value == [1, 0] and neighbor not in visited_1 and neighbor not in unvisited_1:
-                    unvisited_1.append(neighbor)
+            # adds unvisited neighbours
+            for neighbour in unvisited_1[0].neighbours:
+                neighbour_object = self.hexBoard[neighbour]
+                if neighbour_object.value == [1, 0] and neighbour_object not in visited_1 and neighbour_object not in unvisited_1:
+                    unvisited_1.append(neighbour_object)
                 visited_1.append(unvisited_1.pop(0))
 
         # checks for player 2
         for row in self.hexBoard:
-            if row[0].value == [0,1]:
+            if row[0].value == [0, 1]:
                 unvisited_2.append(row[0])
         while len(unvisited_2):
             # checks if node is on opposite side for player 2
             for row in self.hexBoard:
                 if unvisited_2[0] == row[-1]:
                     return True
-            # adds unvisited neighbors
-            for neighbor in unvisited_2[0].neigbors:
-                if neighbor.value == [0, 1] and neighbor not in visited_2 and neighbor not in unvisited_2:
-                    unvisited_2.append(neighbor)
+            # adds unvisited neighbours
+            for neighbour in unvisited_2[0].neigbors:
+                neighbour_object = self.hexBoard[neighbour]
+                if neighbour_object.value == [0, 1] and neighbour_object not in visited_2 and neighbour_object not in unvisited_2:
+                    unvisited_2.append(neighbour_object)
                 visited_2.append(unvisited_2.pop(0))
 
         return False
@@ -112,8 +132,9 @@ class GameState:
     def next_node_states(self):
         children = []
         for i, row in enumerate(self.hexBoard):
+            print(row)
             for j, cell in enumerate(row):
-                if cell.value == [0,0]:
+                if cell.value == [0, 0]:
                     temp_board = self.hexBoard
                     if self.player == 1:
                         temp_board[i][j] = [1, 0]

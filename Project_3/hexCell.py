@@ -1,7 +1,7 @@
 class HexCell:
     def __init__(self):
         self.value = [0, 0]
-        self.neighbour = []
+        self.neighbours = []
 
     def get_value(self):
         return self.value
@@ -10,4 +10,7 @@ class HexCell:
         self.value = value
 
     def get_neighbour(self):
-        return self.neighbour
+        return self.neighbours
+
+    def set_neighbours(self, neighbours):
+        self.neighbours = neighbours
