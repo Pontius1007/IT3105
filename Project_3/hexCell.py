@@ -11,3 +11,6 @@ class HexCell:
 
     def get_neighbour(self):
         return self.neighbour
+
+    def addNeighbor(self, hexcell):
+        self.neighbour.append(hexcell)
