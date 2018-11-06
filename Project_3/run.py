@@ -49,13 +49,9 @@ class Run:
                             lowest_ratio = ratio
                             next_move = child
                 if verbose:
-                    print("Player " + str(current_player) + " selected " + str(
-                        batch_node.state.get_number_of_pieces() - next_move.state.get_number_of_pieces()) + " pieces."
-                          + " There are " + str(next_move.state.get_number_of_pieces()) + " pieces left.")
+                    next_move.state.print_hexboard()
 
-                root_node = node.Node(state=gamestate.GameState(player=(3 - current_player),
-                                                                numberofpieces=next_move.get_state().get_number_of_pieces(),
-                                                                maxremove=maxremove))
+                root_node = batch_node
 
                 if root_node.get_state().game_over():
                     winner = 3 - root_node.get_state().get_player()
@@ -98,4 +94,4 @@ class Run:
 
 
 
-Run().run(batch=1, starting_player=1, simulations=10, dimensions=5, verbose=True)
+Run().run(batch=10, starting_player=2, simulations=100, dimensions=7, verbose=True)

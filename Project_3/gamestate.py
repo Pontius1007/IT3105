@@ -124,7 +124,7 @@ class GameState:
                     return True
             # adds unvisited neighbours
             for neighbour in unvisited_1[0].neighbours:
-                neighbour_object = self.hexBoard[neighbour]
+                neighbour_object = self.hexBoard[neighbour[0]][neighbour[1]]
                 if neighbour_object.value == [1, 0] and neighbour_object not in visited_1 and neighbour_object not in unvisited_1:
                     unvisited_1.append(neighbour_object)
                 visited_1.append(unvisited_1.pop(0))
@@ -139,8 +139,8 @@ class GameState:
                 if unvisited_2[0] == row[-1]:
                     return True
             # adds unvisited neighbours
-            for neighbour in unvisited_2[0].neigbors:
-                neighbour_object = self.hexBoard[neighbour]
+            for neighbour in unvisited_2[0].neighbours:
+                neighbour_object = self.hexBoard[neighbour[0]][neighbour[1]]
                 if neighbour_object.value == [0, 1] and neighbour_object not in visited_2 and neighbour_object not in unvisited_2:
                     unvisited_2.append(neighbour_object)
                 visited_2.append(unvisited_2.pop(0))
@@ -151,20 +151,13 @@ class GameState:
     def next_node_states(self):
         children = []
         for i, row in enumerate(self.hexBoard):
-            print(row)
             for j, cell in enumerate(row):
                 if cell.value == [0, 0]:
                     temp_board = self.hexBoard
                     if self.player == 1:
-                        temp_board[i][j] = [1, 0]
+                        temp_board[i][j].value = [1, 0]
                     else:
-                        temp_board[i][j] = [0, 1]
+                        temp_board[i][j].value = [0, 1]
                     children.append(
                         (GameState(player=3 - self.player, hexBoard=temp_board, dimensions=self.dimensions)))
         return children
-
-
-gs = GameState(dimensions=3)
-gs.initialize_hexboard()
-board = gs.get_hexboard()
-print(gs.complex_to_simple_hexboard(board))
