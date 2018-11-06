@@ -61,9 +61,18 @@ class GameState:
     # Converts the 3d array into a simple 1d array to be used in the NN. Last two bits denotes player
     def complex_to_simple_hexboard(self, board):
         simple_array = []
+        player = self.get_player()
         for row in range(len(board)):
             for element in range(len(board)):
-                print(board[row][element])
+                for value in board[row][element].value:
+                    simple_array.append(value)
+        if player == 1:
+            simple_array.extend((1, 0))
+        elif player == 2:
+            simple_array.extend((0, 1))
+        else:
+            raise ValueError("Error: Player not recognized")
+        return simple_array
 
     def get_hexboard(self):
         return self.hexBoard
@@ -137,4 +146,4 @@ class GameState:
 gs = GameState(dimensions=3)
 gs.initialize_hexboard()
 board = gs.get_hexboard()
-gs.complex_to_simple_hexboard(board)
+print(gs.complex_to_simple_hexboard(board))
