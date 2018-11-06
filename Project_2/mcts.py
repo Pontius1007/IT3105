@@ -139,6 +139,7 @@ class MCTS:
         node.child_nodes = node.get_child_nodes()
 
     # estimates value of node using default policy
+    # Rollout - picks a random child until the game is over. Returns winner
     def evaluate(self, node):
         while not node.state.game_over():
             node = node.get_random_child()
@@ -222,7 +223,6 @@ class Run:
     def find_move(self, node, simulations, batch_player):
         move_node = node
         player = node.get_state().get_player()
-        opposing_player = player != batch_player
 
         for i in range(0, simulations):
 
@@ -245,4 +245,4 @@ class Run:
         return move_node
 
 
-Run().run(batch=10, starting_player=1, simulations=1000, numberofpieces=12, maxremove=3, verbose=True)
+Run().run(batch=20, starting_player=1, simulations=5000, numberofpieces=25, maxremove=15, verbose=False)
