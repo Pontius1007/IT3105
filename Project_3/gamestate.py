@@ -1,4 +1,4 @@
-import hexCell
+import hexcell
 import math
 
 
@@ -20,7 +20,7 @@ class GameState:
         for row in range(dimensions):
             row_list = []
             for element in range(dimensions):
-                row_list.append(hexCell.HexCell())
+                row_list.append(hexcell.HexCell())
             hexBoard.append(row_list)
         self.hexBoard = hexBoard
 
