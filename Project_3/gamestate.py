@@ -2,15 +2,14 @@ import hexCell
 import math
 
 
-# State manager for NIM
+# State manager for HEX
 class GameState:
-    def __init__(self, player=1, dimensions=5):
+    def __init__(self, player=1, hexBoard=None, dimensions=5):
         self.player = player
 
         # HEX related attributes
+        self.hexBoard = hexBoard
         self.dimensions = dimensions
-        self.hexBoard = []
-
 
     def __str__(self):
         return ' ,  '.join(['{key} = {value}'.format(key=key, value=self.__dict__.get(key)) for key in self.__dict__])
@@ -59,7 +58,7 @@ class GameState:
                 new_board.append(state_to_string)
         return new_board
 
-    #Converts the 3d array into a simple 1d array to be used in the NN. Last two bits denotes player
+    # Converts the 3d array into a simple 1d array to be used in the NN. Last two bits denotes player
     def complex_to_simple_hexboard(self, board):
         simple_array = []
         for row in range(len(board)):
@@ -68,7 +67,6 @@ class GameState:
 
     def get_hexboard(self):
         return self.hexBoard
-
 
     def get_player(self):
         return self.player
@@ -89,12 +87,12 @@ class GameState:
         visited_2 = []
 
         # checks for player 1
-        for cell in hexBoard[0]:
+        for cell in self.hexBoard[0]:
             if cell.value == [1, 0]:
                 unvisited_1.append(cell)
         while len(unvisited_1):
             # checks if node is on opposite side for player 1
-            for cell in hexBoard[-1]:
+            for cell in self.hexBoard[-1]:
                 if unvisited_1[0] == cell:
                     return True
             # adds unvisited neighbors
@@ -104,17 +102,17 @@ class GameState:
                 visited_1.append(unvisited_1.pop(0))
 
         # checks for player 2
-        for row in hexBoard
+        for row in self.hexBoard:
             if row[0].value == [0, 1]:
                 unvisited_2.append(row[0])
         while len(unvisited_2):
-            # checks if node is on opposide side for player 2
-            for row in hexBoard:
+            # checks if node is on opposite side for player 2
+            for row in self.hexBoard:
                 if unvisited_2[0] == row[-1]:
                     return True
-            # adds unvisted neighbors
+            # adds unvisited neighbors
             for neighbor in unvisited_2[0].neigbors:
-                if neigbor.value == [0, 1] and neighbor not in visited_2 and neighbor not in unvisited_2:
+                if neighbor.value == [0, 1] and neighbor not in visited_2 and neighbor not in unvisited_2:
                     unvisited_2.append(neighbor)
                 visited_2.append(unvisited_2.pop(0))
 
@@ -123,17 +121,20 @@ class GameState:
     # returns next possible nodes of a node
     def next_node_states(self):
         children = []
-        for i, row in enumerate(hexBoard):
+        for i, row in enumerate(self.hexBoard):
             for j, cell in enumerate(row):
                 if cell.value == [0, 0]:
-                    tempBoard = hexBoard
+                    temp_board = self.hexBoard
                     if self.player == 1:
-                        tempBoard[i][j] == [1, 0]
+                        temp_board[i][j] = [1, 0]
                     else:
-                        tempBoard[i][j] == [0, 1]
-                    children.append((GameState(player=3 - self.player, hexBoard=tempBoard, dimensions=dimensions)))
+                        temp_board[i][j] = [0, 1]
+                    children.append(
+                        (GameState(player=3 - self.player, hexBoard=temp_board, dimensions=self.dimensions)))
         return children
 
+
 gs = GameState(dimensions=3)
+gs.initialize_hexboard()
 board = gs.get_hexboard()
 gs.complex_to_simple_hexboard(board)
