@@ -9,8 +9,12 @@ class HexCell:
     def set_value(self, value):
         self.value = value
 
-    def get_neighbour(self):
+    def get_neighbours(self):
         return self.neighbours
 
     def set_neighbours(self, neighbours):
         self.neighbours = neighbours
+        return self.neighbours
+
+    def addNeighbor(self, hexcell):
+        self.neighbours.append(hexcell)

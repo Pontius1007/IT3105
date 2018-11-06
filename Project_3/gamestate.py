@@ -1,4 +1,4 @@
-import hexCell
+import hexcell
 import math
 
 
@@ -11,13 +11,16 @@ class GameState:
         self.hexBoard = hexBoard
         self.dimensions = dimensions
 
+    def __str__(self):
+        return ' ,  '.join(['{key} = {value}'.format(key=key, value=self.__dict__.get(key)) for key in self.__dict__])
+
     def initialize_hexboard(self):
         dimensions = self.dimensions
         hexBoard = []
         for row in range(dimensions):
             row_list = []
             for element in range(dimensions):
-                row_list.append(hexCell.HexCell())
+                row_list.append(hexcell.HexCell())
             hexBoard.append(row_list)
         self.hexBoard = hexBoard
         # finds neighbor coordinates
@@ -73,8 +76,24 @@ class GameState:
                 new_board.append(state_to_string)
         return new_board
 
-    def __str__(self):
-        return ' ,  '.join(['{key} = {value}'.format(key=key, value=self.__dict__.get(key)) for key in self.__dict__])
+    # Converts the 3d array into a simple 1d array to be used in the NN. Last two bits denotes player
+    def complex_to_simple_hexboard(self, board):
+        simple_array = []
+        player = self.get_player()
+        for row in range(len(board)):
+            for element in range(len(board)):
+                for value in board[row][element].value:
+                    simple_array.append(value)
+        if player == 1:
+            simple_array.extend((1, 0))
+        elif player == 2:
+            simple_array.extend((0, 1))
+        else:
+            raise ValueError("Error: Player not recognized")
+        return simple_array
+
+    def get_hexboard(self):
+        return self.hexBoard
 
     def get_player(self):
         return self.player
@@ -140,5 +159,12 @@ class GameState:
                         temp_board[i][j] = [1, 0]
                     else:
                         temp_board[i][j] = [0, 1]
-                    children.append((GameState(player=3 - self.player, hexBoard=temp_board, dimensions=self.dimensions)))
+                    children.append(
+                        (GameState(player=3 - self.player, hexBoard=temp_board, dimensions=self.dimensions)))
         return children
+
+
+gs = GameState(dimensions=3)
+gs.initialize_hexboard()
+board = gs.get_hexboard()
+print(gs.complex_to_simple_hexboard(board))
