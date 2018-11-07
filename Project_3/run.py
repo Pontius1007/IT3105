@@ -23,6 +23,7 @@ class Run:
             root_node = node.Node(parent=None,
                                   state=gamestate.GameState(player=starting_player, dimensions=dimensions))
             root_node.state.initialize_hexboard()
+            root_node.state.print_hexboard()
 
             batch_player = starting_player
 
@@ -32,10 +33,14 @@ class Run:
 
                 batch_node = Run().find_move(root_node, simulations, batch_player)
 
+                batch_node.state.print_hexboard()
+
                 next_move = None
                 highest_ratio = -float('inf')
                 lowest_ratio = float('inf')
                 current_player = batch_node.get_state().get_player()
+
+                print("Current player: " + str(current_player))
 
                 for child in batch_node.child_nodes:
                     ratio = float(child.get_wins()) / float(child.get_visits())
@@ -51,7 +56,9 @@ class Run:
                 if verbose:
                     next_move.state.print_hexboard()
 
-                root_node = batch_node
+                root_node = next_move
+                root_node.state.switch_player(root_node.state.get_player())
+
 
                 if root_node.get_state().game_over():
                     winner = 3 - root_node.get_state().get_player()
@@ -94,4 +101,4 @@ class Run:
 
 
 
-Run().run(batch=10, starting_player=2, simulations=100, dimensions=7, verbose=True)
+Run().run(batch=1, starting_player=1, simulations=5, dimensions=3, verbose=True)

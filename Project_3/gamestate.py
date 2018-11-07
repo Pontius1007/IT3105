@@ -1,5 +1,6 @@
 import hexcell
 import math
+from copy import deepcopy
 
 
 # State manager for HEX
@@ -23,23 +24,26 @@ class GameState:
                 row_list.append(hexcell.HexCell())
             hexBoard.append(row_list)
         self.hexBoard = hexBoard
+
         # finds neighbor coordinates
-        for i, row in enumerate(self.hexBoard):
-            for j, cell in enumerate(row):
+        board_length = len(hexBoard) - 1
+        for j, row in enumerate(self.hexBoard):
+            for i, cell in enumerate(row):
                 neighbours = []
-                if i - 1 is not None:
+                if 0 <= i - 1 <= board_length:
                     neighbours.append([i - 1, j])
-                if i - 1 is not None and j + 1 is not None:
+                if 0 <= i - 1 <= board_length and 0 <= j + 1 <= board_length:
                     neighbours.append([i - 1, j + 1])
-                if j - 1 is not None:
+                if 0 <= j - 1 <= board_length:
                     neighbours.append([i, j - 1])
-                if j + 1 is not None:
+                if 0 <= j + 1 <= board_length:
                     neighbours.append([i, j + 1])
-                if i + 1 is not None and j - 1 is not None:
+                if 0 <= i + 1 <= board_length and 0 <= j - 1 <= board_length:
                     neighbours.append([i + 1, j - 1])
-                if i + 1 is not None:
+                if 0 <= i + 1 <= board_length:
                     neighbours.append([i + 1, j])
                 cell.set_neighbours(neighbours)
+                cell.setPosition([i, j])
 
 
     def print_hexboard(self):
@@ -127,7 +131,7 @@ class GameState:
                 neighbour_object = self.hexBoard[neighbour[0]][neighbour[1]]
                 if neighbour_object.value == [1, 0] and neighbour_object not in visited_1 and neighbour_object not in unvisited_1:
                     unvisited_1.append(neighbour_object)
-                visited_1.append(unvisited_1.pop(0))
+            visited_1.append(unvisited_1.pop(0))
 
         # checks for player 2
         for row in self.hexBoard:
@@ -143,7 +147,7 @@ class GameState:
                 neighbour_object = self.hexBoard[neighbour[0]][neighbour[1]]
                 if neighbour_object.value == [0, 1] and neighbour_object not in visited_2 and neighbour_object not in unvisited_2:
                     unvisited_2.append(neighbour_object)
-                visited_2.append(unvisited_2.pop(0))
+            visited_2.append(unvisited_2.pop(0))
 
         return False
 
@@ -153,11 +157,10 @@ class GameState:
         for i, row in enumerate(self.hexBoard):
             for j, cell in enumerate(row):
                 if cell.value == [0, 0]:
-                    temp_board = self.hexBoard
+                    temp_board = deepcopy(self.hexBoard)
                     if self.player == 1:
                         temp_board[i][j].value = [1, 0]
                     else:
                         temp_board[i][j].value = [0, 1]
-                    children.append(
-                        (GameState(player=3 - self.player, hexBoard=temp_board, dimensions=self.dimensions)))
+                    children.append(GameState(player=3 - self.player, hexBoard=temp_board, dimensions=self.dimensions))
         return children

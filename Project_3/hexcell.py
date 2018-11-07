@@ -2,6 +2,7 @@ class HexCell:
     def __init__(self):
         self.value = [0, 0]
         self.neighbours = []
+        self.position = []
 
     def get_value(self):
         return self.value
@@ -18,3 +19,6 @@ class HexCell:
 
     def addNeighbor(self, hexcell):
         self.neighbours.append(hexcell)
+
+    def setPosition(self, position):
+        self.position = position
