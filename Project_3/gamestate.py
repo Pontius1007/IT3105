@@ -48,6 +48,9 @@ class GameState:
 
     def print_hexboard(self):
         board = self.flatten()
+        print(board)
+        for thing in self.hexBoard:
+            print([x.value for x in thing])
         loops = 0
         index = 0
         down = False
@@ -67,7 +70,7 @@ class GameState:
                 elif board[index] == '[0, 1]':
                     row_string += " 2 "
                 else:
-                    raise ValueError("Board state is not recognized. Board state is: ", board[index])
+                    raise ValueError("Board state is not recognized. Board state is: ", board[x])
             centered_row = row_string.center(max_length_string)
             print(centered_row)
 

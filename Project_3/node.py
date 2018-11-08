@@ -1,4 +1,6 @@
 import random
+from copy import deepcopy
+
 
 
 # Functions related to the node tree and keeping track of the states
