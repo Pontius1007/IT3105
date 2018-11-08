@@ -2,7 +2,7 @@ import random
 import node
 import gamestate
 import mcts
-
+import cProfile
 
 class Run:
     def run(self, batch, starting_player, simulations, dimensions, verbose=False):
@@ -106,4 +106,4 @@ class Run:
 
 
 
-Run().run(batch=1, starting_player=1, simulations=5, dimensions=3, verbose=False)
+Run().run(batch=1, starting_player=1, simulations=10, dimensions=5, verbose=False)

@@ -1,6 +1,7 @@
 import hexcell
 import math
 from copy import deepcopy
+import pickle
 
 
 # State manager for HEX
@@ -27,8 +28,8 @@ class GameState:
 
         # finds neighbor coordinates
         board_length = len(hexBoard) - 1
-        for j, row in enumerate(self.hexBoard):
-            for i, cell in enumerate(row):
+        for i, row in enumerate(self.hexBoard):
+            for j, cell in enumerate(row):
                 neighbours = []
                 if 0 <= i - 1 <= board_length:
                     neighbours.append([i - 1, j])
@@ -133,9 +134,6 @@ class GameState:
             # checks if node is on opposite side for player 1
             if current_node in self.hexBoard[-1]:
                 return True
-        print("Board:")
-        for thing in self.hexBoard:
-            print([x.value for x in thing])
 
         # checks for player 2
         for row in self.hexBoard:
@@ -151,8 +149,6 @@ class GameState:
                     unvisited_2.append(neighbour_object)
             visited_2.append(unvisited_2.pop(0))
             # checks if node is on opposite side for player 2
-            print("value")
-            print([x[-1].value for x in self.hexBoard])
             if current_node in [x[-1] for x in self.hexBoard]:
                 return True
 
@@ -166,7 +162,8 @@ class GameState:
         for i, row in enumerate(self.hexBoard):
             for j, cell in enumerate(row):
                 if cell.value == [0, 0]:
-                    temp_board = deepcopy(self.hexBoard)
+                    # temp_board = deepcopy(self.hexBoard)
+                    temp_board = pickle.loads(pickle.dumps(self.hexBoard, -1))
                     if self.player == 1:
                         temp_board[i][j].value = [1, 0]
                     else:
