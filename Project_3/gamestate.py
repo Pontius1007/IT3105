@@ -45,7 +45,6 @@ class GameState:
                 cell.set_neighbours(neighbours)
                 cell.setPosition([i, j])
 
-
     def print_hexboard(self):
         board = self.flatten()
         print(board)
@@ -71,6 +70,7 @@ class GameState:
                     row_string += " 2 "
                 else:
                     raise ValueError("Board state is not recognized. Board state is: ", board[x])
+                index += 1
             centered_row = row_string.center(max_length_string)
             print(centered_row)
 
@@ -132,7 +132,8 @@ class GameState:
             # adds unvisited neighbours
             for neighbour in unvisited_1[0].neighbours:
                 neighbour_object = self.hexBoard[neighbour[0]][neighbour[1]]
-                if neighbour_object.value == [1, 0] and neighbour_object not in visited_1 and neighbour_object not in unvisited_1:
+                if neighbour_object.value == [1,
+                                              0] and neighbour_object not in visited_1 and neighbour_object not in unvisited_1:
                     unvisited_1.append(neighbour_object)
             visited_1.append(unvisited_1.pop(0))
 
@@ -148,7 +149,8 @@ class GameState:
             # adds unvisited neighbours
             for neighbour in unvisited_2[0].neighbours:
                 neighbour_object = self.hexBoard[neighbour[0]][neighbour[1]]
-                if neighbour_object.value == [0, 1] and neighbour_object not in visited_2 and neighbour_object not in unvisited_2:
+                if neighbour_object.value == [0,
+                                              1] and neighbour_object not in visited_2 and neighbour_object not in unvisited_2:
                     unvisited_2.append(neighbour_object)
             visited_2.append(unvisited_2.pop(0))
 
