@@ -44,7 +44,7 @@ class Run:
                 current_player = batch_node.get_state().get_player()
 
                 print("Current player: " + str(current_player))
-                batch_node.state.print_hexboard()
+
 
                 for child in batch_node.child_nodes:
                     ratio = float(child.get_wins()) / float(child.get_visits())
@@ -62,6 +62,7 @@ class Run:
 
                 root_node = next_move
                 root_node.state.switch_player(root_node.state.get_player())
+                root_node.state.print_hexboard()
 
 
                 if root_node.get_state().game_over():

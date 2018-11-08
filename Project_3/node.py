@@ -32,6 +32,9 @@ class Node:
         child_nodes = []
         for state in self.state.next_node_states():
             child_nodes.append(Node(parent=self, state=state))
+            state.print_hexboard()
+            print(state.game_over())
+        print(child_nodes)
         return child_nodes
 
     def set_child_nodes(self, child_nodes):

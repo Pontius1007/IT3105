@@ -47,9 +47,6 @@ class GameState:
 
     def print_hexboard(self):
         board = self.flatten()
-        print(board)
-        for thing in self.hexBoard:
-            print([x.value for x in thing])
         loops = 0
         index = 0
         down = False
@@ -125,34 +122,41 @@ class GameState:
             if cell.value == [1, 0]:
                 unvisited_1.append(cell)
         while len(unvisited_1):
-            # checks if node is on opposite side for player 1
-            for cell in self.hexBoard[-1]:
-                if unvisited_1[0] == cell:
-                    return True
+            current_node = unvisited_1[0]
             # adds unvisited neighbours
-            for neighbour in unvisited_1[0].neighbours:
+            for neighbour in current_node.neighbours:
                 neighbour_object = self.hexBoard[neighbour[0]][neighbour[1]]
                 if neighbour_object.value == [1,
                                               0] and neighbour_object not in visited_1 and neighbour_object not in unvisited_1:
                     unvisited_1.append(neighbour_object)
             visited_1.append(unvisited_1.pop(0))
+            # checks if node is on opposite side for player 1
+            if current_node in self.hexBoard[-1]:
+                return True
+        print("Board:")
+        for thing in self.hexBoard:
+            print([x.value for x in thing])
 
         # checks for player 2
         for row in self.hexBoard:
             if row[0].value == [0, 1]:
                 unvisited_2.append(row[0])
         while len(unvisited_2):
-            # checks if node is on opposite side for player 2
-            for row in self.hexBoard:
-                if unvisited_2[0] == row[-1]:
-                    return True
+            current_node = unvisited_2[0]
             # adds unvisited neighbours
-            for neighbour in unvisited_2[0].neighbours:
+            for neighbour in current_node.neighbours:
                 neighbour_object = self.hexBoard[neighbour[0]][neighbour[1]]
                 if neighbour_object.value == [0,
                                               1] and neighbour_object not in visited_2 and neighbour_object not in unvisited_2:
                     unvisited_2.append(neighbour_object)
             visited_2.append(unvisited_2.pop(0))
+            # checks if node is on opposite side for player 2
+            print("value")
+            print([x[-1].value for x in self.hexBoard])
+            if current_node in [x[-1] for x in self.hexBoard]:
+                return True
+
+
 
         return False
 
