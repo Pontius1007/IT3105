@@ -3,6 +3,22 @@ import node
 import gamestate
 import mcts
 import cProfile
+from input_run_handler import *
+
+
+class Ann():
+    # Class for keeping track of the case manager and the models.
+    def set_cman(self, cman):
+        self.cman = cman
+
+    def get_cman(self):
+        return self.cman
+
+    def set_model(self, model):
+        self.model = model
+
+    def get_model(self):
+        return self.model
 
 
 class Run:
@@ -11,6 +27,11 @@ class Run:
         total_wins_player1 = 0
         total_wins_player2 = 0
         mix = False
+
+        # ANN variables
+        ann = Ann()
+        irh = InputRunHandler(ann)
+
         if starting_player == 'mix':
             mix = True
 
@@ -35,7 +56,7 @@ class Run:
                 print("")
                 print("Move")
 
-                batch_node = Run().find_move(root_node, simulations, batch_player)
+                batch_node = Run().find_move(root_node, simulations, batch_player, irh)
 
                 next_move = None
                 highest_ratio = -float('inf')
@@ -78,7 +99,7 @@ class Run:
         print("Player 2" + " won " + str(total_wins_player2) + " times out of " + str(batch) + " batches." + " (" + str(
             100 * total_wins_player2 / batch) + "%)")
 
-    def find_move(self, node, simulations, batch_player):
+    def find_move(self, node, simulations, batch_player, irh):
         move_node = node
 
         for i in range(0, simulations):
@@ -93,7 +114,9 @@ class Run:
             if len(best_node.get_child_nodes()) > 0:
                 best_node = random.choice(best_node.get_child_nodes())
 
-            # simulates winner
+            # simulates winner. Rollout
+            # TODO: Add ANN
+            self.ann_rollout(irh)
             winner = mcts.MCTS().evaluate(best_node)
 
             # traverses up tree with winner
@@ -101,6 +124,18 @@ class Run:
 
         return move_node
 
+    def ann_rollout(self, irh):
+        return 0
+        # Case generator:
+        # Properly use irh to set up the correct values and paramters
+        # Create new function in irh to call
+        # Return ANN probability
+        # check for legal move and fix index accordingly
+        # return winning nodes 
+
+
+
+
+
 
 Run().run(batch=1, starting_player=1, simulations=10, dimensions=4, verbose=False)
-
