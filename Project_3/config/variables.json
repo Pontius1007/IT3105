@@ -1,0 +1,84 @@
+{
+  "dimensions": {
+    "input": 16,
+    "hidden_layer_one": 6,
+    "output": 17
+  },
+  "hidden_activation_function": {
+    "name": "relu"
+  },
+  "output_activation_function": {
+    "softmax": "False"
+  },
+  "cost_function": {
+    "name": "MSE"
+  },
+  "learning_rate": {
+    "value": 0.01
+  },
+  "ini_weight_range": {
+    "lower_bound": -0.1,
+    "upper_bound": 0.1
+  },
+  "optimizer": {
+    "name": "adam"
+  },
+  "case_fraction": {
+  "ratio": 0.01
+  },
+  "validation_fraction": {
+    "ratio": 0.1
+  },
+  "validation_interval": {
+    "number": 500
+  },
+  "test_fraction": {
+    "ratio": 0.1
+  },
+  "minibatch_size": {
+    "number_of_training_cases": 100
+  },
+  "map_batch_size": {
+    "map_test": 0
+  },
+  "steps": {
+    "number": 10001
+  },
+  "grabbed_variables": {
+    "show_freq": 5000
+  },
+  "num_gen_training_case": {
+    "amount": 500
+  },
+  "bestk": {
+    "bool": "true"
+  },
+  "run_more": {
+    "steps": 100
+  },
+  "do_mapping_cases":
+    8
+  ,
+  "grab_module_index": [
+    0,
+    1,
+    0,
+    1
+  ],
+  "grab_type": [
+    "out",
+    "out",
+    "wgt",
+    "bias"
+  ],
+  "do_dendrogram_cases":
+    8,
+  "dendrogram_layers": [
+    0,
+    1
+  ],
+  "map_layers": [
+    0,
+    1
+  ]
+}
