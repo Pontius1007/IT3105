@@ -116,7 +116,8 @@ class Run:
 
             # simulates winner. Rollout
             # TODO: Add ANN
-            self.ann_rollout(irh)
+            simple_board_state = best_node.state.complex_to_simple_hexboard(best_node.state.hexBoard)
+            self.ann_rollout(irh, simple_board_state)
             winner = mcts.MCTS().evaluate(best_node)
 
             # traverses up tree with winner
@@ -124,18 +125,22 @@ class Run:
 
         return move_node
 
-    def ann_rollout(self, irh):
+    def ann_rollout(self, irh, simple_board_state):
+        irh.load_json("./config/variables.json")
+        irh.run_rollout(simple_board_state)
+
         return 0
         # Case generator:
         # Properly use irh to set up the correct values and paramters
         # Create new function in irh to call
         # Return ANN probability
         # check for legal move and fix index accordingly
-        # return winning nodes 
+        # return winning nodes
+        # Do prediction
 
 
 
 
 
 
-Run().run(batch=1, starting_player=1, simulations=10, dimensions=4, verbose=False)
+Run().run(batch=1, starting_player=1, simulations=10, dimensions=3, verbose=False)

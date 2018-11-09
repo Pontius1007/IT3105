@@ -1,6 +1,5 @@
 from ann import *
 import tflowtools as TFT
-from datasets import *
 
 
 class Parameters:
@@ -95,7 +94,7 @@ class InputRunHandler:
     def build_ann(self):
         model = Gann(dims=self.params.dims, hidden_activation_function=self.params.hidden_activation_function,
                      optimizer=self.params.optimizer, lower=self.params.weight_range_lower,
-                     upper=self.params.weight_range_upper, cman=self.ann.get_cman(), lrate=self.params.learning_rate,
+                     upper=self.params.weight_range_upper, cman=None, lrate=self.params.learning_rate,
                      showfreq=self.params.show_freq, mbs=self.params.mbs, vint=self.params.vint, softmax=self.params.sm,
                      cost_function=self.params.cost_function, grab_module_index=self.params.grab_module_index,
                      grab_type=self.params.grab_type)
@@ -106,3 +105,8 @@ class InputRunHandler:
             self.ann.model.do_mapping(self.params.map_layers, self.params.map_cases, self.params.bestk)
         if self.params.dendrogram_layers != 0:
             self.ann.model.create_dendrogram(self.params.dendrogram_layers, self.params.map_cases, bestk=self.params.bestk)
+
+    def run_rollout(self, case):
+        model = self.build_ann()
+        self.ann.set_model(model)
+        model.do_prediction(case)

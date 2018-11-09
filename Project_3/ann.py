@@ -6,7 +6,6 @@ import tflowtools as TFT
 import json
 import random
 from random import shuffle
-from datasets import *
 from itertools import cycle
 
 
@@ -143,7 +142,7 @@ class Gann:
         grabvar_layers = []
         for layer in map_layers:
             for grabvar in grabvar_names:
-                if ('-'+str(layer)+'-out') in str(grabvar.name):
+                if ('-' + str(layer) + '-out') in str(grabvar.name):
                     grabvar_layers.append(grabvar)
         for grabvar in grabvar_layers:
             features = []
@@ -163,19 +162,15 @@ class Gann:
         new_target = np.array(targets)
         TFT.hinton_plot(new_target, fig=PLT.figure(), title="Input Targets")
 
-
-    def do_prediction(self, number_of_cases):
+    def do_prediction(self, case, sess=None):
+        session = sess if sess else TFT.gen_initialized_session(dir=dir)
+        self.current_session = session
         self.reopen_current_session()
-        test_cases = self.caseman.get_testing_cases()
-        for i in range(number_of_cases):
-            random_index = random.randint(0, len(test_cases) - 1)
-            r_input = test_cases[random_index][0]
-            r_target = test_cases[random_index][1]
-            feeder = {self.input: [r_input]}
-            print("The input is: \n", r_input)
-            print("The ANN guessed this: \n")
-            print(self.current_session.run(self.output, feed_dict=feeder))
-            print("The correct target value is: \n", r_target)
+        r_input = case
+        feeder = {self.input: [r_input]}
+        print("The input is: \n", r_input)
+        print("The ANN guessed this: \n")
+        print(self.current_session.run(self.output, feed_dict=feeder))
         self.close_current_session(view=False)
 
     def create_dendrogram(self, dendrogram_layers, number_of_cases, bestk):
@@ -189,7 +184,7 @@ class Gann:
         grabvar_layers = []
         for layer in dendrogram_layers:
             for grabvar in grabvar_names:
-                if ('-'+str(layer)+'-out') in str(grabvar.name):
+                if ('-' + str(layer) + '-out') in str(grabvar.name):
                     grabvar_layers.append(grabvar)
         for grabvar in grabvar_layers:
             features = []
@@ -206,7 +201,6 @@ class Gann:
                 labels.append(TFT.bits_to_str(case[1]))
                 features.append(grabvals[index])
             TFT.dendrogram(features, labels, title=grabvar.name)
-
 
     def do_testing(self, sess, cases, msg='Testing', bestk=None):
         inputs = [c[0] for c in cases]
@@ -279,7 +273,8 @@ class Gann:
         # print("\n" + msg, end="\n")
         for i, v in enumerate(grabbed_vals):
             if names: print("   " + names[i] + " = ", end="\n")
-            if type(v) == np.ndarray and len(v.shape) > 1 and ('out' not in str(names[i])):  # If v is a matrix, use hinton plotting
+            if type(v) == np.ndarray and len(v.shape) > 1 and (
+                    'out' not in str(names[i])):  # If v is a matrix, use hinton plotting
                 TFT.hinton_plot(v, fig=PLT.figure(), title=names[i] + ' at step ' + str(step))
             elif 'bias' in str(names[i]):
                 fig = PLT.figure()
@@ -293,11 +288,10 @@ class Gann:
                 PLT.xlabel("Node")
                 PLT.ylabel("Value")
                 PLT.draw()
-                PLT.pause(0.1)            
+                PLT.pause(0.1)
             else:
                 # print(v, end="\n\n")
                 pass
-                
 
     def run(self, steps=100, sess=None, continued=False, bestk=None):
         PLT.ion()
