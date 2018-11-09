@@ -103,3 +103,4 @@ class Run:
 
 
 Run().run(batch=1, starting_player=1, simulations=10, dimensions=4, verbose=False)
+

@@ -53,6 +53,7 @@ class GameState:
                 cell.setPosition([i, j])
         self.neighbours = neighbours_dict
 
+    # Prints the board in a diamond
     def print_hexboard(self):
         board = self.flatten()
         loops = 0
@@ -69,21 +70,26 @@ class GameState:
                 loops -= 1
                 down = True
             for x in range(loops):
+                # Prints from top to and including middle
                 if not down:
                     if index == 0 and loops == 1:
                         row_string += self.return_hex_player_id(board[index])
-                    elif not down and (index % (self.dimensions - 1) or index == 0) and x == 0:
+                    # If its the first cells in a row
+                    elif (index % (self.dimensions - 1) or index == 0) and x == 0:
                         index = (loops - 1) * self.dimensions
                         down_index = index
                         row_string += self.return_hex_player_id(board[index])
+                    # Prints next cells in a row
                     else:
                         index -= (self.dimensions - 1)
                         row_string += self.return_hex_player_id(board[index])
                 else:
                     if x == 0:
+                        # If its the first node in a row
                         down_index += 1
                         down_sec_index = down_index
                         row_string += self.return_hex_player_id(board[down_index])
+                    # Prints next cells in a row
                     else:
                         down_sec_index -= (self.dimensions - 1)
                         row_string += self.return_hex_player_id(board[down_sec_index])
@@ -101,6 +107,7 @@ class GameState:
         else:
             raise ValueError("Board state is not recognized. Board state is: ", cell_state)
 
+    # 3d to 1d array
     def flatten(self):
         board = self.hexBoard
         new_board = []
