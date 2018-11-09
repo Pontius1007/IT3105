@@ -106,4 +106,4 @@ class Run:
 
 
 
-Run().run(batch=1, starting_player=1, simulations=10, dimensions=5, verbose=False)
+Run().run(batch=1, starting_player=1, simulations=200, dimensions=5, verbose=False)
