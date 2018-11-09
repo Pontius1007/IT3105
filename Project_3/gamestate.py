@@ -197,10 +197,14 @@ class GameState:
     # returns next possible nodes of a node
     def next_node_states(self):
         children = []
+        states = []
 
         for i, row in enumerate(self.hexBoard):
             for j, cell in enumerate(row):
                 if cell.value == [0, 0]:
+                    # add state index
+                    states.append(1)
+
                     # temp_board = deepcopy(self.hexBoard)
                     # TODO: MAKE THIS LINE FASTER
                     temp_board = pickle.loads(pickle.dumps(self.hexBoard, -1))
@@ -215,4 +219,6 @@ class GameState:
                         temp_board[i][j].value = [0, 1]
                     children.append(GameState(player=3 - self.player, hexBoard=temp_board, dimensions=self.dimensions,
                                               neighbours=self.neighbours))
-        return children
+                else:
+                    states.append(0)
+        return children, states

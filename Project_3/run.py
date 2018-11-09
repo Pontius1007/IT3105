@@ -35,7 +35,11 @@ class Run:
                 print("")
                 print("Move")
 
+                indexes = root_node.state.next_node_states()[1]
+
                 batch_node = Run().find_move(root_node, simulations, batch_player)
+
+
 
                 next_move = None
                 highest_ratio = -float('inf')
@@ -57,6 +61,7 @@ class Run:
                             next_move = child
                 if verbose:
                     next_move.state.print_hexboard()
+
 
                 root_node = next_move
                 root_node.state.switch_player(root_node.state.get_player())
