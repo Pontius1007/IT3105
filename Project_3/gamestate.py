@@ -195,6 +195,7 @@ class GameState:
             for j, cell in enumerate(row):
                 if cell.value == [0, 0]:
                     # temp_board = deepcopy(self.hexBoard)
+                    # TODO: MAKE THIS LINE FASTER
                     temp_board = pickle.loads(pickle.dumps(self.hexBoard, -1))
                     # temp_board = copy.copy(self.hexBoard)
                     # temp_board = ujson.loads(ujson.dumps(self.hexBoard))
@@ -205,5 +206,6 @@ class GameState:
                         temp_board[i][j].value = [1, 0]
                     else:
                         temp_board[i][j].value = [0, 1]
-                    children.append(GameState(player=3 - self.player, hexBoard=temp_board, dimensions=self.dimensions, neighbours=self.neighbours))
+                    children.append(GameState(player=3 - self.player, hexBoard=temp_board, dimensions=self.dimensions,
+                                              neighbours=self.neighbours))
         return children

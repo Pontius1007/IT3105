@@ -4,6 +4,7 @@ import gamestate
 import mcts
 import cProfile
 
+
 class Run:
     def run(self, batch, starting_player, simulations, dimensions, verbose=False):
 
@@ -36,15 +37,12 @@ class Run:
 
                 batch_node = Run().find_move(root_node, simulations, batch_player)
 
-
-
                 next_move = None
                 highest_ratio = -float('inf')
                 lowest_ratio = float('inf')
                 current_player = batch_node.get_state().get_player()
 
                 print("Current player: " + str(current_player))
-
 
                 for child in batch_node.child_nodes:
                     ratio = float(child.get_wins()) / float(child.get_visits())
@@ -63,7 +61,6 @@ class Run:
                 root_node = next_move
                 root_node.state.switch_player(root_node.state.get_player())
                 root_node.state.print_hexboard()
-
 
                 if root_node.get_state().game_over():
                     winner = 3 - root_node.get_state().get_player()
@@ -105,5 +102,4 @@ class Run:
         return move_node
 
 
-
-Run().run(batch=1, starting_player=1, simulations=200, dimensions=5, verbose=False)
+Run().run(batch=1, starting_player=1, simulations=10, dimensions=4, verbose=False)
