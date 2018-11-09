@@ -51,6 +51,8 @@ class GameState:
         loops = 0
         index = 0
         down = False
+        down_index = 0
+        down_sec_index = 0
         max_length_string = self.dimensions * 3
         for i in range(0, self.dimensions * 2 - 1):
             row_string = ""
@@ -60,17 +62,37 @@ class GameState:
                 loops -= 1
                 down = True
             for x in range(loops):
-                if board[index] == '[0, 0]':
-                    row_string += " 0 "
-                elif board[index] == '[1, 0]':
-                    row_string += " 1 "
-                elif board[index] == '[0, 1]':
-                    row_string += " 2 "
+                if not down:
+                    if index == 0 and loops == 1:
+                        row_string += self.return_hex_player_id(board[index])
+                    elif not down and (index % (self.dimensions - 1) or index == 0) and x == 0:
+                        index = (loops - 1) * self.dimensions
+                        down_index = index
+                        row_string += self.return_hex_player_id(board[index])
+                    else:
+                        index -= (self.dimensions - 1)
+                        row_string += self.return_hex_player_id(board[index])
                 else:
-                    raise ValueError("Board state is not recognized. Board state is: ", board[x])
-                index += 1
+                    if x == 0:
+                        down_index += 1
+                        down_sec_index = down_index
+                        row_string += self.return_hex_player_id(board[down_index])
+                    else:
+                        down_sec_index -= (self.dimensions - 1)
+                        row_string += self.return_hex_player_id(board[down_sec_index])
+
             centered_row = row_string.center(max_length_string)
             print(centered_row)
+
+    def return_hex_player_id(self, cell_state):
+        if cell_state == '[0, 0]':
+            return " 0 "
+        elif cell_state == '[1, 0]':
+            return " 1 "
+        elif cell_state == '[0, 1]':
+            return " 2 "
+        else:
+            raise ValueError("Board state is not recognized. Board state is: ", cell_state)
 
     def flatten(self):
         board = self.hexBoard
@@ -128,7 +150,8 @@ class GameState:
             for neighbour in current_node.neighbours:
                 neighbour_object = self.hexBoard[neighbour[0]][neighbour[1]]
                 if neighbour_object.value == [1,
-                                              0] and neighbour_object not in visited_1 and neighbour_object not in unvisited_1:
+                                              0] and neighbour_object not in visited_1 and neighbour_object not in \
+                        unvisited_1:
                     unvisited_1.append(neighbour_object)
             visited_1.append(unvisited_1.pop(0))
             # checks if node is on opposite side for player 1
@@ -145,14 +168,13 @@ class GameState:
             for neighbour in current_node.neighbours:
                 neighbour_object = self.hexBoard[neighbour[0]][neighbour[1]]
                 if neighbour_object.value == [0,
-                                              1] and neighbour_object not in visited_2 and neighbour_object not in unvisited_2:
+                                              1] and neighbour_object not in visited_2 and neighbour_object not in \
+                        unvisited_2:
                     unvisited_2.append(neighbour_object)
             visited_2.append(unvisited_2.pop(0))
             # checks if node is on opposite side for player 2
             if current_node in [x[-1] for x in self.hexBoard]:
                 return True
-
-
 
         return False
 
