@@ -1,7 +1,6 @@
 import random
 
 
-
 # Functions related to the node tree and keeping track of the states
 class Node:
     def __init__(self, parent=None, state=None):

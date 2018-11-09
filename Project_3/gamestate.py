@@ -205,5 +205,6 @@ class GameState:
                         temp_board[i][j].value = [1, 0]
                     else:
                         temp_board[i][j].value = [0, 1]
-                    children.append(GameState(player=3 - self.player, hexBoard=temp_board, dimensions=self.dimensions, neighbours=self.neighbours))
+                    children.append(GameState(player=3 - self.player, hexBoard=temp_board, dimensions=self.dimensions,
+                                              neighbours=self.neighbours))
         return children
