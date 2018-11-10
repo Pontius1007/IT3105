@@ -162,10 +162,13 @@ class Gann:
         new_target = np.array(targets)
         TFT.hinton_plot(new_target, fig=PLT.figure(), title="Input Targets")
 
-    def do_prediction(self, case, sess=None):
+    def setupSession(self, sess=None, dir="probeview"):
         session = sess if sess else TFT.gen_initialized_session(dir=dir)
+        self.roundup_probes()
         self.current_session = session
-        self.reopen_current_session()
+
+    def do_prediction(self, case,):
+        self.setupSession()
         r_input = case
         feeder = {self.input: [r_input]}
         print("The input is: \n", r_input)
@@ -257,7 +260,7 @@ class Gann:
 
     def run_one_step(self, operators, grabbed_vars=None, probed_vars=None, dir='probeview',
                      session=None, feed_dict=None, step=1, show_interval=1):
-        sess = session if session else TFT.gen_initialized_session(dir=dir)
+        sess = session if session else TFT.gen_initialized_session(dir="probeview")
         if probed_vars is not None:
             results = sess.run([operators, grabbed_vars, probed_vars], feed_dict=feed_dict)
             sess.probe_stream.add_summary(results[2], global_step=step)
