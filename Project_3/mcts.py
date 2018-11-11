@@ -41,6 +41,9 @@ class MCTS:
         winner = 3 - node.get_state().get_player()
         return winner
 
+    def ANET_evaluate(self, ANET, simple_board_state):
+        ANET.do_prediction(simple_board_state)
+
     # pass evaluating of final state up the tree, updating data
     def backpropogate(self, node, winner, batch_player):
         while node is not None:
