@@ -42,6 +42,8 @@ class Run:
                 self.starting_player = random.randint(1, 2)
                 print(self.starting_player)
 
+            self.replay_buffer = []
+
             root_node = node.Node(parent=None,
                                   state=gamestate.GameState(player=self.starting_player,
                                                             dimensions=self.hex_dimensions))
@@ -64,10 +66,13 @@ class Run:
                 lowest_ratio = float('inf')
                 current_player = batch_node.get_state().get_player()
 
+                visit_counts = []
+
                 print("Current player: " + str(current_player))
 
                 for child in batch_node.child_nodes:
                     ratio = float(child.get_wins()) / float(child.get_visits())
+                    visit_counts.append(child.get_visits())
 
                     if current_player == batch_player:
                         if ratio > highest_ratio:
@@ -79,6 +84,18 @@ class Run:
                             next_move = child
                 if self.verbose:
                     next_move.state.print_hexboard()
+
+                # add case
+                case = []
+                visit_distribution = []
+                case.append(batch_node.state.complex_to_simple_hexboard(batch_node.state.hexBoard))
+                for index in indexes:
+                    if index == 1:
+                        visit_distribution.append(visit_counts.pop(0) - 1)
+                    else:
+                        visit_distribution.append(0)
+                case.append(visit_distribution)
+                self.replay_buffer.append(case)
 
                 root_node = next_move
                 root_node.state.switch_player(root_node.state.get_player())
@@ -101,8 +118,8 @@ class Run:
         print("Player 2" + " won " + str(total_wins_player2) + " times out of " + str(
             self.batch) + " batches." + " (" + str(
             100 * total_wins_player2 / self.batch) + "%)")
+        self.ANET.close_current_session(view=False)
 
-        self.ANET.close_current_session()
 
     def find_move(self, node, simulations, batch_player, indexes):
         move_node = node
@@ -122,7 +139,7 @@ class Run:
             # simulates winner. Rollout
             # TODO: Add ANN
 
-            winner =mcts.MCTS().ANET_evaluate(ANET=self.ANET, node=best_node, indexes=indexes)
+            winner = mcts.MCTS().ANET_evaluate(ANET=self.ANET, node=best_node, indexes=indexes)
             # winner = mcts.MCTS().evaluate(best_node)
 
             # traverses up tree with winner
