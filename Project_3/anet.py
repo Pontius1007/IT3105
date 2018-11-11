@@ -167,14 +167,14 @@ class Gann:
         self.roundup_probes()
         self.current_session = session
 
-    def do_prediction(self, case,):
-        self.setupSession()
+    def do_prediction(self, case):
+        # self.reopen_current_session()
         r_input = case
         feeder = {self.input: [r_input]}
         print("The input is: \n", r_input)
         print("The ANN guessed this: \n")
         print(self.current_session.run(self.output, feed_dict=feeder))
-        self.close_current_session(view=False)
+        # self.close_current_session(view=False)
 
     def create_dendrogram(self, dendrogram_layers, number_of_cases, bestk):
         self.reopen_current_session()
@@ -413,16 +413,12 @@ class Gannmodule:
 
 class Caseman():
 
-    def __init__(self, cfunc, vfrac=0, tfrac=0):
-        self.casefunc = cfunc
+    def __init__(self, cases, vfrac=0, tfrac=0):
+        self.cases = cases
         self.validation_fraction = vfrac
         self.test_fraction = tfrac
         self.training_fraction = 1 - (vfrac + tfrac)
-        self.generate_cases()
         self.organize_cases()
-
-    def generate_cases(self):
-        self.cases = self.casefunc()  # Run the case generator.  Case = [input-vector, target-vector]
 
     def organize_cases(self):
         ca = np.array(self.cases)
