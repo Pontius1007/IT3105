@@ -3,50 +3,51 @@ import node
 import gamestate
 import mcts
 import cProfile
-from input_run_handler import *
-
-
-class Ann():
-    # Class for keeping track of the case manager and the models.
-    def set_cman(self, cman):
-        self.cman = cman
-
-    def get_cman(self):
-        return self.cman
-
-    def set_model(self, model):
-        self.model = model
-
-    def get_model(self):
-        return self.model
+import tflowtools as TFT
+import anet as ANET
 
 
 class Run:
-    def run(self, batch, starting_player, simulations, dimensions, verbose=False):
+    def __init__(self, batch, starting_player, simulations, dimensions, verbose=False):
+        self.batch = batch
+        self.starting_player = starting_player
+        self.simulations = simulations
+        self.hex_dimensions = dimensions
+        self.verbose = verbose
+        self.replay_buffer = []
+
+        # ANET parameter
+        self.ANET_CM = ANET.Caseman(self.replay_buffer)
+        self.ANET_input_dim = (self.hex_dimensions * self.hex_dimensions * 2) + 2
+        self.ANET_output_dim = self.hex_dimensions * self.hex_dimensions
+        self.ANET = ANET.Gann(dims=[self.ANET_input_dim, 10, self.ANET_output_dim], hidden_activation_function="relu",
+                              optimizer="adam", lower=-0.1,
+                              upper=0.1, cman=self.ANET_CM, lrate=0.01,
+                              showfreq=None, mbs=10, vint=None, softmax=True,
+                              cost_function='MSE', grab_module_index=[],
+                              grab_type=None)
+
+    def run(self):
 
         total_wins_player1 = 0
         total_wins_player2 = 0
         mix = False
+        self.ANET.setupSession()
 
-        # ANN variables
-        ann = Ann()
-        irh = InputRunHandler(ann)
-
-        if starting_player == 'mix':
+        if self.starting_player == 'mix':
             mix = True
 
-        for i in range(0, batch):
+        for i in range(0, self.batch):
             if mix:
-                starting_player = random.randint(1, 2)
-                print(starting_player)
-            else:
-                starting_player = starting_player
+                self.starting_player = random.randint(1, 2)
+                print(self.starting_player)
 
             root_node = node.Node(parent=None,
-                                  state=gamestate.GameState(player=starting_player, dimensions=dimensions))
+                                  state=gamestate.GameState(player=self.starting_player,
+                                                            dimensions=self.hex_dimensions))
             root_node.state.initialize_hexboard()
 
-            batch_player = starting_player
+            batch_player = self.starting_player
 
             game_over = False
 
@@ -56,7 +57,7 @@ class Run:
                 print("")
                 print("Move")
 
-                batch_node = Run().find_move(root_node, simulations, batch_player, irh)
+                batch_node = self.find_move(root_node, self.simulations, batch_player)
 
                 next_move = None
                 highest_ratio = -float('inf')
@@ -76,7 +77,7 @@ class Run:
                         if ratio < lowest_ratio:
                             lowest_ratio = ratio
                             next_move = child
-                if verbose:
+                if self.verbose:
                     next_move.state.print_hexboard()
 
                 root_node = next_move
@@ -85,7 +86,7 @@ class Run:
 
                 if root_node.get_state().game_over():
                     winner = 3 - root_node.get_state().get_player()
-                    if verbose:
+                    if self.verbose:
                         print("Player " + str(winner) + " wins.")
                         print("")
                     if winner == 1:
@@ -94,12 +95,16 @@ class Run:
                         total_wins_player2 += 1
                     game_over = True
         print("")
-        print("Player 1" + " won " + str(total_wins_player1) + " times out of " + str(batch) + " batches." + " (" + str(
-            100 * total_wins_player1 / batch) + "%)")
-        print("Player 2" + " won " + str(total_wins_player2) + " times out of " + str(batch) + " batches." + " (" + str(
-            100 * total_wins_player2 / batch) + "%)")
+        print("Player 1" + " won " + str(total_wins_player1) + " times out of " + str(
+            self.batch) + " batches." + " (" + str(
+            100 * total_wins_player1 / self.batch) + "%)")
+        print("Player 2" + " won " + str(total_wins_player2) + " times out of " + str(
+            self.batch) + " batches." + " (" + str(
+            100 * total_wins_player2 / self.batch) + "%)")
 
-    def find_move(self, node, simulations, batch_player, irh):
+        self.ANET.close_current_session()
+
+    def find_move(self, node, simulations, batch_player):
         move_node = node
 
         for i in range(0, simulations):
@@ -117,7 +122,7 @@ class Run:
             # simulates winner. Rollout
             # TODO: Add ANN
             simple_board_state = best_node.state.complex_to_simple_hexboard(best_node.state.hexBoard)
-            self.ann_rollout(irh, simple_board_state)
+            mcts.MCTS().ANET_evaluate(ANET=self.ANET, simple_board_state=simple_board_state)
             winner = mcts.MCTS().evaluate(best_node)
 
             # traverses up tree with winner
@@ -139,8 +144,4 @@ class Run:
         # Do prediction
 
 
-
-
-
-
-Run().run(batch=1, starting_player=1, simulations=10, dimensions=3, verbose=False)
+Run(batch=1, starting_player=1, simulations=10, dimensions=3, verbose=False).run()
