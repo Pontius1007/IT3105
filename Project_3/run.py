@@ -54,10 +54,10 @@ class Run:
             game_over = False
 
             while not game_over:
-                print("")
-                print("")
-                print("")
-                print("Move")
+                # print("")
+                # print("")
+                # print("")
+                # print("Move")
                 indexes = root_node.state.next_node_states()[1]
                 batch_node = self.find_move(root_node, self.simulations, batch_player, indexes)
 
@@ -68,7 +68,7 @@ class Run:
 
                 visit_counts = []
 
-                print("Current player: " + str(current_player))
+                # print("Current player: " + str(current_player))
 
                 for child in batch_node.child_nodes:
                     ratio = float(child.get_wins()) / float(child.get_visits())
@@ -99,7 +99,7 @@ class Run:
 
                 root_node = next_move
                 root_node.state.switch_player(root_node.state.get_player())
-                root_node.state.print_hexboard()
+                # root_node.state.print_hexboard()
 
                 if root_node.get_state().game_over():
                     winner = 3 - root_node.get_state().get_player()
@@ -111,6 +111,9 @@ class Run:
                     if winner == 2:
                         total_wins_player2 += 1
                     game_over = True
+
+            self.ANET.do_training(self.ANET.current_session, self.replay_buffer, 100)
+            self.ANET_CM.cases = self.replay_buffer
         print("")
         print("Player 1" + " won " + str(total_wins_player1) + " times out of " + str(
             self.batch) + " batches." + " (" + str(
@@ -118,7 +121,7 @@ class Run:
         print("Player 2" + " won " + str(total_wins_player2) + " times out of " + str(
             self.batch) + " batches." + " (" + str(
             100 * total_wins_player2 / self.batch) + "%)")
-        self.ANET.close_current_session(view=False)
+        self.ANET.close_current_session()
 
 
     def find_move(self, node, simulations, batch_player, indexes):
@@ -161,4 +164,4 @@ class Run:
         # Do prediction
 
 
-Run(batch=1, starting_player=1, simulations=10, dimensions=3, verbose=False).run()
+Run(batch=10, starting_player=1, simulations=200, dimensions=2, verbose=False).run()
