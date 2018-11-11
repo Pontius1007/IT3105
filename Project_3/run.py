@@ -58,6 +58,8 @@ class Run:
                 print("Move")
 
                 batch_node = self.find_move(root_node, self.simulations, batch_player)
+                indexes = root_node.state.next_node_states()[1]
+                print("indexes", indexes)
 
                 next_move = None
                 highest_ratio = -float('inf')
