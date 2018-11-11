@@ -28,7 +28,7 @@ class Node:
 
     def get_child_nodes(self):
         child_nodes = []
-        for state in self.state.next_node_states():
+        for state in self.state.next_node_states()[0]:
             child_nodes.append(Node(parent=self, state=state))
         return child_nodes
 
