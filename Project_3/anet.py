@@ -171,9 +171,9 @@ class Gann:
         # self.reopen_current_session()
         r_input = case
         feeder = {self.input: [r_input]}
-        print("The input is: \n", r_input)
-        print("The ANN guessed this: \n")
-        print(self.current_session.run(self.output, feed_dict=feeder))
+        # print("The input is: \n", r_input)
+        # print("The ANN guessed this: \n")
+        # print(self.current_session.run(self.output, feed_dict=feeder))
         return self.current_session.run(self.output, feed_dict=feeder)
         # self.close_current_session(view=False)
 

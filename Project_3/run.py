@@ -56,10 +56,8 @@ class Run:
                 print("")
                 print("")
                 print("Move")
-
-                batch_node = self.find_move(root_node, self.simulations, batch_player)
                 indexes = root_node.state.next_node_states()[1]
-                print("indexes", indexes)
+                batch_node = self.find_move(root_node, self.simulations, batch_player, indexes)
 
                 next_move = None
                 highest_ratio = -float('inf')
@@ -106,7 +104,7 @@ class Run:
 
         self.ANET.close_current_session()
 
-    def find_move(self, node, simulations, batch_player):
+    def find_move(self, node, simulations, batch_player, indexes):
         move_node = node
 
         for i in range(0, simulations):
@@ -123,9 +121,9 @@ class Run:
 
             # simulates winner. Rollout
             # TODO: Add ANN
-            simple_board_state = best_node.state.complex_to_simple_hexboard(best_node.state.hexBoard)
-            mcts.MCTS().ANET_evaluate(ANET=self.ANET, simple_board_state=simple_board_state)
-            winner = mcts.MCTS().evaluate(best_node)
+
+            winner =mcts.MCTS().ANET_evaluate(ANET=self.ANET, node=best_node, indexes=indexes)
+            # winner = mcts.MCTS().evaluate(best_node)
 
             # traverses up tree with winner
             mcts.MCTS().backpropogate(best_node, winner, batch_player)
