@@ -8,13 +8,15 @@ import anet as ANET
 
 
 class Run:
-    def __init__(self, batch, starting_player, simulations, dimensions, verbose=False):
+    def __init__(self, batch, starting_player, simulations, dimensions, verbose=False,
+                 saved_folder="netsaver/saved_anet_states/"):
         self.batch = batch
         self.starting_player = starting_player
         self.simulations = simulations
         self.hex_dimensions = dimensions
         self.verbose = verbose
         self.replay_buffer = []
+        self.saved_folder = saved_folder
 
         # ANET parameter
         self.ANET_CM = ANET.Caseman(self.replay_buffer)
@@ -37,6 +39,9 @@ class Run:
         if self.starting_player == 'mix':
             mix = True
 
+        # Save ANET state before training
+        self.ANET.save_session_params(self.saved_folder, self.ANET.current_session, 0)
+        print("Saved game after 0 episodes")
         for i in range(0, self.batch):
             if mix:
                 self.starting_player = random.randint(1, 2)
@@ -103,9 +108,9 @@ class Run:
                 max_index = visit_distribution.index(max_value)
                 one_hot_visit_distribution[max_index] = 1
 
-                #generalted normalized list
+                # generalted normalized list
                 for value in visit_distribution:
-                    normalized_visit_distribution.append(value/max_value)
+                    normalized_visit_distribution.append(value / max_value)
 
                 case.append(normalized_visit_distribution)
                 self.replay_buffer.append(case)
@@ -136,7 +141,6 @@ class Run:
             100 * total_wins_player2 / self.batch) + "%)")
         self.ANET.do_mapping()
         self.ANET.close_current_session()
-
 
     def find_move(self, node, simulations, batch_player, indexes):
         move_node = node
