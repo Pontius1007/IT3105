@@ -3,7 +3,6 @@ import math
 from copy import deepcopy
 import pickle
 import copy
-import ujson
 
 
 # State manager for HEX
@@ -221,4 +220,5 @@ class GameState:
                                               neighbours=self.neighbours))
                 else:
                     states.append(0)
+
         return children, states

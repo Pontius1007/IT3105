@@ -41,6 +41,22 @@ class MCTS:
         winner = 3 - node.get_state().get_player()
         return winner
 
+    def ANET_evaluate(self, ANET, node, indexes):
+        while not node.state.game_over():
+            node_indexes = node.state.next_node_states()[1]
+            simple_board_state = node.state.complex_to_simple_hexboard(node.state.hexBoard)
+            ANET_pred = ANET.do_prediction(simple_board_state)
+            best_move = []
+            for i, value in enumerate(ANET_pred[0]):
+                if node_indexes[i] == 1:
+                    best_move.append(value)
+            max_value = max(best_move)
+            max_index = best_move.index(max_value)
+            child_nodes = node.get_child_nodes()
+            node = child_nodes[max_index]
+        winner = 3 - node.get_state().get_player()
+        return winner
+
     # pass evaluating of final state up the tree, updating data
     def backpropogate(self, node, winner, batch_player):
         while node is not None:

@@ -110,3 +110,6 @@ venv.bak/
 Project_1/netsaver/
 Project_1/probeview/
 .vscode/
+
+/probeview
+/netsaver
