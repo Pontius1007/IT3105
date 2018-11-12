@@ -20,7 +20,7 @@ class Run:
         self.ANET_CM = ANET.Caseman(self.replay_buffer)
         self.ANET_input_dim = (self.hex_dimensions * self.hex_dimensions * 2) + 2
         self.ANET_output_dim = self.hex_dimensions * self.hex_dimensions
-        self.ANET = ANET.Gann(dims=[self.ANET_input_dim, 10, self.ANET_output_dim], hidden_activation_function="relu",
+        self.ANET = ANET.Gann(dims=[self.ANET_input_dim, 12, 12, self.ANET_output_dim], hidden_activation_function="relu",
                               optimizer="adam", lower=-0.1,
                               upper=0.1, cman=self.ANET_CM, lrate=0.01,
                               showfreq=None, mbs=10, vint=None, softmax=True,
@@ -96,7 +96,7 @@ class Run:
                         visit_distribution.append(0)
 
                 one_hot_visit_distribution = [0] * len(visit_distribution)
-                normalized_visit_distribution = [0] * len(visit_distribution)
+                normalized_visit_distribution = []
 
                 # generates one_hot list
                 max_value = max(visit_distribution)
@@ -107,7 +107,7 @@ class Run:
                 for value in visit_distribution:
                     normalized_visit_distribution.append(value/max_value)
 
-                case.append(visit_distribution)
+                case.append(normalized_visit_distribution)
                 self.replay_buffer.append(case)
 
                 root_node = next_move
@@ -134,6 +134,7 @@ class Run:
         print("Player 2" + " won " + str(total_wins_player2) + " times out of " + str(
             self.batch) + " batches." + " (" + str(
             100 * total_wins_player2 / self.batch) + "%)")
+        self.ANET.do_mapping()
         self.ANET.close_current_session()
 
 
@@ -177,4 +178,4 @@ class Run:
         # Do prediction
 
 
-Run(batch=10, starting_player=1, simulations=200, dimensions=3, verbose=False).run()
+Run(batch=10, starting_player=1, simulations=500, dimensions=2, verbose=False).run()
