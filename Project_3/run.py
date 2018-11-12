@@ -94,6 +94,19 @@ class Run:
                         visit_distribution.append(visit_counts.pop(0) - 1)
                     else:
                         visit_distribution.append(0)
+
+                one_hot_visit_distribution = [0] * len(visit_distribution)
+                normalized_visit_distribution = [0] * len(visit_distribution)
+
+                # generates one_hot list
+                max_value = max(visit_distribution)
+                max_index = visit_distribution.index(max_value)
+                one_hot_visit_distribution[max_index] = 1
+
+                #generalted normalized list
+                for value in visit_distribution:
+                    normalized_visit_distribution.append(value/max_value)
+
                 case.append(visit_distribution)
                 self.replay_buffer.append(case)
 
@@ -111,7 +124,7 @@ class Run:
                     if winner == 2:
                         total_wins_player2 += 1
                     game_over = True
-
+            # print(self.replay_buffer)
             self.ANET.do_training(self.ANET.current_session, self.replay_buffer, 100)
             self.ANET_CM.cases = self.replay_buffer
         print("")
@@ -164,4 +177,4 @@ class Run:
         # Do prediction
 
 
-Run(batch=10, starting_player=1, simulations=200, dimensions=2, verbose=False).run()
+Run(batch=10, starting_player=1, simulations=200, dimensions=3, verbose=False).run()

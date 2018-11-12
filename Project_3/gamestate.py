@@ -220,4 +220,5 @@ class GameState:
                                               neighbours=self.neighbours))
                 else:
                     states.append(0)
+
         return children, states
