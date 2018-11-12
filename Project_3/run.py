@@ -22,7 +22,8 @@ class Run:
         self.ANET_CM = ANET.Caseman(self.replay_buffer)
         self.ANET_input_dim = (self.hex_dimensions * self.hex_dimensions * 2) + 2
         self.ANET_output_dim = self.hex_dimensions * self.hex_dimensions
-        self.ANET = ANET.Gann(dims=[self.ANET_input_dim, 12, 12, self.ANET_output_dim], hidden_activation_function="relu",
+        self.ANET = ANET.Gann(dims=[self.ANET_input_dim, 12, 12, self.ANET_output_dim],
+                              hidden_activation_function="relu",
                               optimizer="adam", lower=-0.1,
                               upper=0.1, cman=self.ANET_CM, lrate=0.01,
                               showfreq=None, mbs=10, vint=None, softmax=True,
@@ -35,6 +36,8 @@ class Run:
         total_wins_player2 = 0
         mix = False
         self.ANET.setupSession()
+        self.ANET.error_history = []
+        self.ANET.validation_history = []
 
         if self.starting_player == 'mix':
             mix = True
@@ -108,7 +111,7 @@ class Run:
                 max_index = visit_distribution.index(max_value)
                 one_hot_visit_distribution[max_index] = 1
 
-                # generalted normalized list
+                # generates normalized list
                 for value in visit_distribution:
                     normalized_visit_distribution.append(value / max_value)
 
@@ -130,7 +133,22 @@ class Run:
                         total_wins_player2 += 1
                     game_over = True
             # print(self.replay_buffer)
-            self.ANET.do_training(self.ANET.current_session, self.replay_buffer, 100)
+
+            # do training
+            inputs = [c[0] for c in self.replay_buffer]
+            targets = [c[1] for c in self.replay_buffer]
+            feeder = {self.ANET.input: inputs, self.ANET.target: targets}
+            gvars = self.ANET.error
+
+            _, grabvals, _ = self.ANET.run_one_step([self.ANET.trainer], gvars, self.ANET.probes,
+                                                    session=self.ANET.current_session, feed_dict=feeder,
+                                                    show_interval=0)
+
+
+            print(grabvals)
+            self.ANET.error_history.append((i, grabvals))
+            # self.ANET.do_training(self.ANET.current_session, self.replay_buffer, 100)
+
             self.ANET_CM.cases = self.replay_buffer
         print("")
         print("Player 1" + " won " + str(total_wins_player1) + " times out of " + str(
@@ -139,7 +157,9 @@ class Run:
         print("Player 2" + " won " + str(total_wins_player2) + " times out of " + str(
             self.batch) + " batches." + " (" + str(
             100 * total_wins_player2 / self.batch) + "%)")
-        self.ANET.do_mapping()
+        TFT.plot_training_history(self.ANET.error_history, self.ANET.validation_history, xtitle="Game",
+                                  ytitle="Error",
+                                  title="", fig=True)
         self.ANET.close_current_session()
 
     def find_move(self, node, simulations, batch_player, indexes):
@@ -167,19 +187,6 @@ class Run:
             mcts.MCTS().backpropogate(best_node, winner, batch_player)
 
         return move_node
-
-    def ann_rollout(self, irh, simple_board_state):
-        irh.load_json("./config/variables.json")
-        irh.run_rollout(simple_board_state)
-
-        return 0
-        # Case generator:
-        # Properly use irh to set up the correct values and paramters
-        # Create new function in irh to call
-        # Return ANN probability
-        # check for legal move and fix index accordingly
-        # return winning nodes
-        # Do prediction
 
 
 Run(batch=10, starting_player=1, simulations=500, dimensions=2, verbose=False).run()

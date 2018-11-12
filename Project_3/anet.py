@@ -124,8 +124,8 @@ class Gann:
             self.error_history.append((step, grabvals[0]))
             self.consider_validation_testing(step, sess)
         self.global_training_step += steps
-        TFT.plot_training_history(self.error_history, self.validation_history, xtitle="Steps", ytitle="Error",
-                                  title="TRAINING HISTORY", fig=not continued)
+        # TFT.plot_training_history(self.error_history, self.validation_history, xtitle="Steps", ytitle="Error",
+        #                           title="TRAINING HISTORY", fig=not continued)
 
     # bestk = 1 when you're doing a classification task and the targets are one-hot vectors.  This will invoke the
     # gen_match_counter error function. Otherwise, when
