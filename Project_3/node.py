@@ -11,8 +11,8 @@ class Node:
         self.wins = 0
         self.visits = 1
 
-    def __str__(self):
-        return ' ,  '.join(['{key} = {value}'.format(key=key, value=self.__dict__.get(key)) for key in self.__dict__])
+    # def __str__(self):
+    #     return ' ,  '.join(['{key} = {value}'.format(key=key, value=self.__dict__.get(key)) for key in self.__dict__])
 
     def get_state(self):
         return self.state

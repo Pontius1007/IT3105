@@ -5,6 +5,7 @@ import mcts
 import cProfile
 import tflowtools as TFT
 import anet as ANET
+from copy import deepcopy
 
 
 class Run:
@@ -62,10 +63,10 @@ class Run:
             game_over = False
 
             while not game_over:
-                # print("")
-                # print("")
-                # print("")
-                # print("Move")
+                print("")
+                print("")
+                print("")
+                print("Move")
                 indexes = root_node.state.next_node_states()[1]
                 batch_node = self.find_move(root_node, self.simulations, batch_player, indexes)
 
@@ -77,10 +78,18 @@ class Run:
                 visit_counts = []
 
                 # print("Current player: " + str(current_player))
-
+                print(root_node)
                 for child in batch_node.child_nodes:
-                    ratio = float(child.get_wins()) / float(child.get_visits())
+                    ratio = child.get_visits()
                     visit_counts.append(child.get_visits())
+                    children = [x for x in child.state.hexBoard]
+                    new_children = []
+                    for thing in children:
+                        for another in thing:
+                            new_children.append(another)
+
+                    print("Child " + str([x.value for x in new_children]) + " had ratio " + str(ratio) + " with wins/visits " + str(
+                        child.get_wins()) + " / " + str(child.get_visits()))
 
                     if current_player == batch_player:
                         if ratio > highest_ratio:
@@ -120,7 +129,7 @@ class Run:
 
                 root_node = next_move
                 root_node.state.switch_player(root_node.state.get_player())
-                # root_node.state.print_hexboard()
+                root_node.state.print_hexboard()
 
                 if root_node.get_state().game_over():
                     winner = 3 - root_node.get_state().get_player()
@@ -144,7 +153,6 @@ class Run:
                                                     session=self.ANET.current_session, feed_dict=feeder,
                                                     show_interval=0)
 
-
             print(grabvals)
             self.ANET.error_history.append((i, grabvals))
             # self.ANET.do_training(self.ANET.current_session, self.replay_buffer, 100)
@@ -160,12 +168,16 @@ class Run:
         TFT.plot_training_history(self.ANET.error_history, self.ANET.validation_history, xtitle="Game",
                                   ytitle="Error",
                                   title="", fig=True)
-        self.ANET.close_current_session()
+        self.ANET.close_current_session(view=False)
 
     def find_move(self, node, simulations, batch_player, indexes):
         move_node = node
+        print(move_node.state.get_player())
 
         for i in range(0, simulations):
+
+            # move_node.state.player = 3 - move_node.state.player
+
 
             # this searches through tree based on UCT value
             best_node = mcts.MCTS().search(move_node, batch_player)
@@ -180,13 +192,14 @@ class Run:
             # simulates winner. Rollout
             # TODO: Add ANN
 
-            winner = mcts.MCTS().ANET_evaluate(ANET=self.ANET, node=best_node, indexes=indexes)
-            # winner = mcts.MCTS().evaluate(best_node)
+            # winner = mcts.MCTS().ANET_evaluate(ANET=self.ANET, node=best_node, indexes=indexes)
+            winner = mcts.MCTS().evaluate(best_node)
 
             # traverses up tree with winner
             mcts.MCTS().backpropogate(best_node, winner, batch_player)
 
+
         return move_node
 
 
-Run(batch=10, starting_player=1, simulations=500, dimensions=2, verbose=False).run()
+Run(batch=1, starting_player=1, simulations=100, dimensions=2, verbose=False).run()

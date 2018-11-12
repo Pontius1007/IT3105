@@ -7,7 +7,7 @@ class MCTS:
     # returns ucb value
     def ucb(self, node, child, opposing_player):
         qsa = child.get_wins() / child.get_visits()
-        usa = 2 * sqrt(log(node.get_visits()) / (1 + child.get_visits()))
+        usa = 1 * sqrt(log(node.get_visits()) / (1 + child.get_visits()))
         if opposing_player:
             qsa *= -1
         return qsa + usa
@@ -55,6 +55,7 @@ class MCTS:
             child_nodes = node.get_child_nodes()
             node = child_nodes[max_index]
         winner = 3 - node.get_state().get_player()
+        print("winner",winner)
         return winner
 
     # pass evaluating of final state up the tree, updating data
