@@ -8,7 +8,7 @@ import anet as ANET
 
 
 class Run:
-    def __init__(self, batch, starting_player, simulations, dimensions, verbose=False,
+    def __init__(self, batch, starting_player, simulations, dimensions, number_of_saved_agents, verbose=False,
                  saved_folder="netsaver/saved_anet_states/"):
         self.batch = batch
         self.starting_player = starting_player
@@ -16,6 +16,7 @@ class Run:
         self.hex_dimensions = dimensions
         self.verbose = verbose
         self.replay_buffer = []
+        self.number_of_saved_agents = number_of_saved_agents
         self.saved_folder = saved_folder
 
         # ANET parameter
@@ -38,6 +39,7 @@ class Run:
         self.ANET.setupSession()
         self.ANET.error_history = []
         self.ANET.validation_history = []
+        self.save_interal = self.batch / (self.number_of_saved_agents - 1)
 
         if self.starting_player == 'mix':
             mix = True
@@ -120,7 +122,6 @@ class Run:
 
                 root_node = next_move
                 root_node.state.switch_player(root_node.state.get_player())
-                # root_node.state.print_hexboard()
 
                 if root_node.get_state().game_over():
                     winner = 3 - root_node.get_state().get_player()
@@ -132,7 +133,6 @@ class Run:
                     if winner == 2:
                         total_wins_player2 += 1
                     game_over = True
-            # print(self.replay_buffer)
 
             # do training
             inputs = [c[0] for c in self.replay_buffer]
@@ -144,10 +144,13 @@ class Run:
                                                     session=self.ANET.current_session, feed_dict=feeder,
                                                     show_interval=0)
 
-
-            print(grabvals)
             self.ANET.error_history.append((i, grabvals))
-            # self.ANET.do_training(self.ANET.current_session, self.replay_buffer, 100)
+
+            # Save ANET-params
+            if self.number_of_saved_agents:
+                if (i + 1) % self.save_interal == 0:
+                    self.ANET.save_session_params(self.saved_folder, self.ANET.current_session, (i + 1))
+                    print("Saved game after ", i + 1, " episodes")
 
             self.ANET_CM.cases = self.replay_buffer
         print("")
@@ -178,10 +181,7 @@ class Run:
                 best_node = random.choice(best_node.get_child_nodes())
 
             # simulates winner. Rollout
-            # TODO: Add ANN
-
             winner = mcts.MCTS().ANET_evaluate(ANET=self.ANET, node=best_node, indexes=indexes)
-            # winner = mcts.MCTS().evaluate(best_node)
 
             # traverses up tree with winner
             mcts.MCTS().backpropogate(best_node, winner, batch_player)
@@ -189,4 +189,4 @@ class Run:
         return move_node
 
 
-Run(batch=10, starting_player=1, simulations=500, dimensions=2, verbose=False).run()
+Run(batch=300, starting_player=1, simulations=500, dimensions=2, verbose=False, number_of_saved_agents=0).run()
