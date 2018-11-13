@@ -51,8 +51,9 @@ class Run:
         for i in range(0, self.batch):
             if mix:
                 self.starting_player = random.randint(1, 2)
-                print(self.starting_player)
+                print("Starting player is: ", self.starting_player)
 
+            # TODO: Move outside and clear in intervals
             self.replay_buffer = []
 
             root_node = node.Node(parent=None,
@@ -73,34 +74,28 @@ class Run:
                 batch_node = self.find_move(root_node, self.simulations, batch_player, indexes)
 
                 next_move = None
-                highest_ratio = -float('inf')
-                lowest_ratio = float('inf')
-                current_player = batch_node.get_state().get_player()
+                highest_visits = -float('inf')
 
                 visit_counts = []
 
-                # print("Current player: " + str(current_player))
-                print(root_node)
                 for child in batch_node.child_nodes:
-                    ratio = child.get_visits()
+                    visits = child.get_visits()
                     visit_counts.append(child.get_visits())
+
+                    # Printing
                     children = [x for x in child.state.hexBoard]
                     new_children = []
                     for thing in children:
                         for another in thing:
                             new_children.append(another)
 
-                    print("Child " + str([x.value for x in new_children]) + " had ratio " + str(ratio) + " with wins/visits " + str(
+                    print("Child " + str([x.value for x in new_children]) + " had ratio " + str(
+                        visits) + " with wins/visits " + str(
                         child.get_wins()) + " / " + str(child.get_visits()))
 
-                    if current_player == batch_player:
-                        if ratio > highest_ratio:
-                            highest_ratio = ratio
-                            next_move = child
-                    else:
-                        if ratio < lowest_ratio:
-                            lowest_ratio = ratio
-                            next_move = child
+                    if visits > highest_visits:
+                        highest_visits = visits
+                        next_move = child
                 if self.verbose:
                     next_move.state.print_hexboard()
 
@@ -130,7 +125,8 @@ class Run:
                 self.replay_buffer.append(case)
 
                 root_node = next_move
-                root_node.state.switch_player(root_node.state.get_player())
+                # Already switching when generating kids
+                # root_node.state.switch_player(root_node.state.get_player())
                 root_node.state.print_hexboard()
 
                 if root_node.get_state().game_over():
@@ -183,7 +179,6 @@ class Run:
 
             # move_node.state.player = 3 - move_node.state.player
 
-
             # this searches through tree based on UCT value
             best_node = mcts.MCTS().search(move_node, batch_player)
 
@@ -197,16 +192,12 @@ class Run:
             # simulates winner. Rollout
             # TODO: Add ANN
 
-            # winner = mcts.MCTS().ANET_evaluate(ANET=self.ANET, node=best_node, indexes=indexes)
-            winner = mcts.MCTS().evaluate(best_node)
-            # winner = mcts.MCTS().ANET_evaluate(ANET=self.ANET, node=best_node, indexes=indexes)
+            winner = mcts.MCTS().ANET_evaluate(ANET=self.ANET, node=best_node)
 
             # traverses up tree with winner
             mcts.MCTS().backpropogate(best_node, winner, batch_player)
 
-
         return move_node
 
 
-Run(batch=1, starting_player=1, simulations=200, dimensions=2, verbose=False, number_of_saved_agents=5).run()
-
+Run(batch=10, starting_player=1, simulations=1000, dimensions=3, verbose=False, number_of_saved_agents=5).run()
