@@ -9,6 +9,7 @@ import copy
 class GameState:
     def __init__(self, player=1, hexBoard=None, dimensions=5, neighbours=None):
         self.player = player
+        self.winner = None
 
         # HEX related attributes
         self.hexBoard = hexBoard
@@ -170,6 +171,7 @@ class GameState:
             visited_1.append(unvisited_1.pop(0))
             # checks if node is on opposite side for player 1
             if current_node in self.hexBoard[-1]:
+                self.winner = 1
                 return True
 
         # checks for player 2
@@ -189,9 +191,15 @@ class GameState:
             visited_2.append(unvisited_2.pop(0))
             # checks if node is on opposite side for player 2
             if current_node in [x[-1] for x in self.hexBoard]:
+                self.winner = 2
                 return True
 
         return False
+
+    def get_winner(self):
+        if self.winner is None:
+            self.game_over()
+        return self.winner
 
     # returns next possible nodes of a node
     def next_node_states(self):
