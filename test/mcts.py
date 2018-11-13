@@ -301,6 +301,7 @@ class MCTS:
             ucb = MCTS().ucb(node, child, opposing_player)
             if ucb > highest_ucb:
                 best_child = child
+                # best_child.state.player = 3 - best_child.state.player
                 highest_ucb = ucb
         return self.search(best_child, batch_player)
 
@@ -319,6 +320,7 @@ class MCTS:
         while not node.state.game_over():
             node = node.get_random_child()
         winner = node.get_state().get_player()
+        print("winner",winner)
         return winner
 
     # pass evaluating of final state up the tree, updating data
@@ -420,17 +422,16 @@ class Run:
             100 * total_wins_player2 / batch) + "%)")
 
     def find_move(self, node, simulations, batch_player):
-        move_node = node
+        move_node = deepcopy(node)
         player = node.get_state().get_player()
         print("player", player)
 
         print("THIS IS WHAT IT IS SUPPOSED TO BE", move_node.state.flatten())
 
         for i in range(0, simulations):
-
             # this searches through tree based on UCT value
             best_node = MCTS().search(move_node, batch_player)
-            print(best_node.state.flatten())
+
 
             # expands the node with children if there are possible states
             MCTS().expand(best_node)
@@ -438,9 +439,13 @@ class Run:
             # if node was expanded, choose a random child to evaluate
             if len(best_node.get_child_nodes()) > 0:
                 best_node = random.choice(best_node.get_child_nodes())
+            print(best_node.state.flatten())
+
+            tempnode = deepcopy(best_node)
+            print("BEFORE_PLAYER",tempnode.state.get_player())
 
             # simulates winner
-            winner = MCTS().evaluate(best_node)
+            winner = MCTS().evaluate(tempnode)
 
             # traverses up tree with winner
             MCTS().backpropogate(best_node, winner, batch_player)
@@ -457,4 +462,4 @@ class HexCell:
         self.position = position
 
 
-Run().run(batch=1, starting_player=1, simulations=50, numberofpieces=14, maxremove=3, verbose=False, hex_dimensions=2)
+Run().run(batch=1, starting_player=1, simulations=10, numberofpieces=14, maxremove=3, verbose=False, hex_dimensions=2)
