@@ -38,10 +38,10 @@ class MCTS:
     def evaluate(self, node):
         while not node.state.game_over():
             node = node.get_random_child()
-        winner = 3 - node.get_state().get_player()
+        winner = node.get_state().get_winner()
         return winner
 
-    def ANET_evaluate(self, ANET, node, indexes):
+    def ANET_evaluate(self, ANET, node):
         while not node.state.game_over():
             node_indexes = node.state.next_node_states()[1]
             simple_board_state = node.state.complex_to_simple_hexboard(node.state.hexBoard)
@@ -54,8 +54,7 @@ class MCTS:
             max_index = best_move.index(max_value)
             child_nodes = node.get_child_nodes()
             node = child_nodes[max_index]
-        winner = 3 - node.get_state().get_player()
-        print("winner",winner)
+        winner = node.get_state().get_winner()
         return winner
 
     # pass evaluating of final state up the tree, updating data
