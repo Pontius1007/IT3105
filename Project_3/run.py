@@ -200,4 +200,4 @@ class Run:
         return move_node
 
 
-Run(batch=10, starting_player=1, simulations=1000, dimensions=3, verbose=False, number_of_saved_agents=5).run()
+Run(batch=200, starting_player=1, simulations=100, dimensions=3, verbose=False, number_of_saved_agents=5).run()
