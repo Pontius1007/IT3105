@@ -34,7 +34,6 @@ class GameState:
             hexBoard.append(row_list)
         self.hexBoard = hexBoard
 
-
         neighbours_dict = {}
 
         # finds neighbor coordinates
@@ -63,8 +62,6 @@ class GameState:
                 # cell.setPosition([i, j])
 
         self.neighbours = neighbours_dict
-        print(self.hexBoard)
-
 
     # Prints the board in a diamond
     def print_hexboard(self):
@@ -123,11 +120,15 @@ class GameState:
     # 3d to 1d array
     def flatten(self):
         board = self.hexBoard
+
         new_board = []
         for row in range(len(board)):
             for element in range(len(board)):
-                state_to_string = str(board[row][element].value)
+                # state_to_string = str(board[row][element].value)
+                state_to_string = str(board[row][str(element)][1])
                 new_board.append(state_to_string)
+        print("board")
+        print(new_board)
         return new_board
 
     # Converts the 3d array into a simple 1d array to be used in the NN. Last two bits denotes player
@@ -136,7 +137,8 @@ class GameState:
         player = self.get_player()
         for row in range(len(board)):
             for element in range(len(board)):
-                for value in board[row][element].value:
+                # for value in board[row][element].value:
+                for value in board[row][str(element)][1]:
                     simple_array.append(value)
         if player == 1:
             simple_array.extend((1, 0))
@@ -171,43 +173,66 @@ class GameState:
         for i, cell in enumerate(self.hexBoard[0]):
             cell_dict = self.hexBoard[0][str(i)]
             if cell_dict[1] == [1, 0]:
-            # if cell.value == [1, 0]:
-                unvisited_1.append(cell_dict[0])
+                unvisited_1.append(cell_dict[0][0])
         while len(unvisited_1):
-            current_node = unvisited_1[0]
+            current_node = None
+            for row in self.hexBoard:
+                for cell in row:
+                    if row[cell][0][0] == unvisited_1[0]:
+                        current_node = row[cell]
             # adds unvisited neighbours
-            neighbours = self.neighbours.get(str(current_node.position))
+            neighbours = self.neighbours.get(str(current_node[1]))
             for neighbour in neighbours:
-                neighbour_object = self.hexBoard[neighbour[0]][neighbour[1]]
-                if neighbour_object.value == [1,
-                                              0] and neighbour_object not in visited_1 and neighbour_object not in \
+                neighbour_object = self.hexBoard[neighbour[0]][str(neighbour[1])]
+                if neighbour_object[1] == [1,
+                                           0] and neighbour_object[0][0] not in visited_1 and neighbour_object[0][0] not in \
                         unvisited_1:
-                    unvisited_1.append(neighbour_object)
+                    unvisited_1.append(neighbour_object[0][0])
             visited_1.append(unvisited_1.pop(0))
             # checks if node is on opposite side for player 1
-            if current_node in self.hexBoard[-1]:
-                self.winner = 1
-                return True
+            for cell in self.hexBoard[-1]:
+                print("")
+                print("")
+                print("1 other side", self.hexBoard[-1][cell][0][0])
+                print("1 current node", current_node[0][0])
+                if current_node[0][0] == self.hexBoard[-1][cell][0][0]:
+                    print("game over for 1")
+                    self.winner = 1
+                    return True
 
         # checks for player 2
-        for row in self.hexBoard:
-            if row[0].value == [0, 1]:
-                unvisited_2.append(row[0])
+        for i, row in enumerate(self.hexBoard):
+            cell_dict = self.hexBoard[i][str(0)]
+            if cell_dict[1] == [0, 1]:
+                unvisited_2.append(cell_dict[0][0])
+
         while len(unvisited_2):
-            current_node = unvisited_2[0]
+            print("unvisited 2 beginning", unvisited_2)
+            current_node = None
+            for row in self.hexBoard:
+                for cell in row:
+                    if row[cell][0][0] == unvisited_2[0]:
+                        current_node = row[cell]
             # adds unvisited neighbours
-            neighbours = self.neighbours.get(str(current_node.position))
+            neighbours = self.neighbours.get(str(current_node[1]))
             for neighbour in neighbours:
-                neighbour_object = self.hexBoard[neighbour[0]][neighbour[1]]
-                if neighbour_object.value == [0,
-                                              1] and neighbour_object not in visited_2 and neighbour_object not in \
+                neighbour_object = self.hexBoard[neighbour[0]][str(neighbour[1])]
+                if neighbour_object[1] == [0,
+                                           1] and neighbour_object[0][0] not in visited_2 and neighbour_object[0][0] not in \
                         unvisited_2:
-                    unvisited_2.append(neighbour_object)
+                    unvisited_2.append(neighbour_object[0][0])
             visited_2.append(unvisited_2.pop(0))
             # checks if node is on opposite side for player 2
-            if current_node in [x[-1] for x in self.hexBoard]:
-                self.winner = 2
-                return True
+            for row in self.hexBoard:
+                last = sorted(row.keys())[-1]
+                print("")
+                print("")
+                print("2 other side", row[str(last)][0][0])
+                print("2 current node", current_node[0][0])
+                if row[str(last)][0][0] == current_node[0][0]:
+                    print("game over for 2")
+                    self.winner = 2
+                    return True
 
         return False
 
@@ -224,7 +249,7 @@ class GameState:
         for i, row in enumerate(self.hexBoard):
             for j, cell in enumerate(row):
                 if self.hexBoard[i][str(j)][1] == [0, 0]:
-                # if cell.value == [0, 0]:
+                    # if cell.value == [0, 0]:
                     # add state index
                     states.append(1)
 

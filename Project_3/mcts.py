@@ -42,18 +42,22 @@ class MCTS:
         return winner
 
     def ANET_evaluate(self, ANET, node):
+        print("FIRST TIME")
         while not node.state.game_over():
             node_indexes = node.state.next_node_states()[1]
             simple_board_state = node.state.complex_to_simple_hexboard(node.state.hexBoard)
             ANET_pred = ANET.do_prediction(simple_board_state)
             best_move = []
+            print(node_indexes)
             for i, value in enumerate(ANET_pred[0]):
                 if node_indexes[i] == 1:
                     best_move.append(value)
+            print("best move", best_move)
             max_value = max(best_move)
             max_index = best_move.index(max_value)
             child_nodes = node.get_child_nodes()
             node = child_nodes[max_index]
+            print(node.state.game_over())
         winner = node.get_state().get_winner()
         return winner
 

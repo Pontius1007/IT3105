@@ -89,7 +89,7 @@ class Run:
                         for another in thing:
                             new_children.append(another)
 
-                    print("Child " + str([x.value for x in new_children]) + " had ratio " + str(
+                    print("Child " +  " had ratio " + str(
                         visits) + " with wins/visits " + str(
                         child.get_wins()) + " / " + str(child.get_visits()))
 
@@ -200,4 +200,4 @@ class Run:
         return move_node
 
 
-Run(batch=10, starting_player=1, simulations=200, dimensions=5, verbose=False, number_of_saved_agents=5).run()
+Run(batch=1, starting_player=1, simulations=30, dimensions=2, verbose=False, number_of_saved_agents=5).run()
