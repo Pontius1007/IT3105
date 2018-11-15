@@ -22,12 +22,18 @@ class GameState:
     def initialize_hexboard(self):
         dimensions = self.dimensions
         hexBoard = []
+        id = 0
         for row in range(dimensions):
-            row_list = []
+            row_list = {}
             for element in range(dimensions):
-                row_list.append(hexcell.HexCell())
+                # hexBoard[str(row)] = [element]
+                # row_list.append(hexcell.HexCell())
+                # row_list.append(hexcell.HexCell())
+                row_list[str(element)] = [[id], [0, 0]]
+                id += 1
             hexBoard.append(row_list)
         self.hexBoard = hexBoard
+
 
         neighbours_dict = {}
 
@@ -50,8 +56,15 @@ class GameState:
                 if 0 <= i + 1 <= board_length:
                     neighbours.append([i + 1, j])
                 neighbours_dict[str(position)] = neighbours
-                cell.setPosition([i, j])
+
+                cell_dict = hexBoard[i][str(cell)]
+                cell_dict.append([i, j])
+
+                # cell.setPosition([i, j])
+
         self.neighbours = neighbours_dict
+        print(self.hexBoard)
+
 
     # Prints the board in a diamond
     def print_hexboard(self):
@@ -155,9 +168,11 @@ class GameState:
         visited_2 = []
 
         # checks for player 1
-        for cell in self.hexBoard[0]:
-            if cell.value == [1, 0]:
-                unvisited_1.append(cell)
+        for i, cell in enumerate(self.hexBoard[0]):
+            cell_dict = self.hexBoard[0][str(i)]
+            if cell_dict[1] == [1, 0]:
+            # if cell.value == [1, 0]:
+                unvisited_1.append(cell_dict[0])
         while len(unvisited_1):
             current_node = unvisited_1[0]
             # adds unvisited neighbours
@@ -208,22 +223,24 @@ class GameState:
 
         for i, row in enumerate(self.hexBoard):
             for j, cell in enumerate(row):
-                if cell.value == [0, 0]:
+                if self.hexBoard[i][str(j)][1] == [0, 0]:
+                # if cell.value == [0, 0]:
                     # add state index
                     states.append(1)
 
-                    # temp_board = deepcopy(self.hexBoard)
+                    temp_board = deepcopy(self.hexBoard)
                     # TODO: MAKE THIS LINE FASTER
-                    temp_board = pickle.loads(pickle.dumps(self.hexBoard, -1))
+                    # temp_board = pickle.loads(pickle.dumps(self.hexBoard, -1))
                     # temp_board = copy.copy(self.hexBoard)
                     # temp_board = ujson.loads(ujson.dumps(self.hexBoard))
                     # print("should print hERE")
                     # print(self.hexBoard)
                     # print(temp_board)
                     if self.player == 1:
-                        temp_board[i][j].value = [1, 0]
+                        # temp_board[i][j].value = [1, 0]
+                        temp_board[i][str(j)][1] = [1, 0]
                     else:
-                        temp_board[i][j].value = [0, 1]
+                        temp_board[i][str(j)][1] = [0, 1]
                     children.append(GameState(player=3 - self.player, hexBoard=temp_board, dimensions=self.dimensions,
                                               neighbours=self.neighbours))
                 else:
