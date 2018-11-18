@@ -2,10 +2,9 @@ import random
 import node
 import gamestate
 import mcts
-import cProfile
 import tflowtools as TFT
 import anet as ANET
-from copy import deepcopy
+import numpy as np
 
 
 class Run:
@@ -48,13 +47,18 @@ class Run:
         # Save ANET state before training
         self.ANET.save_session_params(self.saved_folder, self.ANET.current_session, 0)
         print("Saved game after 0 episodes")
+
+        self.replay_buffer = []
+
         for i in range(0, self.batch):
+
+            if len(self.replay_buffer) > 2000:
+                self.replay_buffer = self.replay_buffer[1000:]
             if mix:
                 self.starting_player = random.randint(1, 2)
                 print("Starting player is: ", self.starting_player)
 
             # TODO: Move outside and clear in intervals
-            self.replay_buffer = []
 
             root_node = node.Node(parent=None,
                                   state=gamestate.GameState(player=self.starting_player,
@@ -66,12 +70,8 @@ class Run:
             game_over = False
 
             while not game_over:
-                print("")
-                print("")
-                print("")
-                print("Move")
                 indexes = root_node.state.next_node_states()[1]
-                batch_node = self.find_move(root_node, self.simulations, batch_player, indexes)
+                batch_node = self.find_move(root_node, self.simulations, batch_player)
 
                 next_move = None
                 highest_visits = -float('inf')
@@ -89,9 +89,9 @@ class Run:
                         for another in thing:
                             new_children.append(another)
 
-                    print("Child " + str([x.value for x in new_children]) + " had ratio " + str(
-                        visits) + " with wins/visits " + str(
-                        child.get_wins()) + " / " + str(child.get_visits()))
+                    #print("Child " + str([x.value for x in new_children]) + " had ratio " + str(
+                    #    visits) + " with wins/visits " + str(
+                    #    child.get_wins()) + " / " + str(child.get_visits()))
 
                     if visits > highest_visits:
                         highest_visits = visits
@@ -127,7 +127,7 @@ class Run:
                 root_node = next_move
                 # Already switching when generating kids
                 # root_node.state.switch_player(root_node.state.get_player())
-                root_node.state.print_hexboard()
+                # root_node.state.print_hexboard()
 
                 if root_node.get_state().game_over():
                     winner = 3 - root_node.get_state().get_player()
@@ -141,6 +141,7 @@ class Run:
                     game_over = True
 
             # do training
+            np.random.shuffle(self.replay_buffer)
             inputs = [c[0] for c in self.replay_buffer]
             targets = [c[1] for c in self.replay_buffer]
             feeder = {self.ANET.input: inputs, self.ANET.target: targets}
@@ -171,9 +172,10 @@ class Run:
                                   title="", fig=True)
         self.ANET.close_current_session(view=False)
 
-    def find_move(self, node, simulations, batch_player, indexes):
+    def find_move(self, node, simulations, batch_player):
+        # Node is the root node
         move_node = node
-        print(move_node.state.get_player())
+        # print(move_node.state.get_player())
 
         for i in range(0, simulations):
 
@@ -200,4 +202,4 @@ class Run:
         return move_node
 
 
-Run(batch=200, starting_player=1, simulations=100, dimensions=3, verbose=False, number_of_saved_agents=5).run()
+Run(batch=400, starting_player=1, simulations=200, dimensions=3, verbose=False, number_of_saved_agents=5).run()
