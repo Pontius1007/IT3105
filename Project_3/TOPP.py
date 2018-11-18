@@ -1,14 +1,19 @@
 import anet as ANET
 import tensorflow as tf
+import node
+import gamestate
 
 
 class Topp:
-    def __init__(self, number_of_games, hexsize, anet_dims, number_of_agents, saved_path="netsaver/TOPP/"):
+    def __init__(self, number_of_games, hex_dimensions, anet_dims, number_of_agents, save_offset,
+                 saved_path="netsaver/TOPP/"):
         self.number_of_games = number_of_games
-        self.hexsize = hexsize
+        self.hex_dimension = hex_dimensions
         self.anet_dims = anet_dims
         self.saved_path = saved_path
         self.number_of_agents = number_of_agents
+
+        self.agents = self.load_agents(save_offset)
 
     def load_agents(self, save_offset):
         agents = []
@@ -18,11 +23,34 @@ class Topp:
 
     # Round robin loop over all the different actors and play them up against each other. Save wins for each agent
     def play_tournament(self):
-        return 0
+        for i in range(len(self.agents) - 1):
+            for j in range(len(self.agents), i + 1, -1):
+                start_player = 1
+                for x in range(self.number_of_games):
+                    self.play_game(self.agents[i], self.agents[j - 1], start_player)
+                    # Circulate starting player
+                    start_player = 3 - start_player
 
     # Play game. A function that plays out the game between two different agents
-    def play_game(self):
-        return 0
+    def play_game(self, ANET1, ANET2, start_player):
+        root_node = node.Node(parent=None,
+                              state=gamestate.GameState(player=start_player, dimensions=self.hex_dimension))
+        root_node.state.initialize_hexboard()
+        root_node.state.print_hexboard()
+        agents = [ANET1, ANET2]
+        current_player = start_player
+        while not root_node.state.game_over():
+            best_move_node = agents[current_player - 1].find_move(root_node)
+            root_node = best_move_node
+            current_player = 3 - current_player
+            root_node.state.print_hexboard()
+        print("The game is over")
+        winner = root_node.state.get_winner()
+        if start_player == 2:
+            winner = 3 - winner
+        print("The winner is:", winner)
+        agents[winner - 1].wins += 1
+        print("And this one ine updated", agents[winner-1])
 
 
 class Hex:
@@ -62,21 +90,21 @@ class Hex:
         self.name += str(self.save_offset)
 
     # Find the best move using that agent. Should just be copy paste from the ANET_predict/rollout
-    def find_move(self):
-        return 0
+    def find_move(self, node):
+        node_indexes = node.state.next_node_states()[1]
+        simple_board_state = node.state.complex_to_simple_hexboard(node.state.hexBoard)
+        ANET_pred = self.ANET.do_prediction(simple_board_state)
+        best_move = []
+        for i, value in enumerate(ANET_pred[0]):
+            if node_indexes[i] == 1:
+                best_move.append(value)
+        max_value = max(best_move)
+        max_index = best_move.index(max_value)
+        child_nodes = node.get_child_nodes()
+        return child_nodes[max_index]
 
 
-topp = Topp(number_of_games=10, hexsize=3, anet_dims=[20, 12, 12, 9], number_of_agents=5)
-agents = topp.load_agents(50)
-for agent in agents:
-    print(agent.name)
-
-
-# create agent
-# play tournament
-# play game
-
-
-# hex
-# load params
-# give move from state
+topp = Topp(number_of_games=25, hex_dimensions=3, anet_dims=[20, 12, 12, 9], number_of_agents=3, save_offset=100)
+topp.play_tournament()
+for agent in topp.agents:
+    print("Hello: This is the score:", agent.name, agent.wins)
