@@ -5,13 +5,14 @@ import gamestate
 
 
 class Topp:
-    def __init__(self, number_of_games, hex_dimensions, anet_dims, number_of_agents, save_offset,
+    def __init__(self, number_of_games, hex_dimensions, anet_dims, number_of_agents, save_offset, verbose,
                  saved_path="netsaver/TOPP/"):
         self.number_of_games = number_of_games
         self.hex_dimension = hex_dimensions
         self.anet_dims = anet_dims
         self.saved_path = saved_path
         self.number_of_agents = number_of_agents
+        self.verbose = verbose
 
         self.agents = self.load_agents(save_offset)
 
@@ -23,40 +24,48 @@ class Topp:
 
     # Round robin loop over all the different actors and play them up against each other. Save wins for each agent
     def play_tournament(self):
+        print("Starting the tournament with", len(self.agents), "players")
         for i in range(len(self.agents) - 1):
-            for j in range(len(self.agents), i + 1, -1):
+            for j in range(len(self.agents) - 1, i, -1):
                 start_player = 1
                 for x in range(self.number_of_games):
-                    self.play_game(self.agents[i], self.agents[j - 1], start_player)
+                    if self.verbose:
+                        print("Starting game {}. Player {} against player {} ".format(x, self.agents[i].name,
+                                                                                      self.agents[j].name))
+                    self.play_game(self.agents[i], self.agents[j], start_player)
                     # Circulate starting player
                     start_player = 3 - start_player
+        print("The tournament is finished and the score for each agent is: ")
+        for agent in self.agents:
+            print(agent.name, agent.wins)
 
     # Play game. A function that plays out the game between two different agents
     def play_game(self, ANET1, ANET2, start_player):
         root_node = node.Node(parent=None,
                               state=gamestate.GameState(player=start_player, dimensions=self.hex_dimension))
         root_node.state.initialize_hexboard()
-        root_node.state.print_hexboard()
+        if self.verbose:
+            root_node.state.print_hexboard()
         agents = [ANET1, ANET2]
         current_player = start_player
         while not root_node.state.game_over():
             best_move_node = agents[current_player - 1].find_move(root_node)
             root_node = best_move_node
             current_player = 3 - current_player
-            root_node.state.print_hexboard()
-        print("The game is over")
+            if self.verbose:
+                root_node.state.print_hexboard()
         winner = root_node.state.get_winner()
         if start_player == 2:
             winner = 3 - winner
-        print("The winner is:", winner)
         agents[winner - 1].wins += 1
-        print("And this one ine updated", agents[winner-1])
+        if self.verbose:
+            print("The game is over and {} won.".format(agents[winner - 1].name))
 
 
 class Hex:
     def __init__(self, dims, load_path, save_offset):
         self.ANET = None
-        self.name = "agent"
+        self.name = "agent "
         self.wins = 0
         self.save_offset = save_offset
 
@@ -104,7 +113,13 @@ class Hex:
         return child_nodes[max_index]
 
 
-topp = Topp(number_of_games=25, hex_dimensions=3, anet_dims=[20, 12, 12, 9], number_of_agents=3, save_offset=100)
-topp.play_tournament()
-for agent in topp.agents:
-    print("Hello: This is the score:", agent.name, agent.wins)
+def main():
+    # We create an ANET agent with the same dimensions before loading from file.
+    # Save offset is the offset between saves so loading is handled correctly.
+    topp = Topp(number_of_games=1, hex_dimensions=3, anet_dims=[20, 12, 12, 9], number_of_agents=3, save_offset=100,
+                verbose=True)
+    topp.play_tournament()
+
+
+if __name__ == '__main__':
+    main()
