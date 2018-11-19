@@ -2,7 +2,8 @@ import anet as ANET
 import tensorflow as tf
 import node
 import gamestate
-
+import random
+import numpy as np
 
 class Topp:
     def __init__(self, number_of_games, hex_dimensions, anet_dims, number_of_agents, save_offset, verbose,
@@ -108,13 +109,22 @@ class Hex:
         max_value = max(best_move)
         max_index = best_move.index(max_value)
         child_nodes = node.get_child_nodes()
+
+        # next best move
+        if len(best_move) > 2:
+            next_max_value = sorted(best_move)[-2]
+            next_max_index = best_move.index(next_max_value)
+            random_number = random.randint(0, 100)
+            if random_number < 10:
+                return child_nodes[next_max_index]
+
         return child_nodes[max_index]
 
 
 def main():
     # We create an ANET agent with the same dimensions before loading from file.
     # Save offset is the offset between saves so loading is handled correctly.
-    topp = Topp(number_of_games=1000, hex_dimensions=3, anet_dims=[20, 32, 16, 9], number_of_agents=2, save_offset=200,
+    topp = Topp(number_of_games=25, hex_dimensions=3, anet_dims=[20, 32, 16, 9], number_of_agents=3, save_offset=100,
                 verbose=False)
     topp.play_tournament()
 
