@@ -51,6 +51,8 @@ class Topp:
         current_player = start_player
         while not root_node.state.game_over():
             best_move_node = agents[current_player - 1].find_move(root_node)
+            if self.verbose:
+                print("Move found by {}".format(agents[current_player-1].name))
             root_node = best_move_node
             current_player = 3 - current_player
             if self.verbose:
@@ -83,7 +85,7 @@ class Hex:
             mbs=32,
             vint=None,
             softmax=True,
-            cost_function='QE',
+            cost_function='CE',
             grab_module_index=[],
             grab_type=None
         )
@@ -125,8 +127,7 @@ def main():
     # We create an ANET agent with the same dimensions before loading from file.
     # Save offset is the offset between saves so loading is handled correctly.
     topp = Topp(number_of_games=25, hex_dimensions=3, anet_dims=[20, 32, 16, 9], number_of_agents=2, save_offset=400,
-                verbose=False)
-    topp.play_tournament()
+
 
 
 if __name__ == '__main__':
