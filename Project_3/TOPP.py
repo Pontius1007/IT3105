@@ -124,7 +124,7 @@ class Hex:
 def main():
     # We create an ANET agent with the same dimensions before loading from file.
     # Save offset is the offset between saves so loading is handled correctly.
-    topp = Topp(number_of_games=25, hex_dimensions=3, anet_dims=[20, 32, 16, 9], number_of_agents=3, save_offset=100,
+    topp = Topp(number_of_games=25, hex_dimensions=3, anet_dims=[20, 32, 16, 9], number_of_agents=2, save_offset=400,
                 verbose=False)
     topp.play_tournament()
 

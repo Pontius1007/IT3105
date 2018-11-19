@@ -25,11 +25,11 @@ class Run:
         self.ANET_input_dim = (self.hex_dimensions * self.hex_dimensions * 2) + 2
         self.ANET_output_dim = self.hex_dimensions * self.hex_dimensions
         self.ANET = ANET.Gann(dims=[self.ANET_input_dim, 32, 16, self.ANET_output_dim],
-                              hidden_activation_function="relu",
+                              hidden_activation_function="tanh",
                               optimizer="adam", lower=-0.01,
                               upper=0.1, cman=self.ANET_CM, lrate=0.01,
                               showfreq=None, mbs=32, vint=None, softmax=True,
-                              cost_function='QE', grab_module_index=[],
+                              cost_function='CE', grab_module_index=[],
                               grab_type=None)
 
     def run(self):
@@ -140,7 +140,6 @@ class Run:
 
             # do training
             np.random.shuffle(self.replay_buffer)
-            print(self.replay_buffer[0])
             inputs = [c[0] for c in self.replay_buffer]
             targets = [c[1] for c in self.replay_buffer]
             feeder = {self.ANET.input: inputs, self.ANET.target: targets}
@@ -170,7 +169,7 @@ class Run:
         TFT.plot_training_history(self.ANET.error_history, self.ANET.validation_history, xtitle="Game",
                                   ytitle="Error",
                                   title="", fig=True)
-        self.ANET.close_current_session(view=False)
+        self.ANET.close_current_session()
 
     def find_move(self, node, simulations, batch_player):
         # Node is the root node
@@ -201,7 +200,7 @@ class Run:
 
 
 def main():
-    Run(batch=1, starting_player=1, simulations=400, dimensions=3, verbose=False, number_of_saved_agents=5).run()
+    Run(batch=400, starting_player=1, simulations=300, dimensions=3, verbose=False, number_of_saved_agents=9).run()
 
 
 if __name__ == '__main__':
