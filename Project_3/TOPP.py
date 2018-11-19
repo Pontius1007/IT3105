@@ -28,14 +28,14 @@ class Topp:
         print("Starting the tournament with", len(self.agents), "players")
         for i in range(len(self.agents) - 1):
             for j in range(len(self.agents) - 1, i, -1):
-                start_player = 1
+                start_player = 2
                 for x in range(self.number_of_games):
                     if self.verbose:
                         print("Starting game {}. Player {} against player {}. "
                               "Starting player is {}".format(x, self.agents[i].name, self.agents[j].name, start_player))
                     self.play_game(self.agents[i], self.agents[j], start_player)
                     # Circulate starting player
-                    start_player = 3 - start_player
+                    # start_player = 3 - start_player
         print("The tournament is finished and the score for each agent is: ")
         for agent in self.agents:
             print(agent.name, agent.wins)
@@ -126,8 +126,8 @@ class Hex:
 def main():
     # We create an ANET agent with the same dimensions before loading from file.
     # Save offset is the offset between saves so loading is handled correctly.
-    topp = Topp(number_of_games=25, hex_dimensions=3, anet_dims=[20, 32, 16, 9], number_of_agents=2, save_offset=400,
-                verbose=False)
+    topp = Topp(number_of_games=2, hex_dimensions=3, anet_dims=[20, 32, 16, 9], number_of_agents=5, save_offset=50,
+                verbose=True)
     topp.play_tournament()
 
 

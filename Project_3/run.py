@@ -25,9 +25,9 @@ class Run:
         self.ANET_input_dim = (self.hex_dimensions * self.hex_dimensions * 2) + 2
         self.ANET_output_dim = self.hex_dimensions * self.hex_dimensions
         self.ANET = ANET.Gann(dims=[self.ANET_input_dim, 32, 16, self.ANET_output_dim],
-                              hidden_activation_function="tanh",
+                              hidden_activation_function="relu",
                               optimizer="adam", lower=-0.01,
-                              upper=0.1, cman=self.ANET_CM, lrate=0.01,
+                              upper=0.1, cman=self.ANET_CM, lrate=0.0001,
                               showfreq=None, mbs=32, vint=None, softmax=True,
                               cost_function='CE', grab_module_index=[],
                               grab_type=None)
@@ -56,7 +56,7 @@ class Run:
                 self.replay_buffer = self.replay_buffer[1000:]
             if mix:
                 self.starting_player = random.randint(1, 2)
-                print("Starting player is: ", self.starting_player)
+                # print("Starting player is: ", self.starting_player)
 
             root_node = node.Node(parent=None,
                                   state=gamestate.GameState(player=self.starting_player,
@@ -200,7 +200,7 @@ class Run:
 
 
 def main():
-    Run(batch=400, starting_player=1, simulations=300, dimensions=3, verbose=False, number_of_saved_agents=9).run()
+    Run(batch=200, starting_player=1, simulations=300, dimensions=3, verbose=False, number_of_saved_agents=5).run()
 
 
 if __name__ == '__main__':
