@@ -18,17 +18,18 @@ class Run:
         self.replay_buffer = []
         self.number_of_saved_agents = number_of_saved_agents
         self.saved_folder = saved_folder
+        self.save_interval = self.batch / (self.number_of_saved_agents - 1)
 
         # ANET parameter
         self.ANET_CM = ANET.Caseman(self.replay_buffer)
         self.ANET_input_dim = (self.hex_dimensions * self.hex_dimensions * 2) + 2
         self.ANET_output_dim = self.hex_dimensions * self.hex_dimensions
-        self.ANET = ANET.Gann(dims=[self.ANET_input_dim, 12, 12, self.ANET_output_dim],
+        self.ANET = ANET.Gann(dims=[self.ANET_input_dim, 32, 16, self.ANET_output_dim],
                               hidden_activation_function="relu",
-                              optimizer="adam", lower=-0.1,
+                              optimizer="adam", lower=-0.01,
                               upper=0.1, cman=self.ANET_CM, lrate=0.01,
-                              showfreq=None, mbs=10, vint=None, softmax=True,
-                              cost_function='MSE', grab_module_index=[],
+                              showfreq=None, mbs=32, vint=None, softmax=True,
+                              cost_function='QE', grab_module_index=[],
                               grab_type=None)
 
     def run(self):
@@ -39,7 +40,6 @@ class Run:
         self.ANET.setupSession()
         self.ANET.error_history = []
         self.ANET.validation_history = []
-        self.save_interal = self.batch / (self.number_of_saved_agents - 1)
 
         if self.starting_player == 'mix':
             mix = True
@@ -57,8 +57,6 @@ class Run:
             if mix:
                 self.starting_player = random.randint(1, 2)
                 print("Starting player is: ", self.starting_player)
-
-            # TODO: Move outside and clear in intervals
 
             root_node = node.Node(parent=None,
                                   state=gamestate.GameState(player=self.starting_player,
@@ -155,11 +153,12 @@ class Run:
 
             # Save ANET-params
             if self.number_of_saved_agents:
-                if (i + 1) % self.save_interal == 0:
+                if (i + 1) % self.save_interval == 0:
                     self.ANET.save_session_params(self.saved_folder, self.ANET.current_session, (i + 1))
                     print("Saved game after ", i + 1, " episodes")
 
             self.ANET_CM.cases = self.replay_buffer
+            print("Game {} of {} is over".format(i + 1, self.batch))
         print("")
         print("Player 1" + " won " + str(total_wins_player1) + " times out of " + str(
             self.batch) + " batches." + " (" + str(
@@ -201,7 +200,7 @@ class Run:
 
 
 def main():
-    Run(batch=400, starting_player=1, simulations=200, dimensions=3, verbose=False, number_of_saved_agents=5).run()
+    Run(batch=5000, starting_player=1, simulations=400, dimensions=3, verbose=False, number_of_saved_agents=5).run()
 
 
 if __name__ == '__main__':

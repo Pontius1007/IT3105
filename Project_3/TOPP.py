@@ -30,8 +30,8 @@ class Topp:
                 start_player = 1
                 for x in range(self.number_of_games):
                     if self.verbose:
-                        print("Starting game {}. Player {} against player {} ".format(x, self.agents[i].name,
-                                                                                      self.agents[j].name))
+                        print("Starting game {}. Player {} against player {}. "
+                              "Starting player is {}".format(x, self.agents[i].name, self.agents[j].name, start_player))
                     self.play_game(self.agents[i], self.agents[j], start_player)
                     # Circulate starting player
                     start_player = 3 - start_player
@@ -55,8 +55,6 @@ class Topp:
             if self.verbose:
                 root_node.state.print_hexboard()
         winner = root_node.state.get_winner()
-        if start_player == 2:
-            winner = 3 - winner
         agents[winner - 1].wins += 1
         if self.verbose:
             print("The game is over and {} won.".format(agents[winner - 1].name))
@@ -77,14 +75,14 @@ class Hex:
             cman=ANET.Caseman([]),
             hidden_activation_function="relu",
             optimizer="adam",
-            lower=-0.1,
+            lower=-0.01,
             upper=0.1,
             lrate=0.01,
             showfreq=None,
-            mbs=10,
+            mbs=32,
             vint=None,
             softmax=True,
-            cost_function='MSE',
+            cost_function='QE',
             grab_module_index=[],
             grab_type=None
         )
@@ -116,8 +114,8 @@ class Hex:
 def main():
     # We create an ANET agent with the same dimensions before loading from file.
     # Save offset is the offset between saves so loading is handled correctly.
-    topp = Topp(number_of_games=1, hex_dimensions=3, anet_dims=[20, 12, 12, 9], number_of_agents=3, save_offset=100,
-                verbose=True)
+    topp = Topp(number_of_games=1000, hex_dimensions=3, anet_dims=[20, 32, 16, 9], number_of_agents=2, save_offset=200,
+                verbose=False)
     topp.play_tournament()
 
 
