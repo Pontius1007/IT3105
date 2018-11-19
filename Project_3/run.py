@@ -89,7 +89,7 @@ class Run:
                         for another in thing:
                             new_children.append(another)
 
-                    #print("Child " + str([x.value for x in new_children]) + " had ratio " + str(
+                    # print("Child " + str([x.value for x in new_children]) + " had ratio " + str(
                     #    visits) + " with wins/visits " + str(
                     #    child.get_wins()) + " / " + str(child.get_visits()))
 
@@ -192,8 +192,6 @@ class Run:
                 best_node = random.choice(best_node.get_child_nodes())
 
             # simulates winner. Rollout
-            # TODO: Add ANN
-
             winner = mcts.MCTS().ANET_evaluate(ANET=self.ANET, node=best_node)
 
             # traverses up tree with winner
@@ -202,4 +200,9 @@ class Run:
         return move_node
 
 
-Run(batch=400, starting_player=1, simulations=200, dimensions=3, verbose=False, number_of_saved_agents=5).run()
+def main():
+    Run(batch=400, starting_player=1, simulations=200, dimensions=3, verbose=False, number_of_saved_agents=5).run()
+
+
+if __name__ == '__main__':
+    main()
