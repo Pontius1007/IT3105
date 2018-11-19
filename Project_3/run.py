@@ -200,7 +200,7 @@ class Run:
 
 
 def main():
-    Run(batch=200, starting_player=1, simulations=300, dimensions=3, verbose=False, number_of_saved_agents=5).run()
+    Run(batch=1, starting_player=1, simulations=15, dimensions=3, verbose=False, number_of_saved_agents=5).run()
 
 
 if __name__ == '__main__':
