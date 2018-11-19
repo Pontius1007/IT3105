@@ -117,7 +117,7 @@ class Run:
 
                 # generates normalized list
                 for value in visit_distribution:
-                    normalized_visit_distribution.append(value / max_value)
+                    normalized_visit_distribution.append(value / sum(visit_distribution))
 
                 case.append(normalized_visit_distribution)
                 self.replay_buffer.append(case)
@@ -140,6 +140,7 @@ class Run:
 
             # do training
             np.random.shuffle(self.replay_buffer)
+            print(self.replay_buffer[0])
             inputs = [c[0] for c in self.replay_buffer]
             targets = [c[1] for c in self.replay_buffer]
             feeder = {self.ANET.input: inputs, self.ANET.target: targets}
@@ -200,7 +201,7 @@ class Run:
 
 
 def main():
-    Run(batch=5000, starting_player=1, simulations=400, dimensions=3, verbose=False, number_of_saved_agents=5).run()
+    Run(batch=1, starting_player=1, simulations=400, dimensions=3, verbose=False, number_of_saved_agents=5).run()
 
 
 if __name__ == '__main__':
