@@ -2,7 +2,8 @@ import anet as ANET
 import tensorflow as tf
 import node
 import gamestate
-
+import random
+import numpy as np
 
 class Topp:
     def __init__(self, number_of_games, hex_dimensions, anet_dims, number_of_agents, save_offset, verbose,
@@ -110,6 +111,15 @@ class Hex:
         max_value = max(best_move)
         max_index = best_move.index(max_value)
         child_nodes = node.get_child_nodes()
+
+        # next best move
+        if len(best_move) > 2:
+            next_max_value = sorted(best_move)[-2]
+            next_max_index = best_move.index(next_max_value)
+            random_number = random.randint(0, 100)
+            if random_number < 10:
+                return child_nodes[next_max_index]
+
         return child_nodes[max_index]
 
 
