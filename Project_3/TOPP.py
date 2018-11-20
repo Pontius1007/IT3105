@@ -44,7 +44,7 @@ class Topp:
     # Play game. A function that plays out the game between two different agents
     def play_game(self, ANET1, ANET2, start_player):
         root_node = node.Node(parent=None,
-                              state=gamestate.GameState(player=start_player, dimensions=self.hex_dimension))
+                              state=gamestate.GameState(player=1, dimensions=self.hex_dimension))
         root_node.state.initialize_hexboard()
         if self.verbose:
             root_node.state.print_hexboard()
@@ -59,9 +59,15 @@ class Topp:
             if self.verbose:
                 root_node.state.print_hexboard()
         winner = root_node.state.get_winner()
-        agents[winner - 1].wins += 1
+        if start_player == 2:
+            agents[winner-2].wins += 1
+        else:
+            agents[winner - 1].wins += 1
         if self.verbose:
-            print("The game is over and {} won.".format(agents[winner - 1].name))
+            if start_player == 2:
+                print("The game is over and {} won.".format(agents[winner - 2].name))
+            else:
+                print("The game is over and {} won.".format(agents[winner - 1].name))
 
 
 class Hex:
@@ -118,7 +124,7 @@ class Hex:
             next_max_value = sorted(best_move)[-2]
             next_max_index = best_move.index(next_max_value)
             random_number = random.randint(0, 100)
-            if random_number < 10:
+            if random_number < 0:
                 return child_nodes[next_max_index]
 
         return child_nodes[max_index]
@@ -127,7 +133,7 @@ class Hex:
 def main():
     # We create an ANET agent with the same dimensions before loading from file.
     # Save offset is the offset between saves so loading is handled correctly.
-    topp = Topp(number_of_games=100, hex_dimensions=3, anet_dims=[20, 32, 16, 9], number_of_agents=5, save_offset=50,
+    topp = Topp(number_of_games=20, hex_dimensions=4, anet_dims=[34, 32, 16, 16], number_of_agents=7, save_offset=100,
                 verbose=False)
     topp.play_tournament()
 
