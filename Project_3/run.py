@@ -169,7 +169,7 @@ class Run:
         TFT.plot_training_history(self.ANET.error_history, self.ANET.validation_history, xtitle="Game",
                                   ytitle="Error",
                                   title="", fig=True)
-        self.ANET.close_current_session()
+        self.ANET.close_current_session(view=False)
 
     def find_move(self, node, simulations, batch_player):
         # Node is the root node
@@ -200,7 +200,7 @@ class Run:
 
 
 def main():
-    Run(batch=1, starting_player=1, simulations=15, dimensions=3, verbose=False, number_of_saved_agents=5).run()
+    Run(batch=2000, starting_player=1, simulations=500, dimensions=4, verbose=False, number_of_saved_agents=21).run()
 
 
 if __name__ == '__main__':
