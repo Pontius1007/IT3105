@@ -8,7 +8,8 @@ import numpy as np
 
 
 class Run:
-    def __init__(self, batch, starting_player, simulations, dimensions, number_of_saved_agents, verbose=False,
+    def __init__(self, batch, starting_player, simulations, dimensions, number_of_saved_agents, minibatch_size=32,
+                 verbose=False,
                  saved_folder="netsaver/saved_anet_states/"):
         self.batch = batch
         self.starting_player = starting_player
@@ -19,16 +20,17 @@ class Run:
         self.number_of_saved_agents = number_of_saved_agents
         self.saved_folder = saved_folder
         self.save_interval = self.batch / (self.number_of_saved_agents - 1)
+        self.minibatch_size = minibatch_size
 
         # ANET parameter
         self.ANET_CM = ANET.Caseman(self.replay_buffer)
         self.ANET_input_dim = (self.hex_dimensions * self.hex_dimensions * 2) + 2
         self.ANET_output_dim = self.hex_dimensions * self.hex_dimensions
-        self.ANET = ANET.Gann(dims=[self.ANET_input_dim, 32, 16, self.ANET_output_dim],
+        self.ANET = ANET.Gann(dims=[self.ANET_input_dim, 64, 32, self.ANET_output_dim],
                               hidden_activation_function="relu",
                               optimizer="adam", lower=-0.01,
-                              upper=0.1, cman=self.ANET_CM, lrate=0.0001,
-                              showfreq=None, mbs=32, vint=None, softmax=True,
+                              upper=0.1, cman=self.ANET_CM, lrate=0.001,
+                              showfreq=None, mbs=self.minibatch_size, vint=None, softmax=True,
                               cost_function='CE', grab_module_index=[],
                               grab_type=None)
 
@@ -142,7 +144,8 @@ class Run:
             np.random.shuffle(self.replay_buffer)
             inputs = [c[0] for c in self.replay_buffer]
             targets = [c[1] for c in self.replay_buffer]
-            feeder = {self.ANET.input: inputs, self.ANET.target: targets}
+            feeder = {self.ANET.input: inputs[:self.minibatch_size], self.ANET.target: targets[:self.minibatch_size]}
+
             gvars = self.ANET.error
 
             _, grabvals, _ = self.ANET.run_one_step([self.ANET.trainer], gvars, self.ANET.probes,
@@ -200,7 +203,8 @@ class Run:
 
 
 def main():
-    Run(batch=2000, starting_player=1, simulations=500, dimensions=4, verbose=False, number_of_saved_agents=21).run()
+    Run(batch=2000, starting_player=1, simulations=120, dimensions=5, minibatch_size=32, verbose=False,
+        number_of_saved_agents=41).run()
 
 
 if __name__ == '__main__':
