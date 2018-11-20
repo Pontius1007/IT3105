@@ -87,7 +87,7 @@ class Hex:
             optimizer="adam",
             lower=-0.01,
             upper=0.1,
-            lrate=0.01,
+            lrate=0.001,
             showfreq=None,
             mbs=32,
             vint=None,
@@ -124,7 +124,7 @@ class Hex:
             next_max_value = sorted(best_move)[-2]
             next_max_index = best_move.index(next_max_value)
             random_number = random.randint(0, 100)
-            if random_number < 0:
+            if random_number < 15:
                 return child_nodes[next_max_index]
 
         return child_nodes[max_index]
@@ -133,7 +133,7 @@ class Hex:
 def main():
     # We create an ANET agent with the same dimensions before loading from file.
     # Save offset is the offset between saves so loading is handled correctly.
-    topp = Topp(number_of_games=20, hex_dimensions=4, anet_dims=[34, 32, 16, 16], number_of_agents=7, save_offset=100,
+    topp = Topp(number_of_games=200, hex_dimensions=5, anet_dims=[52, 64, 32, 25], number_of_agents=2, save_offset=250,
                 verbose=False)
     topp.play_tournament()
 
