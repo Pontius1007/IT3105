@@ -1,4 +1,5 @@
 from math import *
+import random
 
 
 # MCTS specific logic. Independent from NIM-code.
@@ -54,6 +55,15 @@ class MCTS:
             max_index = best_move.index(max_value)
             child_nodes = node.get_child_nodes()
             node = child_nodes[max_index]
+
+            # next best move
+            if len(best_move) > 2:
+                next_max_value = sorted(best_move)[-2]
+                next_max_index = best_move.index(next_max_value)
+                random_number = random.randint(0, 100)
+                if random_number < 10:
+                    node = child_nodes[next_max_index]
+
         winner = node.get_state().get_winner()
         return winner
 
