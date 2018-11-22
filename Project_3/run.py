@@ -221,7 +221,7 @@ class Run:
 
 
 def main():
-    Run(batch=200, starting_player='mix', simulations=40, dimensions=3, minibatch_size=32, verbose=False,
+    Run(batch=200, starting_player='mix', simulations=2, dimensions=3, minibatch_size=32, verbose=False,
         number_of_saved_agents=5).run()
 
     # for 3x3
