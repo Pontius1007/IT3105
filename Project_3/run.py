@@ -19,6 +19,7 @@ class Run:
         self.replay_buffer = []
         self.number_of_saved_agents = number_of_saved_agents
         self.saved_folder = saved_folder
+        # save interval for ANET
         self.save_interval = self.batch / (self.number_of_saved_agents - 1)
         self.minibatch_size = minibatch_size
 
@@ -26,6 +27,8 @@ class Run:
         self.ANET_CM = ANET.Caseman(self.replay_buffer)
         self.ANET_input_dim = (self.hex_dimensions * self.hex_dimensions * 2) + 2
         self.ANET_output_dim = self.hex_dimensions * self.hex_dimensions
+        # randomly initiliaze variables
+        # optimizers: adam, adagrad, rmsprop, sgd
         self.ANET = ANET.Gann(dims=[self.ANET_input_dim, 64, 32, self.ANET_output_dim],
                               hidden_activation_function="relu",
                               optimizer="adam", lower=-0.01,
@@ -33,6 +36,15 @@ class Run:
                               showfreq=None, mbs=self.minibatch_size, vint=None, softmax=True,
                               cost_function='CE', grab_module_index=[],
                               grab_type=None)
+
+        # for 3x3
+        # self.ANET = ANET.Gann(dims=[self.ANET_input_dim, 64, 32, self.ANET_output_dim],
+        #                       hidden_activation_function="relu",
+        #                       optimizer="adam", lower=-0.01,
+        #                       upper=0.1, cman=self.ANET_CM, lrate=0.001,
+        #                       showfreq=None, mbs=self.minibatch_size, vint=None, softmax=True,
+        #                       cost_function='CE', grab_module_index=[],
+        #                       grab_type=None)
 
     def run(self):
 
@@ -50,6 +62,7 @@ class Run:
         self.ANET.save_session_params(self.saved_folder, self.ANET.current_session, 0)
         print("Saved game after 0 episodes")
 
+        # clear replay buffer
         self.replay_buffer = []
 
         for i in range(0, self.batch):
@@ -63,6 +76,7 @@ class Run:
             root_node = node.Node(parent=None,
                                   state=gamestate.GameState(player=self.starting_player,
                                                             dimensions=self.hex_dimensions))
+            # empty board
             root_node.state.initialize_hexboard()
 
             batch_player = self.starting_player
@@ -71,6 +85,7 @@ class Run:
 
             while not game_over:
                 indexes = root_node.state.next_node_states()[1]
+                # initialize to same state as root
                 batch_node = self.find_move(root_node, self.simulations, batch_player)
 
                 next_move = None
@@ -109,22 +124,25 @@ class Run:
                     else:
                         visit_distribution.append(0)
 
-                one_hot_visit_distribution = [0] * len(visit_distribution)
+                # one_hot_visit_distribution = [0] * len(visit_distribution)
                 normalized_visit_distribution = []
 
                 # generates one_hot list
                 max_value = max(visit_distribution)
-                max_index = visit_distribution.index(max_value)
-                one_hot_visit_distribution[max_index] = 1
+                # max_index = visit_distribution.index(max_value)
+                # one_hot_visit_distribution[max_index] = 1
 
                 # generates normalized list
                 for value in visit_distribution:
                     normalized_visit_distribution.append(value / sum(visit_distribution))
 
+                # add case root, D to replay buffer
                 case.append(normalized_visit_distribution)
                 self.replay_buffer.append(case)
 
+                # choose actual move
                 root_node = next_move
+
                 # Already switching when generating kids
                 # root_node.state.switch_player(root_node.state.get_player())
                 # root_node.state.print_hexboard()
