@@ -203,8 +203,12 @@ class Run:
 
 
 def main():
-    Run(batch=2000, starting_player=1, simulations=120, dimensions=5, minibatch_size=32, verbose=False,
-        number_of_saved_agents=41).run()
+    Run(batch=200, starting_player='mix', simulations=40, dimensions=3, minibatch_size=32, verbose=False,
+        number_of_saved_agents=5).run()
+
+    # for 3x3
+    # Run(batch=200, starting_player='mix', simulations=40, dimensions=3, minibatch_size=32, verbose=False,
+    #     number_of_saved_agents=5).run()
 
 
 if __name__ == '__main__':
